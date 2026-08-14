@@ -1,0 +1,4 @@
+paper_title,role,status,notes
+AgenticIR,protocol_and_external_baseline,locked,"Degradation and scorer implementation only"
+GraphRestore,current_method,implementing,"V7.1 contract"
+

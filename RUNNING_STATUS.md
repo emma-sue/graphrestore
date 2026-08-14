@@ -1,0 +1,10 @@
+status: FINAL_PREFLIGHT_PREPARATION
+current_stage: PRE_STAGE0
+current_step: 0
+recent_validation: none
+gpu: RTX_4090_RELEASED
+peak_vram: validation_stage0_metric_11096031232_bytes_stage1_13730054144_bytes
+throughput: compile_ab_eager_24.51787045_images_per_second
+last_checkpoint: /root/autodl-tmp/aaa/provir/artifacts/checkpoints/stage_a/final_backbone.ckpt
+next_command: freeze_git_then_run_full_preflight_and_exact_100_step_integration
+updated_utc: 2026-08-14T23:00:00Z

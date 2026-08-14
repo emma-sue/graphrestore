@@ -1,0 +1,51 @@
+schema_version: "1.0"
+contract_version: "GraphRestore-V7.1"
+name: compute_matched_one_shot
+ablation_id: A4
+base_config: configs/stage4_graphrestore_e2e.yaml
+requires_new_training: true
+required_before_submission: true
+enabled_only_after_full_effective_on_primary_val: true
+fair_retrain_order: 4
+
+parents:
+  stage1: artifacts/checkpoints/stage1/best_ema.pth
+  stage3: artifacts/checkpoints/stage3/best_ema.pth
+  match_full_parent_hashes: true
+
+override:
+  program:
+    compiler_mode: one_shot
+    maximum_program_levels: 1
+    all_predicted_active_skills_in_one_decoder_pass: true
+    use_iterative_current_state_reencoding: false
+    allow_skill_reentry: false
+    max_calls_per_skill: 1
+  model:
+    guarded_skill_sum: true
+    cooperative_mixer: true
+    preserve_parameter_capacity: true
+  training:
+    compute_match:
+      reference_profile: artifacts/profiles/full_graphrestore_train_compute.json
+      required_reference_fields:
+        - total_decoder_forward_equivalents
+        - total_encoder_forward_equivalents
+        - seen_training_images
+      matching_unit: measured_training_flops_and_decoder_forward_equivalents
+      optimizer_steps_mode: derive_from_frozen_full_profile
+      optimizer_steps_formula: ceil_full_compute_divided_by_measured_one_shot_step_compute
+      prohibit_wall_clock_only_matching: true
+    match_stage4_sampling: true
+  data:
+    allowed_groups: [single, A]
+    forbidden_groups: [B, C]
+  validation:
+    protocol: agenticir_official_parity
+    manifest_key: primary_val_manifest
+
+hard_guards:
+  require_frozen_full_compute_profile: true
+  allow_mio100_during_training: false
+  allow_true_degradation_mask_at_inference: false
+  fail_on_parent_or_manifest_hash_mismatch: true

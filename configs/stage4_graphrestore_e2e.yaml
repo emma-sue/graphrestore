@@ -1,0 +1,212 @@
+schema_version: "1.0"
+contract_version: "GraphRestore-V7.1"
+protocol_id: graphrestore-v7.1-agenticir-locked
+stage: stage4
+name: full_guarded_graphrestore
+seed: 2027
+
+paths:
+  resolved_paths: configs/resolved_paths.yaml
+  train_manifest_key: primary_train_manifest
+  val_manifest_key: primary_val_manifest
+  stage1_checkpoint: artifacts/checkpoints/stage1/best_ema.pth
+  stage3_checkpoint: artifacts/checkpoints/stage3/best_ema.pth
+  thresholds: artifacts/planner_thresholds.json
+  pair_prior: artifacts/interaction_labels/pair_prior.json
+  global_priority: artifacts/interaction_labels/global_priority.json
+  required_approval: artifacts/approvals/STAGE3_APPROVED.json
+  output_dir: artifacts/checkpoints/stage4
+  calibration_history: artifacts/metrics/calibration_history.csv
+  report: reports/STAGE4_E2E.md
+  diagnostics_report: reports/GUARD_AND_MISUSE_DIAGNOSTICS.md
+
+skills:
+  ordered_names: [noise, motion_blur, defocus_blur, jpeg_artifact, rain, haze, low_light, low_resolution]
+  maximum_active: 3
+  allow_skill_reentry: false
+  max_calls_per_skill: 1
+
+program:
+  compile_relations_once_at_t0: true
+  delete_executed_nodes_after_level: true
+  insert_late_skills_into_frozen_dag: false
+  reencode_current_state_each_round: true
+  update_presence_guard_stop_each_round: true
+  kmax_train: 2
+  kmax_test: 3
+  stop_rule:
+    stop_logit_threshold: 0.50
+    stop_logit_requires_no_unexecuted_skill_above_threshold: true
+    no_skill_max_probability_stop_below: 0.15
+    force_top1_at_or_above: 0.15
+  compiler:
+    parallel_probability_minimum: 0.50
+    parallel_margin_minimum: 0.05
+    low_confidence_max_probability_lt: 0.45
+    low_confidence_edge_margin_lt: 0.08
+    pair_prior_strong_probability_minimum: 0.60
+    fallback_parallel_probability_minimum: 0.40
+    final_fallback: global_priority
+    tie_break: fixed_skill_index
+    cycle_removal: descending_edge_confidence_drop_cycle_edge
+    post_compile_cycle_rate_required: 0.0
+
+data:
+  allowed_groups: [single, A]
+  forbidden_groups: [B, C]
+  sampling:
+    single_restoration: 0.20
+    group_a_pair_restoration: 0.70
+    clean_misuse: 0.05
+    wrong_skill_misuse: 0.05
+  group_a_sampling: uniform_8_combinations
+  single_sampling: uniform_8_classes
+  wrong_skill_pair_sampling: uniform_i_not_equal_j
+  counterfactual:
+    clean_misuse:
+      input: clean
+      planner_stop_target: 1
+      all_presence_target_zero: true
+      all_guard_target_zero: true
+      force_random_skill_count: [1, 2]
+      target: input_identity
+    wrong_skill_misuse:
+      input: single_degradation_i
+      planner_present_skill: i
+      planner_absent_skill: j
+      force_only_skill: j
+      force_condition: j_not_equal_i
+      forced_execution_presence_override: 1.0
+      guard_source: planner_prediction
+      target: input_identity
+  crop_size: 160
+  minimum_crop_after_oom: 128
+  crop_multiple: 4
+  micro_batch_candidates: [2, 1]
+  effective_batch_size: 4
+  accumulation_formula: effective_batch_size_divided_by_micro_batch
+  validation_augmentation: false
+
+model:
+  trainable:
+    - planner
+    - skill_adapters
+    - cooperative_mixers
+    - decoder
+    - refinement
+    - rgb_head
+    - encoder_level3
+    - encoder_level4
+  frozen: [encoder_level1, encoder_level2]
+  discrete_graph_gradient_claim: forbidden
+  restoration_gradient_targets: [skill_adapters, cooperative_mixers, decoder, refinement, rgb_head, encoder_level3, encoder_level4]
+  planner_gradient_source: planner_losses_on_predicted_graph_trajectories
+  rgb_update: current_plus_soft_union_guard_times_delta
+  decoder_output_contract: delta_only
+  zero_guard_identity: strict
+
+teacher_forcing:
+  preserve_written_discontinuity_at_step12000: true
+  schedule:
+    - start_step: 0
+      end_step_exclusive: 4000
+      probability_start: 1.0
+      probability_end: 1.0
+      source: true_active_set_and_distilled_relation
+    - start_step: 4000
+      end_step_exclusive: 12000
+      probability_start: 1.0
+      probability_end: 0.5
+      interpolation: linear
+    - start_step: 12000
+      end_step_exclusive: 40000
+      probability_start: 0.25
+      probability_end: 0.25
+      source: mixed_teacher_and_predicted_graph
+
+training:
+  max_steps: 40000
+  intermediate_levels_train_max: 2
+
+optimization:
+  optimizer: AdamW
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+  weight_decay_norm_bias: 0.0
+  learning_rates:
+    planner: 0.00005
+    skill_adapters_and_mixers: 0.00003
+    decoder_refinement_rgb_head: 0.00001
+    encoder_level3_level4: 0.000002
+  warmup_steps: 800
+  scheduler: cosine
+  min_lr: 0.0000005
+  gradient_clip_norm: 0.5
+
+loss:
+  ordinary:
+    final_charbonnier_weight: 1.0
+    intermediate_subset_charbonnier_weight: 0.30
+    no_intermediate_l_step: 0.0
+    final_ssim_weight:
+      schedule: cosine_ramp_first_20_percent
+      start: 0.0
+      end: 0.05
+      ramp_end_step: 8000
+  counterfactual:
+    identity_charbonnier_weight: 1.0
+    identity_ssim_weight: 0.05
+  planner_total_weight: 0.05
+  forbidden: [gan, lpips, clip_iqa, musiq, dino_perceptual, llm_reward, reinforcement_learning, independent_commit_verifier]
+  training_quantization: false
+  hard_clamp_forward: false
+
+runtime:
+  amp_dtype: bf16
+  tf32: true
+  float32_matmul_precision: high
+  cudnn_benchmark: true
+  fused_adamw_if_supported: true
+  zero_grad_set_to_none: true
+  channels_last: false
+  gradient_checkpointing: block_level
+  torch_compile: false
+  vram_maximum_peak_reserved_fraction: 0.90
+  freeze_crop_micro_accum_after_step0: true
+  oom_action: restore_latest_checkpoint_and_record_deviation
+
+ema:
+  enabled: true
+  decay: 0.9999
+
+validation:
+  every_steps: 4000
+  manifest_key: primary_val_manifest
+  groups: [single, A]
+  protocol: agenticir_official_parity
+  checkpoint_order:
+    - group_a_psnr_max
+    - if_psnr_gap_lt_0.02_group_a_ssim_max
+    - single_mean_psnr_retention
+  diagnostic_metrics_do_not_override_psnr_ssim: true
+
+checkpoint:
+  save_every_steps: 4000
+  save_last: true
+  save_best_ema: true
+  include: [optimizer, scheduler, scaler, rng_states, sampler_state, config_hash, manifest_hashes, parent_checkpoint_hashes, thresholds_hash, priors_hashes, agenticir_commit, dependency_versions]
+
+post_training:
+  zero_training_diagnostics_first:
+    compiler_modes: [full_partial_order, forced_total_order, parallel_only]
+    guard_modes: [predicted_spatial, global_mean, all_one]
+  fair_retraining_requires_full_effective_on_primary_val: true
+  formal_mio100_requires_frozen_protocol_and_new_user_authorization: true
+
+hard_guards:
+  require_stage3_approval: true
+  require_all_parent_hashes_match: true
+  allow_mio100_exploration: false
+  allow_mio100_formal_during_training: false
+  allow_group_b_or_c_training: false
+  fail_on_hash_mismatch: true

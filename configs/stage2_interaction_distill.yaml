@@ -1,0 +1,140 @@
+schema_version: "1.0"
+contract_version: "GraphRestore-V7.1"
+protocol_id: graphrestore-v7.1-agenticir-locked
+stage: stage2
+name: interaction_distillation
+seed: 2027
+
+paths:
+  resolved_paths: configs/resolved_paths.yaml
+  primary_train_manifest_key: primary_train_manifest
+  primary_val_manifest_key: primary_val_manifest
+  parent_checkpoint: artifacts/checkpoints/stage1/best_ema.pth
+  effect_profiles: artifacts/interaction_labels/skill_effect_profiles.json
+  interaction_train_manifest: artifacts/interaction_labels/interaction_train_manifest.jsonl
+  interaction_val_manifest: artifacts/interaction_labels/interaction_val_manifest.jsonl
+  relation_train: artifacts/interaction_labels/group_a_relations_train.jsonl
+  relation_val: artifacts/interaction_labels/group_a_relations_val.jsonl
+  pair_prior: artifacts/interaction_labels/pair_prior.json
+  global_priority: artifacts/interaction_labels/global_priority.json
+  decision: artifacts/interaction_labels/stage2_decision.json
+  summary_csv: artifacts/metrics/stage2_interaction_summary.csv
+  report: reports/INTERACTION_DISTILLATION.md
+  approval_required: artifacts/approvals/STAGE3_APPROVAL_REQUIRED.json
+
+data:
+  allowed_groups: [single, A]
+  forbidden_groups: [B, C]
+  allow_mio100_exploration: false
+  allow_mio100_formal: false
+  split_by_clean_id: true
+  train_val_clean_overlap_allowed: false
+  sampling:
+    stable_sort_key: sample_id
+    seed: 2027
+    write_explicit_manifests_and_sha256: true
+    single_val_per_source_max: 64
+    interaction_train_per_group_a_pair_max: 512
+    interaction_val_per_group_a_pair_max: 128
+
+executor:
+  checkpoint_snapshot: frozen_stage1_ema
+  inference_mode: true
+  amp_dtype: bf16
+  output_metric_dtype: fp32_or_fp64
+  programs:
+    - i_before_j
+    - j_before_i
+    - parallel
+  same_starting_x_both: true
+  same_recipe_and_canonicalization: true
+  output_quantization: crop_clamp_round_uint8
+  metric_protocol: agenticir_official_parity
+  save_unused_features: false
+
+effect_profile:
+  fields:
+    - delta_psnr
+    - delta_ssim
+    - output_residual_norm
+    - source_severity_change
+    - non_target_structure_error_change
+  source_data: single_degradation_val_only
+
+labeling:
+  best_serial_metric: official_psnr
+  parallel_if:
+    psnr_within_db: 0.05
+    ssim_within: 0.001
+  serial_direction_if_psnr_gap_at_least_db: 0.05
+  serial_direction_if_ssim_gap_at_least: 0.002
+  ambiguous:
+    head_class_count: 3
+    supervision: serial_mass_partial_label
+    serial_class_indices: [0, 1]
+    serial_mass_weight: 0.25
+    stable_formula: negative_logsumexp_of_serial_log_probabilities
+    batch_denominator: n_non_ambiguous_plus_0.25_times_n_ambiguous
+    prohibit_double_weighting: true
+    excluded_from_metrics_and_priors:
+      - relation_accuracy
+      - parallel_precision_recall
+      - pair_prior
+      - majority_label_share
+      - parallel_fraction_nonambiguous
+    report_separately: [n_ambiguous, ambiguous_fraction]
+  non_ambiguous_relation_weight: 1.0
+
+priors:
+  pair_prior_source: group_a_non_ambiguous_labels
+  global_priority_model: bradley_terry
+  global_priority_source: all_non_parallel_directions
+  fixed_manual_skill_order_forbidden: true
+
+decision_audit:
+  report_train_and_val_separately: true
+  parallel_fraction_denominator: non_ambiguous
+  serial_gap_statistics: [mean, median, p25, p75, p90, max]
+  serial_gap_fraction_thresholds_db: [0.02, 0.05, 0.10]
+  relation_consistency: majority_label_share_per_pair
+  warnings:
+    low_label_support:
+      overall_non_ambiguous_fraction_lt: 0.30
+      any_pair_non_ambiguous_count_lt: 64
+    order_signal_weak:
+      overall_median_lt_db: 0.02
+      overall_p75_lt_db: 0.05
+      conjunction: true
+    collapse_to_total_order:
+      parallel_fraction_lt: 0.05
+    collapse_to_parallel_fusion:
+      parallel_fraction_gt: 0.95
+    context_dependent_relation:
+      majority_share_range: [0.45, 0.70]
+      upper_bound_exclusive: true
+    stable_pair_rule:
+      majority_share_gte: 0.70
+  warnings_are_automatic_model_changes: false
+
+pause:
+  mandatory_after_stage2: true
+  release_gpu: true
+  process_exit_code: 0
+  poll_in_background: false
+  running_status: PAUSED_AFTER_STAGE2
+  stage3_started: false
+  resume_command: python scripts/orchestrate.py --approve_stage3 --resume_from_stage3
+  approval_artifact: artifacts/approvals/STAGE3_APPROVED.json
+  verify_before_resume:
+    - stage1_checkpoint_sha256
+    - stage2_decision_sha256
+    - relation_label_sha256
+    - config_sha256
+    - manifest_sha256
+  hash_mismatch_action: hard_stop
+
+hard_guards:
+  require_stage1_ema_sha256: true
+  no_group_b_or_c_generation: true
+  no_threshold_calibration_on_mio100: true
+  no_automatic_stage3: true

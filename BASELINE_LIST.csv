@@ -1,0 +1,4 @@
+rank_by_stars,paper_title,year,venue,repo_url,open_source,official_weights,is_all_in_one,final_status
+1,AgenticIR,2025,locked_protocol,local_frozen_repo,true,true,true,protocol_reference
+2,MiO-StageA,current,internal_baseline,local_workspace,true,true,true,selected
+

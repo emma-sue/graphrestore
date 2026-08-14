@@ -1,0 +1,190 @@
+schema_version: "1.0"
+contract_version: "GraphRestore-V7.1"
+protocol_id: graphrestore-v7.1-agenticir-locked
+stage: stage3
+name: planner_guard_supervision
+seed: 2027
+
+paths:
+  resolved_paths: configs/resolved_paths.yaml
+  train_manifest_key: primary_train_manifest
+  val_manifest_key: primary_val_manifest
+  executor_checkpoint: artifacts/checkpoints/stage1/best_ema.pth
+  relation_train: artifacts/interaction_labels/group_a_relations_train.jsonl
+  relation_val: artifacts/interaction_labels/group_a_relations_val.jsonl
+  pair_prior: artifacts/interaction_labels/pair_prior.json
+  global_priority: artifacts/interaction_labels/global_priority.json
+  required_approval: artifacts/approvals/STAGE3_APPROVED.json
+  output_dir: artifacts/checkpoints/stage3
+  thresholds: artifacts/planner_thresholds.json
+  calibration_history: artifacts/metrics/calibration_history.csv
+  report: reports/STAGE3_PLANNER_GUARD.md
+
+skills:
+  ordered_names: [noise, motion_blur, defocus_blur, jpeg_artifact, rain, haze, low_light, low_resolution]
+  maximum_active: 3
+
+data:
+  allowed_groups: [single, A]
+  forbidden_groups: [B, C]
+  states:
+    clean:
+      enabled: true
+      stop_target: 1
+      all_presence_zero: true
+      all_guards_zero: true
+    single_degradation:
+      enabled: true
+      active_skill_count: 1
+    group_a_pair:
+      enabled: true
+      active_skill_count: 2
+      relation_source: stage2_distilled_train
+    ideal_subset_intermediate:
+      enabled: true
+      remaining_skill_count: 1
+    model_generated_intermediate:
+      enabled: true
+      amount_policy: small
+      maximum_fraction: 0.10
+      labels_from_recipe_remaining_skills: true
+  crop_size: 192
+  crop_multiple: 4
+  effective_batch_size: 8
+  validation_augmentation: false
+
+model:
+  executor: frozen_stage1_ema
+  normalization: layernorm2d_or_groupnorm
+  batchnorm_forbidden: true
+  inputs:
+    - original_canonical_x0
+    - current_state_xt
+    - xt_minus_x0
+    - abs_xt_minus_x0
+    - encoder_features_f1_to_f4
+    - continuous_round_embedding
+    - skill_embeddings
+    - skill_effect_profiles
+  trace_channels: 12
+  trace_pyramid_scales: [2, 4, 8]
+  outputs:
+    guard_logits: [8, h_div_4, w_div_4]
+    presence_logits: [8]
+    stop_logit: [1]
+    relation_logits: [28, 3]
+  relation_classes: [i_before_j, j_before_i, parallel]
+  shared_relation_mlp: true
+  independent_pair_lookup_heads_forbidden: true
+  round_embedding: continuous_sinusoidal_mlp
+
+guard_supervision:
+  dense_skills: [rain, haze, low_light]
+  global_mean_skills: [noise, motion_blur, defocus_blur, jpeg_artifact, low_resolution]
+  low_light_dense_formula: clamp_one_minus_y_lq_over_y_clean_plus_eps
+  absent_skill_zero_target: true
+  binary_entropy_or_strong_sparsity_forbidden: true
+
+loss:
+  presence:
+    type: focal_bce
+    gamma: 2.0
+    weight: 1.0
+  guard:
+    dense_type: smooth_l1
+    dense_weight_inside_guard: 1.0
+    global_mean_weight_inside_guard: 0.5
+    absent_weight_inside_guard: 0.5
+    planner_weight: 0.5
+  relation:
+    type: three_class_cross_entropy_plus_ambiguous_serial_mass_partial_label
+    weight: 1.0
+    class_count: 3
+    non_ambiguous_weight: 1.0
+    ambiguous_serial_mass_weight: 0.25
+    normalizer: n_non_ambiguous_plus_0.25_times_n_ambiguous
+    prohibit_double_weighting: true
+    ambiguous_excluded_from_metrics_and_priors: true
+    validation_labels: interaction_val_only
+  stop:
+    type: bce_with_logits
+    weight: 0.25
+  cycle:
+    type: valid_active_triples_mean
+    weight: 0.01
+
+training:
+  max_steps: 12000
+  trainable: [planner]
+  frozen: [stage1_executor, restormer_backbone, skill_adapters, cooperative_mixers]
+
+optimization:
+  optimizer: AdamW
+  lr: 0.0002
+  weight_decay: 0.0001
+  warmup_steps: 500
+  scheduler: cosine
+  min_lr: 0.000002
+  gradient_clip_norm: 1.0
+
+runtime:
+  amp_dtype: bf16
+  tf32: true
+  channels_last: false
+  validation_every_steps: 2000
+  increase_micro_batch_before_crop: true
+  vram_maximum_peak_reserved_fraction: 0.90
+  freeze_crop_micro_accum_after_step0: true
+
+ema:
+  enabled: true
+  decay: 0.9999
+  validation_inference_mode: true
+
+validation:
+  restoration_protocol: agenticir_official_parity
+  relation_validation_source: interaction_val
+  relation_train_as_validation_forbidden: true
+  checkpoint_presence_threshold: 0.50
+  checkpoint_order:
+    - group_a_psnr_max
+    - if_psnr_gap_lt_0.02_group_a_ssim_max
+    - single_mean_psnr_retention
+  diagnostics:
+    - per_skill_precision_recall_f1
+    - macro_f1
+    - non_ambiguous_relation_accuracy
+    - parallel_precision_recall
+    - pre_compiler_cycle_rate
+    - post_compiler_cycle_rate
+    - guard_spearman_rain_haze
+    - guard_mae_rain_haze
+    - guard_std_rain_haze
+    - guard_high_fraction_rain_haze
+  guard_spearman_variance_skip_threshold: 0.00000001
+  guard_diagnostics_affect_checkpoint_rank: false
+
+threshold_calibration:
+  when: once_after_stage3_snapshot_selection
+  manifest_key: primary_val_manifest
+  objective: per_skill_f1_max
+  minimum: 0.20
+  maximum: 0.80
+  step: 0.02
+  freeze_after_selection: true
+  mio100_forbidden: true
+
+checkpoint:
+  save_on_validation: true
+  save_last: true
+  save_best_ema: true
+  include: [optimizer, scheduler, scaler, rng_states, sampler_state, config_hash, manifest_hashes, parent_checkpoint_hash, relation_label_hashes, agenticir_commit, dependency_versions]
+
+hard_guards:
+  require_explicit_stage3_approval: true
+  require_stage2_hash_match: true
+  allow_mio100_exploration: false
+  allow_mio100_formal: false
+  allow_group_b_or_c_training: false
+  post_compiler_cycle_rate_required: 0.0
+  fail_on_hash_mismatch: true

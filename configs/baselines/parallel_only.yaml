@@ -1,0 +1,43 @@
+schema_version: "1.0"
+contract_version: "GraphRestore-V7.1"
+name: parallel_only
+ablation_id: fair_parallel_only
+base_config: configs/stage4_graphrestore_e2e.yaml
+requires_new_training: true
+zero_training_diagnostic_also_required: true
+enabled_only_after_full_effective_on_primary_val: true
+fair_retrain_order: 2
+
+parents:
+  stage1: artifacts/checkpoints/stage1/best_ema.pth
+  stage3: artifacts/checkpoints/stage3/best_ema.pth
+  match_full_parent_hashes: true
+
+override:
+  program:
+    compiler_mode: parallel_only
+    use_relation_logits: false
+    all_predicted_active_skills_in_one_level: true
+    maximum_program_levels: 1
+    allow_skill_reentry: false
+    max_calls_per_skill: 1
+  model:
+    guarded_skill_sum: true
+    cooperative_mixer: true
+  training:
+    match_stage4_optimizer_steps: true
+    match_stage4_seen_samples: true
+    max_steps: 40000
+  data:
+    match_stage4_sampling: true
+    allowed_groups: [single, A]
+    forbidden_groups: [B, C]
+  validation:
+    protocol: agenticir_official_parity
+    manifest_key: primary_val_manifest
+
+hard_guards:
+  zero_training_diagnostic_does_not_replace_fair_retrain: true
+  allow_mio100_during_training: false
+  allow_true_degradation_mask_at_inference: false
+  fail_on_parent_or_manifest_hash_mismatch: true

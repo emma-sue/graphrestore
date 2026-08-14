@@ -1,0 +1,175 @@
+schema_version: "1.0"
+contract_version: "GraphRestore-V7.1"
+protocol_id: graphrestore-v7.1-agenticir-locked
+stage: stage1
+name: guarded_latent_skill_bank
+seed: 2027
+
+paths:
+  resolved_paths: configs/resolved_paths.yaml
+  train_manifest_key: primary_train_manifest
+  val_manifest_key: primary_val_manifest
+  parent_checkpoint: artifacts/checkpoints/stage0/best_ema.pth
+  output_dir: artifacts/checkpoints/stage1
+  report: reports/STAGE1_SKILL_BANK.md
+
+skills:
+  ordered_names:
+    - noise
+    - motion_blur
+    - defocus_blur
+    - jpeg_artifact
+    - rain
+    - haze
+    - low_light
+    - low_resolution
+  manifest_aliases:
+    motion blur: motion_blur
+    defocus blur: defocus_blur
+    jpeg compression artifact: jpeg_artifact
+    dark: low_light
+    low resolution: low_resolution
+
+data:
+  allowed_groups: [single, A]
+  forbidden_groups: [B, C]
+  episode_sampling:
+    single_skill: 0.50
+    pair_isolation: 0.25
+    pair_parallel: 0.25
+  single_skill_target: clean
+  pair_isolation_target: remaining_only_subset
+  pair_parallel_target: clean
+  teacher_forced_presence: true
+  teacher_forced_continuous_guard: true
+  zero_guard_misuse_episode: false
+  crop_size: 192
+  crop_multiple: 4
+  augmentation:
+    horizontal_flip: true
+    vertical_flip: true
+    rotation_90: true
+  validation_augmentation: false
+  loader:
+    num_workers: 8
+    minimum_num_workers_if_cpu_limited: 4
+    persistent_workers: true
+    pin_memory: true
+    prefetch_factor: 2
+
+model:
+  backbone: stage0_mio_stagea
+  adapters:
+    independent_per_skill: true
+    insertion: after_each_decoder_and_refinement_block
+    levels:
+      decoder_level3: {blocks: 6, channels: 192, bottleneck: 24}
+      decoder_level2: {blocks: 6, channels: 96, bottleneck: 16}
+      decoder_level1: {blocks: 4, channels: 48, bottleneck: 12}
+      refinement: {blocks: 4, channels: 48, bottleneck: 12}
+    structure: [conv1x1_down, gelu, depthwise_conv3x3, gelu, conv1x1_up]
+    up_projection_zero_init: true
+  cooperative_mixer:
+    enabled_when_active_skills_gt: 1
+    structure: [depthwise_conv3x3, gelu, conv1x1]
+    output_projection_zero_init: true
+  skill_sum_normalization: divide_by_sqrt_active_count
+  guard_execution:
+    latent_modulation: spatial_multiply_before_sum
+    rgb_update: current_plus_soft_union_guard_times_delta
+    zero_guard_identity: strict
+
+training:
+  max_steps: 30000
+  effective_batch_size: 8
+  micro_batch_candidates: [8, 4, 2, 1]
+  accumulation_formula: effective_batch_size_divided_by_micro_batch
+  freeze_schedule:
+    - start_step: 0
+      end_step_exclusive: 5000
+      trainable: [skill_adapters, cooperative_mixers]
+      frozen: [stage0_backbone]
+    - start_step: 5000
+      end_step_exclusive: 30000
+      trainable: [skill_adapters, cooperative_mixers, decoder, refinement, rgb_head, encoder_level3, encoder_level4]
+      frozen: [encoder_level1, encoder_level2]
+
+optimization:
+  optimizer: AdamW
+  learning_rates:
+    skill_adapters_and_mixers: 0.0001
+    decoder_refinement_rgb_head: 0.00001
+    encoder_level3_level4: 0.000002
+  warmup_steps: 500
+  scheduler: cosine
+  min_lr: 0.000001
+  weight_decay: 0.0001
+  gradient_clip_norm: 1.0
+
+loss:
+  fidelity: charbonnier_rgb
+  ssim:
+    channel: y
+    window_size: 11
+    downsample: false
+    start_step: 6000
+    weight_before_start: 0.0
+    weight_after_start: 0.05
+  training_quantization: false
+  hard_clamp_forward: false
+
+runtime:
+  amp_dtype: bf16
+  tf32: true
+  float32_matmul_precision: high
+  cudnn_benchmark: true
+  fused_adamw_if_supported: true
+  zero_grad_set_to_none: true
+  channels_last: false
+  gradient_checkpointing_initial: false
+  gradient_checkpointing_if_crop192_micro1_oom: block_level
+  minimum_crop_after_oom: 160
+  torch_compile:
+    default_enabled: false
+    enable_only_after_20_step_ab: true
+    minimum_throughput_gain_fraction: 0.05
+    require_numerical_consistency: true
+  vram:
+    maximum_peak_reserved_fraction: 0.90
+    required_consecutive_no_oom_steps: 10
+    selection: highest_images_per_second
+  freeze_crop_micro_accum_after_step0: true
+
+ema:
+  enabled: true
+  decay: 0.9999
+
+validation:
+  every_steps: 3000
+  protocol: agenticir_official_parity
+  reports:
+    - single_skill_to_clean
+    - pair_isolation_to_remaining_only
+    - pair_parallel_to_clean
+    - per_skill_psnr_ssim
+    - skill_residual_norm
+    - actual_activation_rate
+  checkpoint_order:
+    - group_a_psnr_max
+    - if_psnr_gap_lt_0.02_group_a_ssim_max
+    - single_mean_psnr_retention
+
+checkpoint:
+  save_on_validation: true
+  save_last: true
+  save_best_ema: true
+  include: [optimizer, scheduler, scaler, rng_states, sampler_state, config_hash, manifest_hashes, parent_checkpoint_hash, agenticir_commit, dependency_versions]
+
+hard_guards:
+  require_adapter_first_backward_nonzero_gradient: true
+  require_inactive_adapter_gradient_zero_or_none: true
+  require_zero_guard_identity_fp32_max_abs_lt: 0.0000001
+  allow_mio100_exploration: false
+  allow_mio100_formal: false
+  allow_group_b_or_c_training: false
+  fail_on_hash_mismatch: true

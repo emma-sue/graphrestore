@@ -1,0 +1,43 @@
+{
+  "canonicalizer": {
+    "implementation": "/root/autodl-tmp/graph/upstream/MiOIR/basicsr/utils/matlab_functions.py",
+    "operation": "native BGR uint8 -> RGB float -> MiOIR imresize x4 -> clamp",
+    "requantized_after_resize": "false",
+    "sha256": "29a3a3d209ce15724202bfb01415e5d4e574e7b853090551a7938c7b78ec4975"
+  },
+  "manifests": {
+    "mio100_group_a_test_640_agenticir_online_canonical.jsonl": {
+      "action": "unchanged",
+      "path": "/root/autodl-tmp/aaa/graphrestore/manifests/mio100_group_a_test_640_agenticir_online_canonical.jsonl",
+      "rows": 640,
+      "sha256": "69a7e49f866ee3ae61df80db63d107473582e4506922c6730a91c1c46efaf9fa",
+      "source_path": "/root/autodl-tmp/graph/data/graphrestore/manifests/mio100_group_a_test_640.jsonl",
+      "source_sha256": "0516030efe35167abcd94f9bbe124a74fa5a0d00080d748681b1f47f9cdd2ac7"
+    },
+    "mio100_group_b_test_400_agenticir_online_canonical.jsonl": {
+      "action": "unchanged",
+      "path": "/root/autodl-tmp/aaa/graphrestore/manifests/mio100_group_b_test_400_agenticir_online_canonical.jsonl",
+      "rows": 400,
+      "sha256": "efd58ee66bb5badf282209edd9cd1f0a52e6e920cd5c4c16f92682423c6477aa",
+      "source_path": "/root/autodl-tmp/graph/data/graphrestore/manifests/mio100_group_b_test_400.jsonl",
+      "source_sha256": "6ddbafc620e45e1f7e64d2baeb44d97a51ba236f3d6caeb61cd191806d73491a"
+    },
+    "mio100_group_c_test_400_agenticir_online_canonical.jsonl": {
+      "action": "unchanged",
+      "path": "/root/autodl-tmp/aaa/graphrestore/manifests/mio100_group_c_test_400_agenticir_online_canonical.jsonl",
+      "rows": 400,
+      "sha256": "6afbf945b4f33a6d1d1994fc6d41f15afa6743aac576240ed7d519ccab91550e",
+      "source_path": "/root/autodl-tmp/graph/data/graphrestore/manifests/mio100_group_c_test_400.jsonl",
+      "source_sha256": "11748b99ce6d4a894a956bd44eb432d1915f8fe49c47ad3298d251720cc4ecba"
+    },
+    "mio100_test_1440_agenticir_online_canonical.jsonl": {
+      "action": "unchanged",
+      "path": "/root/autodl-tmp/aaa/graphrestore/manifests/mio100_test_1440_agenticir_online_canonical.jsonl",
+      "rows": 1440,
+      "sha256": "83fb90dfa121681123f55e73df32eb6c1bc37e685c0e27ae07ad7e59a687a7f5",
+      "source_path": "/root/autodl-tmp/graph/data/graphrestore/manifests/mio100_test_1440.jsonl",
+      "source_sha256": "5a53c28ad93d49a70d3632bfbff008a78309543bb6710921ab2a01b9bdb10950"
+    }
+  },
+  "schema_version": "graphrestore.agenticir_online_canonical.inventory.v1"
+}

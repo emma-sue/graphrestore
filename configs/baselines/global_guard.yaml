@@ -1,0 +1,43 @@
+schema_version: "1.0"
+contract_version: "GraphRestore-V7.1"
+name: global_guard
+ablation_id: A3
+base_config: configs/stage4_graphrestore_e2e.yaml
+requires_new_training: true
+zero_training_diagnostic_also_required: true
+enabled_only_after_full_effective_on_primary_val: true
+fair_retrain_order: 3
+
+parents:
+  stage1: artifacts/checkpoints/stage1/best_ema.pth
+  stage3: artifacts/checkpoints/stage3/best_ema.pth
+  match_full_parent_hashes: true
+
+override:
+  guard:
+    mode: predicted_global_mean
+    reduction: spatial_mean_per_skill
+    broadcast_to_spatial_resolution: true
+    preserve_presence_gate: true
+    preserve_soft_union_identity_path: true
+    use_ground_truth_guard_at_inference: false
+  program:
+    compiler_mode: full_partial_order
+    match_full_graphrestore: true
+  training:
+    match_stage4_optimizer_steps: true
+    match_stage4_seen_samples: true
+    max_steps: 40000
+  data:
+    match_stage4_sampling: true
+    allowed_groups: [single, A]
+    forbidden_groups: [B, C]
+  validation:
+    protocol: agenticir_official_parity
+    manifest_key: primary_val_manifest
+
+hard_guards:
+  zero_training_diagnostic_does_not_replace_fair_retrain: true
+  allow_mio100_during_training: false
+  allow_true_degradation_mask_at_inference: false
+  fail_on_parent_or_manifest_hash_mismatch: true

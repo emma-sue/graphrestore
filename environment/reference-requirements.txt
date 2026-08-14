@@ -1,0 +1,7 @@
+# Isolated official-reference environment. See reports/DEVIATIONS.md D-010.
+numpy==1.26.4
+scipy==1.14.1
+opencv_python==4.9.0.80
+basicsr==1.4.2
+pyiqa==0.1.10
+imgaug==0.4.0

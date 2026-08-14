@@ -1,0 +1,40 @@
+schema_version: "1.0"
+contract_version: "GraphRestore-V7.1"
+name: total_order
+ablation_id: A1
+base_config: configs/stage4_graphrestore_e2e.yaml
+requires_new_training: true
+enabled_only_after_full_effective_on_primary_val: true
+fair_retrain_order: 1
+
+parents:
+  stage1: artifacts/checkpoints/stage1/best_ema.pth
+  stage3: artifacts/checkpoints/stage3/best_ema.pth
+  match_full_parent_hashes: true
+
+override:
+  program:
+    compiler_mode: forced_total_order
+    allow_parallel_levels: false
+    active_skill_source: predicted_presence
+    relation_source: learned_relation_then_frozen_priors
+    parallel_prediction_fallback: global_priority_direction
+    compile_relations_once_at_t0: true
+    allow_skill_reentry: false
+    max_calls_per_skill: 1
+  training:
+    match_stage4_optimizer_steps: true
+    match_stage4_seen_samples: true
+    max_steps: 40000
+  data:
+    match_stage4_sampling: true
+    allowed_groups: [single, A]
+    forbidden_groups: [B, C]
+  validation:
+    protocol: agenticir_official_parity
+    manifest_key: primary_val_manifest
+
+hard_guards:
+  allow_mio100_during_training: false
+  allow_true_degradation_mask_at_inference: false
+  fail_on_parent_or_manifest_hash_mismatch: true

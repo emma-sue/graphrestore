@@ -1,0 +1,178 @@
+# AgenticIR Degradation Reference Parity
+
+- protocol: `graphrestore-v7.1-agenticir-degradation-reference-parity`
+- created_utc: `2026-08-14T21:25:43Z`
+- result: **PASS**
+- failures: `0`
+- warnings: `0`
+
+## Checks
+
+- **PASS** `operator.dark.single-s05_dark-train-0000` — BGR uint8 bytes exact
+- **PASS** `operator.dark.single-s05_dark-train-0001` — BGR uint8 bytes exact
+- **PASS** `operator.defocus blur.single-s07_defocus_blur-train-0000` — BGR uint8 bytes exact
+- **PASS** `operator.defocus blur.single-s07_defocus_blur-train-0001` — BGR uint8 bytes exact
+- **PASS** `operator.haze.single-s02_haze-train-0000` — BGR uint8 bytes exact
+- **PASS** `operator.haze.single-s02_haze-train-0001` — BGR uint8 bytes exact
+- **PASS** `operator.jpeg compression artifact.single-s08_jpeg_compression_artifact-train-0000` — BGR uint8 bytes exact
+- **PASS** `operator.jpeg compression artifact.single-s08_jpeg_compression_artifact-train-0001` — BGR uint8 bytes exact
+- **PASS** `operator.low resolution.single-s04_low_resolution-train-0000` — BGR uint8 bytes exact
+- **PASS** `operator.low resolution.single-s04_low_resolution-train-0001` — BGR uint8 bytes exact
+- **PASS** `operator.motion blur.single-s03_motion_blur-train-0000` — BGR uint8 bytes exact
+- **PASS** `operator.motion blur.single-s03_motion_blur-train-0001` — BGR uint8 bytes exact
+- **PASS** `operator.noise.single-s06_noise-train-0000` — BGR uint8 bytes exact
+- **PASS** `operator.noise.single-s06_noise-train-0001` — BGR uint8 bytes exact
+- **PASS** `operator.rain.single-s01_rain-train-0000` — BGR uint8 bytes exact
+- **PASS** `operator.rain.single-s01_rain-train-0001` — BGR uint8 bytes exact
+
+## Machine-readable facts
+
+```json
+{
+  "all_exact": true,
+  "fast_versions": {
+    "numpy": "2.4.6",
+    "opencv": "5.0.0",
+    "python": "3.12.3",
+    "torch": "2.3.0+cu121"
+  },
+  "operator_source_identity": {
+    "agenticir_add_single_degradation": {
+      "path": "/root/autodl-tmp/graph/upstream/AgenticIR/dataset/add_single_degradation.py",
+      "sha256": "c97450a05acb805e59291a1335a743c77eca3db36f26a444b4033c7f6fe6369c"
+    },
+    "mioir_basicsr_degradations": {
+      "path": "/root/autodl-tmp/graph/upstream/MiOIR/basicsr/data/degradations.py",
+      "sha256": "a507295ec9cbe47536bb7530f63ce385fb0ecb0c7b7fbe51b34b5db9d539d2fd"
+    },
+    "mioir_matlab_functions": {
+      "path": "/root/autodl-tmp/graph/upstream/MiOIR/basicsr/utils/matlab_functions.py",
+      "sha256": "29a3a3d209ce15724202bfb01415e5d4e574e7b853090551a7938c7b78ec4975"
+    }
+  },
+  "pairs": 16,
+  "per_operator": 2,
+  "reference_versions": {
+    "basicsr": "1.4.2",
+    "numpy": "1.26.4",
+    "opencv": "4.9.0",
+    "python": "3.12.3",
+    "scipy": "1.14.1",
+    "torch": "2.3.0+cu121"
+  },
+  "rows": [
+    {
+      "exact": true,
+      "fast_sha256": "f06627010ba5e0bd993311fbcbdc5c4522fcf602517d4761767abe4188c003cd",
+      "operator": "dark",
+      "reference_sha256": "f06627010ba5e0bd993311fbcbdc5c4522fcf602517d4761767abe4188c003cd",
+      "sample_id": "single-s05_dark-train-0000"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "145cf6db3e193ee93d6aa5d840a1841e131acf4b0033a83888b2fc91833623e1",
+      "operator": "dark",
+      "reference_sha256": "145cf6db3e193ee93d6aa5d840a1841e131acf4b0033a83888b2fc91833623e1",
+      "sample_id": "single-s05_dark-train-0001"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "27d026f06f09a18adc08c0f75a66ec0e07a448d93de861be133d5249f107d0b8",
+      "operator": "defocus blur",
+      "reference_sha256": "27d026f06f09a18adc08c0f75a66ec0e07a448d93de861be133d5249f107d0b8",
+      "sample_id": "single-s07_defocus_blur-train-0000"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "6f45979eaae109afd6c1ffce1f7f25d567ffe2923a4946cd67d9d3cd678dfbbb",
+      "operator": "defocus blur",
+      "reference_sha256": "6f45979eaae109afd6c1ffce1f7f25d567ffe2923a4946cd67d9d3cd678dfbbb",
+      "sample_id": "single-s07_defocus_blur-train-0001"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "000643b889b5402b203014e30d4689f47d84f3b577a994973aa141c4b283fe05",
+      "operator": "haze",
+      "reference_sha256": "000643b889b5402b203014e30d4689f47d84f3b577a994973aa141c4b283fe05",
+      "sample_id": "single-s02_haze-train-0000"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "7761f8fe4888ee7dcbc2ebf3411ec487984b388787e2af1a9fdddcbc3a0f642b",
+      "operator": "haze",
+      "reference_sha256": "7761f8fe4888ee7dcbc2ebf3411ec487984b388787e2af1a9fdddcbc3a0f642b",
+      "sample_id": "single-s02_haze-train-0001"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "b4009ee58d9c1abd1e94f2171d0ec27c5ef0fefd401f976864bbe0ec8a2d48b9",
+      "operator": "jpeg compression artifact",
+      "reference_sha256": "b4009ee58d9c1abd1e94f2171d0ec27c5ef0fefd401f976864bbe0ec8a2d48b9",
+      "sample_id": "single-s08_jpeg_compression_artifact-train-0000"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "bd0940bbaae06ef96e3a1955eaacf168edc49265c1599080b071115d9ebe5897",
+      "operator": "jpeg compression artifact",
+      "reference_sha256": "bd0940bbaae06ef96e3a1955eaacf168edc49265c1599080b071115d9ebe5897",
+      "sample_id": "single-s08_jpeg_compression_artifact-train-0001"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "b089db6645b8124a5efd56a53926e6e9bbe5a38d1fd88cf74478f3ae1d0f28be",
+      "operator": "low resolution",
+      "reference_sha256": "b089db6645b8124a5efd56a53926e6e9bbe5a38d1fd88cf74478f3ae1d0f28be",
+      "sample_id": "single-s04_low_resolution-train-0000"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "84bde6b3bef10859f7e22d16870cdbf6dd9fdc9d06883483f228f44b7cb3b7d6",
+      "operator": "low resolution",
+      "reference_sha256": "84bde6b3bef10859f7e22d16870cdbf6dd9fdc9d06883483f228f44b7cb3b7d6",
+      "sample_id": "single-s04_low_resolution-train-0001"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "00bc1dedc2c4eae09577e203b45612a5917175375d452852e3ac9790f543def7",
+      "operator": "motion blur",
+      "reference_sha256": "00bc1dedc2c4eae09577e203b45612a5917175375d452852e3ac9790f543def7",
+      "sample_id": "single-s03_motion_blur-train-0000"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "fad7c9c2e8991139ac2b5eb3520657095e24e776f0bbb50f3d79b988127ad090",
+      "operator": "motion blur",
+      "reference_sha256": "fad7c9c2e8991139ac2b5eb3520657095e24e776f0bbb50f3d79b988127ad090",
+      "sample_id": "single-s03_motion_blur-train-0001"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "a916d1ffcc76ca3d6f04098a9daf3ca7308d63cee91abbc2699ccf22be4c2771",
+      "operator": "noise",
+      "reference_sha256": "a916d1ffcc76ca3d6f04098a9daf3ca7308d63cee91abbc2699ccf22be4c2771",
+      "sample_id": "single-s06_noise-train-0000"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "efc6d8cf98b5e54d18fa88bf728c65d423e8904f6636d1cd8d024fae83a9bafe",
+      "operator": "noise",
+      "reference_sha256": "efc6d8cf98b5e54d18fa88bf728c65d423e8904f6636d1cd8d024fae83a9bafe",
+      "sample_id": "single-s06_noise-train-0001"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "04636e01f3ec304d5e1bf7b1bdeda984bfe981470dc3860255df2ed323b9d042",
+      "operator": "rain",
+      "reference_sha256": "04636e01f3ec304d5e1bf7b1bdeda984bfe981470dc3860255df2ed323b9d042",
+      "sample_id": "single-s01_rain-train-0000"
+    },
+    {
+      "exact": true,
+      "fast_sha256": "fccf7bad574652c3d2e3b4ae1c9034582a00bd5a166e16bebd2839156fa05127",
+      "operator": "rain",
+      "reference_sha256": "fccf7bad574652c3d2e3b4ae1c9034582a00bd5a166e16bebd2839156fa05127",
+      "sample_id": "single-s01_rain-train-0001"
+    }
+  ]
+}
+```

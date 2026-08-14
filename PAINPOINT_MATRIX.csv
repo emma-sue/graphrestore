@@ -1,0 +1,3 @@
+baseline,painpoint_paper_sentence,painpoint_human_sentence,keep_or_drop
+MiO-StageA,"A one-shot shared restorer lacks explicit partial-order and local-necessity control under composite degradations.","复合退化不是所有工具一次全图处理：有的要等、有的只该改局部。",keep
+

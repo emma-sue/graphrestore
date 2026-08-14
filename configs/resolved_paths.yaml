@@ -1,0 +1,49 @@
+# Resolved from the frozen V7.1 contract. audit_data.py re-hashes every identity.
+data_root: /root/autodl-tmp/graph/data/graphrestore
+training_data_root: /root/autodl-tmp/graph/training_data
+agenticir_repo: /root/autodl-tmp/graph/upstream/AgenticIR
+mioir_repo: /root/autodl-tmp/graph/upstream/MiOIR
+agenticir_add_single_degradation: /root/autodl-tmp/graph/upstream/AgenticIR/dataset/add_single_degradation.py
+agenticir_degradations_txt: /root/autodl-tmp/graph/upstream/AgenticIR/dataset/degradations.txt
+agenticir_scorer: /root/autodl-tmp/graph/upstream/AgenticIR/utils/scorer.py
+agenticir_compute_scores: /root/autodl-tmp/graph/upstream/AgenticIR/eval/compute_scores.py
+agenticir_compare_methods: /root/autodl-tmp/graph/upstream/AgenticIR/eval/compare_methods.py
+agenticir_requirements: /root/autodl-tmp/graph/upstream/AgenticIR/installation/requirements.txt
+clean_train_manifest: /root/autodl-tmp/graph/training_data/manifests/clean_train.jsonl
+clean_val_manifest: /root/autodl-tmp/graph/training_data/manifests/clean_val.jsonl
+primary_train_manifest: /root/autodl-tmp/graph/training_data/manifests/primary_train.jsonl
+primary_val_manifest: /root/autodl-tmp/graph/training_data/manifests/primary_val.jsonl
+primary_all_manifest: /root/autodl-tmp/graph/training_data/manifests/primary_all.jsonl
+mio100_test_1440_manifest: /root/autodl-tmp/graph/data/graphrestore/manifests/mio100_test_1440.jsonl
+mio100_group_a_test_manifest: /root/autodl-tmp/graph/data/graphrestore/manifests/mio100_group_a_test_640.jsonl
+mio100_group_b_test_manifest: /root/autodl-tmp/graph/data/graphrestore/manifests/mio100_group_b_test_400.jsonl
+mio100_group_c_test_manifest: /root/autodl-tmp/graph/data/graphrestore/manifests/mio100_group_c_test_400.jsonl
+mio100_exploration_manifest: /root/autodl-tmp/graph/data/graphrestore/manifests/mio100_exploration_160.jsonl
+stage_a_parent_manifest: /root/autodl-tmp/aaa/provir/artifacts/manifests/stage_a_final_selection.json
+stage_a_parent_checkpoint: /root/autodl-tmp/aaa/provir/artifacts/checkpoints/stage_a/final_backbone.ckpt
+
+expected_identity:
+  agenticir_remote: https://github.com/Kaiwen-Zhu/AgenticIR.git
+  agenticir_commit: 9640a291480dee3ba8f2974125d4ee9e3440f3d6
+  mioir_remote: https://github.com/Xiangtaokong/MiOIR.git
+  mioir_commit: 4d5f6ca0235cf2c307319673242d5722ee35d73f
+  stage_a_parent_manifest_sha256: 035e18a56282e7f57206730782d81eb2f286504aa5f26755185db7babd547163
+  stage_a_parent_sha256: 66e056ff3537ea99416aeb119173e90fbcafc9e9f809db169ef7381cc93f77b8
+  agenticir_files:
+    add_single_degradation: c97450a05acb805e59291a1335a743c77eca3db36f26a444b4033c7f6fe6369c
+    degradations_txt: 1a9bae77190579efe9ec17e8f31e09810cb2361b862c33ce4be25a5e3a04d54d
+    scorer: b6eee989575ee17d2cbf9e38fbab0a996b54a5260ae205246c718c08facab830
+    compute_scores: ce1a35f9f110a67c4581885f631dae6c283e438bcaf2749199fb9d19fa440548
+    compare_methods: a246b8656744649ed5adfd5f482491f89006ef7bec1ce9923b5971a1da3d856a
+    requirements: 3e76d9e7c658ce7df907dc39ea7af8aa36aa2d5fcf5bd6ec91d34c109a9b45e2
+  manifests:
+    clean_train: 00247444a3b7304fe83a4783cae694181e6796253c6915d2491009def03df257
+    clean_val: 88276445c7cc1166ace77904276dbeb61f3a049572e3b23fd1aad2b5f831947d
+    primary_train: 83da30d0b8445d5bb427c336b125214ee62f2a0ec3a5bab61ca7119703044071
+    primary_val: af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b
+    primary_all: f4080efc2572ce2377646a8acabcbebe092e4a3feeabafc4200984b716c8e8eb
+    mio100_test_1440: 5a53c28ad93d49a70d3632bfbff008a78309543bb6710921ab2a01b9bdb10950
+    mio100_group_a_test: 0516030efe35167abcd94f9bbe124a74fa5a0d00080d748681b1f47f9cdd2ac7
+    mio100_group_b_test: 6ddbafc620e45e1f7e64d2baeb44d97a51ba236f3d6caeb61cd191806d73491a
+    mio100_group_c_test: 11748b99ce6d4a894a956bd44eb432d1915f8fe49c47ad3298d251720cc4ecba
+    mio100_exploration: 3552206cfbf6de8b6cea9b68544a8d918ac121a25db55a6cb9c6fd2b0d04a7d1

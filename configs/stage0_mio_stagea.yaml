@@ -1,0 +1,177 @@
+schema_version: "1.0"
+contract_version: "GraphRestore-V7.1"
+protocol_id: graphrestore-v7.1-agenticir-locked
+stage: stage0
+name: mio_stagea
+seed: 2027
+
+paths:
+  resolved_paths: configs/resolved_paths.yaml
+  train_manifest_key: primary_train_manifest
+  val_manifest_key: primary_val_manifest
+  clean_train_manifest_key: clean_train_manifest
+  clean_val_manifest_key: clean_val_manifest
+  warm_start_manifest_key: stage_a_parent_manifest
+  warm_start_checkpoint_key: stage_a_parent_checkpoint
+  output_dir: artifacts/checkpoints/stage0
+  report: reports/STAGE0_MIO_STAGEA.md
+
+data:
+  allowed_groups: [single, A]
+  forbidden_groups: [B, C]
+  source: mioir_train_clean_depth_agenticir_official_online
+  color_operator_domain: bgr_uint8_0_255
+  model_input_domain: rgb_float32_0_1
+  low_resolution_canonicalizer: agenticir_native_uint8_then_basicsr_imresize_x4_float
+  task_sampling:
+    single: uniform_8_classes
+    group_a: uniform_8_combinations
+  curriculum:
+    - start_step: 0
+      end_step_exclusive: 10000
+      single_probability: 0.60
+      group_a_probability: 0.40
+    - start_step: 10000
+      end_step_exclusive: 60000
+      single_probability: 0.30
+      group_a_probability: 0.70
+  crop_size: 192
+  crop_multiple: 4
+  augmentation:
+    horizontal_flip: true
+    vertical_flip: true
+    rotation_90: true
+  validation_augmentation: false
+  loader:
+    num_workers: 8
+    minimum_num_workers_if_cpu_limited: 4
+    persistent_workers: true
+    pin_memory: true
+    prefetch_factor: 2
+    non_blocking_transfer: true
+
+model:
+  architecture: prompt_free_restormer_aio
+  widths: [48, 96, 192, 384]
+  encoder_blocks: [4, 6, 6, 8]
+  decoder_blocks: [6, 6, 4]
+  refinement_blocks: 4
+  global_residual: true
+  forbidden_modules: [planner, skill_adapter, prompt, dino, iqa, second_round]
+
+initialization:
+  source: aio3_stage_a_parent
+  load_shape_matched:
+    - encoder
+    - decoder
+    - refinement
+    - rgb_head
+  allow_missing_only_graphrestore_modules: true
+  fail_on_backbone_structural_mismatch: true
+  record_loaded_missing_unexpected_keys: true
+  verify_checkpoint_sha256: true
+
+training:
+  max_steps: 60000
+  effective_batch_size: 8
+  micro_batch_candidates: [8, 4, 2, 1]
+  accumulation_formula: effective_batch_size_divided_by_micro_batch
+  freeze_schedule:
+    - start_step: 0
+      end_step_exclusive: 2000
+      frozen: [encoder_level1, encoder_level2]
+      trainable: [encoder_level3, encoder_level4, decoder, refinement, rgb_head]
+    - start_step: 2000
+      end_step_exclusive: 60000
+      frozen: []
+      trainable: [encoder_level1, encoder_level2, encoder_level3, encoder_level4, decoder, refinement, rgb_head]
+
+optimization:
+  optimizer: AdamW
+  betas: [0.9, 0.999]
+  weight_decay: 0.0001
+  weight_decay_norm_bias: 0.0
+  learning_rates:
+    decoder_refinement_rgb_head: 0.0001
+    encoder_level3_level4: 0.00005
+    encoder_level1_level2: 0.00002
+  warmup_steps: 1000
+  scheduler: cosine
+  min_lr: 0.000001
+  gradient_clip_norm: 1.0
+
+loss:
+  charbonnier_epsilon_squared: 0.000001
+  ssim:
+    channel: y
+    window_size: 11
+    downsample: false
+    start_step: 12000
+    weight_before_start: 0.0
+    weight_after_start: 0.05
+  training_quantization: false
+  hard_clamp_forward: false
+
+runtime:
+  amp_dtype: bf16
+  tf32: true
+  float32_matmul_precision: high
+  cudnn_benchmark: true
+  fused_adamw_if_supported: true
+  zero_grad_set_to_none: true
+  channels_last: false
+  gradient_checkpointing_initial: false
+  gradient_checkpointing_if_crop192_micro1_oom: block_level
+  minimum_crop_after_oom: 160
+  torch_compile:
+    default_enabled: false
+    enable_only_after_20_step_ab: true
+    minimum_throughput_gain_fraction: 0.05
+    require_numerical_consistency: true
+  vram:
+    maximum_peak_reserved_fraction: 0.90
+    required_consecutive_no_oom_steps: 10
+    selection: highest_images_per_second
+  freeze_crop_micro_accum_after_step0: true
+
+ema:
+  enabled: true
+  decay: 0.9999
+  validation_inference_mode: true
+
+validation:
+  every_steps: 4000
+  manifest_key: primary_val_manifest
+  groups: [single, A]
+  random_augmentation: false
+  protocol: agenticir_official_parity
+  output_quantization: clamp_round_uint8
+  checkpoint_order:
+    - group_a_psnr_max
+    - if_psnr_gap_lt_0.02_group_a_ssim_max
+    - single_mean_psnr_retention
+
+checkpoint:
+  save_every_steps: 4000
+  save_last: true
+  save_best_ema: true
+  include:
+    - optimizer
+    - scheduler
+    - scaler
+    - rng_states
+    - sampler_state
+    - config_hash
+    - manifest_hashes
+    - parent_checkpoint_hash
+    - agenticir_commit
+    - dependency_versions
+
+hard_guards:
+  require_data_audit_pass: true
+  require_metric_parity_pass: true
+  require_degradation_parity_pass: true
+  allow_mio100_exploration: false
+  allow_mio100_formal: false
+  allow_group_b_or_c_training: false
+  fail_on_hash_mismatch: true
