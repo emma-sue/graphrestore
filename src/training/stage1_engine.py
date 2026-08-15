@@ -44,9 +44,9 @@ from src.training.checkpointing import (
     atomic_torch_save,
     capture_rng_state,
     checkpoint_payload,
-    load_checkpoint,
     restore_rng_state,
     unwrap_model,
+    verify_provenance,
 )
 from src.training.ema import ExponentialMovingAverage
 from src.training.optimization import WarmupCosineScheduler
@@ -61,10 +61,116 @@ from src.utils.io import atomic_write_text, utc_now_iso
 PROTOCOL_ID = "graphrestore-v7.1-agenticir-locked"
 STAGE1_SCHEMA = "graphrestore-stage1-runtime-v1"
 STAGE1_BACKBONE_WHITELIST = ("decoder.skill_bank.",)
+STAGE1_EMA_SCHEMA = "graphrestore-stage1-phase-aware-ema-v1"
+STAGE1_EMA_SCOPE = (
+    "dynamic_trainable_named_parameters_ema_"
+    "frozen_parameters_and_all_buffers_bitwise_copy"
+)
 
 
 class Stage1ContractError(RuntimeError):
     """A Stage1 run would diverge from the frozen V7.1 contract."""
+
+
+def stage1_ema_policy_metadata(decay: float) -> dict[str, object]:
+    """Return the exact, checkpointed Stage1 EMA update contract."""
+
+    if not 0.0 < decay < 1.0:
+        raise ValueError("Stage1 EMA decay must be in (0,1)")
+    return {
+        "schema_version": STAGE1_EMA_SCHEMA,
+        "scope": STAGE1_EMA_SCOPE,
+        "parameter_selector": "named_parameter_requires_grad_at_each_update",
+        "trainable_parameter_update": "standard_fp32_exponential_moving_average",
+        "frozen_parameter_update": "copy_current_value_bitwise",
+        "buffer_update": "copy_current_value_bitwise",
+        "phase_transition": "dynamic_first_ema_without_shadow_reset",
+        "optimizer_step_indexing": "zero_based_internal_step",
+        "phase0_end_step_exclusive": 5000,
+        "phase1_start_step_inclusive": 5000,
+        "decay": float(decay),
+    }
+
+
+class Stage1PhaseAwareEMA(ExponentialMovingAverage):
+    """EMA currently trainable parameters and exactly copy all fixed state.
+
+    Stage1 changes trainability at internal optimizer step 5000.  Consulting
+    ``requires_grad`` on every update lets the newly unfrozen parameters take
+    their first ordinary EMA update at that boundary without resetting their
+    shadows.  Frozen parameters and every buffer use ``copy_`` because even
+    ``a*x + (1-a)*x`` can round an unchanged FP32 backbone by an ULP.
+    """
+
+    @torch.no_grad()
+    def update(self, model: nn.Module) -> None:
+        core = unwrap_model(model)
+        source = core.state_dict()
+        if source.keys() != self.shadow.keys():
+            raise RuntimeError("Stage1 EMA/model state keys drifted")
+        # ``state_dict`` retains every alias key, so retain duplicate named
+        # parameters too; an alias of a trainable parameter must not be
+        # mistaken for a buffer/frozen value and copied instead of averaged.
+        parameters = dict(core.named_parameters(remove_duplicate=False))
+        if any(name not in source for name in parameters):
+            raise RuntimeError("Stage1 EMA named parameters escaped model state")
+
+        self.num_updates += 1
+        for name, value in source.items():
+            target = self.shadow[name]
+            parameter = parameters.get(name)
+            if parameter is not None and parameter.requires_grad:
+                if not target.is_floating_point():
+                    raise Stage1ContractError(
+                        f"trainable Stage1 EMA parameter is not floating point: {name}"
+                    )
+                target.mul_(self.decay).add_(
+                    value.detach().to(target), alpha=1.0 - self.decay
+                )
+            else:
+                target.copy_(value.detach().to(target))
+
+    def state_dict(self) -> dict[str, object]:
+        state = super().state_dict()
+        state["scope"] = STAGE1_EMA_SCOPE
+        state["policy"] = stage1_ema_policy_metadata(self.decay)
+        return state
+
+    def validate_state_metadata(self, state: Mapping[str, object]) -> None:
+        expected_keys = {"decay", "num_updates", "shadow", "scope", "policy"}
+        if set(state) != expected_keys:
+            raise Stage1ContractError(
+                "Stage1 EMA state fields drifted: "
+                f"expected {sorted(expected_keys)}, got {sorted(state)}"
+            )
+        if state.get("scope") != STAGE1_EMA_SCOPE:
+            raise Stage1ContractError("Stage1 resume EMA scope drifted")
+        if state.get("policy") != stage1_ema_policy_metadata(self.decay):
+            raise Stage1ContractError("Stage1 resume EMA policy drifted")
+        decay = state.get("decay")
+        if isinstance(decay, bool) or not isinstance(decay, (int, float)):
+            raise Stage1ContractError("Stage1 resume EMA decay is invalid")
+        if float(decay) != self.decay:
+            raise Stage1ContractError("Stage1 resume EMA decay drifted")
+        num_updates = state.get("num_updates")
+        if isinstance(num_updates, bool) or not isinstance(num_updates, int):
+            raise Stage1ContractError("Stage1 resume EMA update count is invalid")
+        if num_updates < 0:
+            raise Stage1ContractError("Stage1 resume EMA update count is negative")
+
+    def load_state_dict(self, state: Mapping[str, object]) -> None:
+        self.validate_state_metadata(state)
+        super().load_state_dict(state)
+
+
+def build_stage1_ema(
+    model: nn.Module,
+    *,
+    decay: float = 0.9999,
+) -> Stage1PhaseAwareEMA:
+    """Build the sole EMA implementation permitted for Stage1 state."""
+
+    return Stage1PhaseAwareEMA(model, decay=decay)
 
 
 @dataclass(frozen=True)
@@ -429,7 +535,7 @@ def train_stage1_optimizer_step(
     micro_batches: Sequence[Mapping[str, Any]],
     optimizer: torch.optim.Optimizer,
     scheduler: WarmupCosineScheduler | None,
-    ema: ExponentialMovingAverage | None,
+    ema: Stage1PhaseAwareEMA | None,
     *,
     step: int,
     device: torch.device,
@@ -443,6 +549,8 @@ def train_stage1_optimizer_step(
         raise ValueError("at least one micro batch is required")
     if gradient_clip_norm <= 0:
         raise ValueError("gradient_clip_norm must be positive")
+    if ema is not None and not isinstance(ema, Stage1PhaseAwareEMA):
+        raise Stage1ContractError("Stage1 optimizer steps require phase-aware EMA")
     set_stage1_trainability(model, step)
     model.train()
     optimizer.zero_grad(set_to_none=True)
@@ -564,26 +672,473 @@ def load_stage0_best_ema_backbone(
 
 
 def _move_loaded_ema_to_model(
-    ema: ExponentialMovingAverage,
+    ema: Stage1PhaseAwareEMA,
     state: Mapping[str, Any],
 ) -> None:
+    ema.validate_state_metadata(state)
     loaded_shadow = _mapping_of_tensors(state.get("shadow"), "Stage1 EMA shadow")
     if loaded_shadow.keys() != ema.shadow.keys():
         raise Stage1ContractError("Stage1 resume EMA keys drifted")
+    for name, tensor in loaded_shadow.items():
+        if tuple(tensor.shape) != tuple(ema.shadow[name].shape):
+            raise Stage1ContractError(f"Stage1 resume EMA shape drifted: {name}")
+        if tensor.dtype != ema.shadow[name].dtype:
+            raise Stage1ContractError(f"Stage1 resume EMA dtype drifted: {name}")
     normalized = {
         name: tensor.detach().to(
             device=ema.shadow[name].device,
-            dtype=ema.shadow[name].dtype,
         )
         for name, tensor in loaded_shadow.items()
     }
-    ema.load_state_dict(
-        {
-            "decay": state["decay"],
-            "num_updates": state["num_updates"],
-            "shadow": normalized,
+    normalized_state = dict(state)
+    normalized_state["shadow"] = normalized
+    ema.load_state_dict(normalized_state)
+
+
+def _validate_stage1_scheduler_state(
+    scheduler: WarmupCosineScheduler,
+    state: Mapping[str, Any],
+    optimizer_state: Mapping[str, Any],
+    *,
+    step: int,
+    context: str,
+) -> None:
+    current = scheduler.state_dict()
+    if set(state) != set(current):
+        raise Stage1ContractError(f"{context} scheduler state fields drifted")
+    dynamic_fields = {"last_epoch", "_step_count", "_last_lr"}
+    for key in set(current) - dynamic_fields:
+        if state.get(key) != current.get(key):
+            raise Stage1ContractError(f"{context} scheduler {key} drifted")
+    last_epoch = state.get("last_epoch")
+    step_count = state.get("_step_count")
+    if (
+        isinstance(last_epoch, bool)
+        or not isinstance(last_epoch, int)
+        or last_epoch != step
+    ):
+        raise Stage1ContractError(
+            f"{context} scheduler.last_epoch must equal checkpoint step"
+        )
+    if (
+        isinstance(step_count, bool)
+        or not isinstance(step_count, int)
+        or step_count != step + 1
+    ):
+        raise Stage1ContractError(
+            f"{context} scheduler._step_count must equal checkpoint step + 1"
+        )
+    base_lrs = state.get("base_lrs")
+    last_lrs = state.get("_last_lr")
+    optimizer_groups = optimizer_state.get("param_groups")
+    if not isinstance(base_lrs, list) or not isinstance(last_lrs, list):
+        raise Stage1ContractError(f"{context} scheduler LR state is invalid")
+    if not isinstance(optimizer_groups, list):
+        raise Stage1ContractError(f"{context} optimizer groups are invalid")
+    if not len(base_lrs) == len(last_lrs) == len(optimizer_groups):
+        raise Stage1ContractError(f"{context} scheduler LR group count drifted")
+    if any(
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        for value in (*base_lrs, *last_lrs)
+    ):
+        raise Stage1ContractError(f"{context} scheduler LR state is non-finite")
+    for index, (base_lr, last_lr, group) in enumerate(
+        zip(base_lrs, last_lrs, optimizer_groups, strict=True)
+    ):
+        if not isinstance(group, Mapping):
+            raise Stage1ContractError(f"{context} optimizer group is invalid")
+        if group.get("initial_lr") != base_lr:
+            raise Stage1ContractError(
+                f"{context} optimizer initial_lr/scheduler base_lrs drifted at group {index}"
+            )
+        warmup_steps = int(state["warmup_steps"])
+        max_steps = int(state["max_steps"])
+        min_lr = float(state["min_lr"])
+        floor = min(min_lr, float(base_lr))
+        if warmup_steps and step < warmup_steps:
+            expected_lr = float(base_lr) * float(step + 1) / float(warmup_steps)
+        else:
+            progress = min(
+                1.0,
+                max(
+                    0.0,
+                    (step - warmup_steps) / (max_steps - warmup_steps),
+                ),
+            )
+            cosine = 0.5 * (1.0 + math.cos(math.pi * progress))
+            expected_lr = floor + (float(base_lr) - floor) * cosine
+        dynamic_lr = group.get("lr")
+        if (
+            isinstance(dynamic_lr, bool)
+            or not isinstance(dynamic_lr, (int, float))
+            or not math.isfinite(float(dynamic_lr))
+            or dynamic_lr != last_lr
+            or dynamic_lr != expected_lr
+        ):
+            raise Stage1ContractError(
+                f"{context} optimizer/scheduler LR trajectory drifted at group {index}"
+            )
+
+
+def _validate_stage1_fixed_ema_state(
+    model: nn.Module,
+    raw_state: Mapping[str, Tensor],
+    shadow: Mapping[str, Tensor],
+    *,
+    step: int,
+    context: str,
+) -> None:
+    parameters = dict(unwrap_model(model).named_parameters(remove_duplicate=False))
+    for name, raw_value in raw_state.items():
+        parameter = parameters.get(name)
+        role = stage1_parameter_role(name) if parameter is not None else None
+        may_have_ema_history = (step > 0 and role == "skills_mixers") or (
+            step > 5000 and role in {"decoder_refine_head", "encoder34"}
+        )
+        if not may_have_ema_history and not torch.equal(raw_value, shadow[name]):
+            raise Stage1ContractError(
+                f"{context} fixed parameter/buffer differs from EMA shadow: {name}"
+            )
+
+
+def _validate_stage1_sampler_state(
+    sampler: StatefulEpisodeSampler,
+    state: Mapping[str, Any],
+    *,
+    step: int,
+) -> None:
+    current = sampler.state_dict()
+    for key in (
+        "schema_version",
+        "stage",
+        "base_seed",
+        "num_samples",
+        "effective_batch_size",
+    ):
+        if state.get(key) != current.get(key):
+            raise Stage1ContractError(f"Stage1 resume sampler {key} drifted")
+    effective_batch_size = current["effective_batch_size"]
+    consumed_step = state.get("consumed_optimizer_step")
+    if (
+        isinstance(consumed_step, bool)
+        or not isinstance(consumed_step, int)
+        or consumed_step != step
+    ):
+        raise Stage1ContractError("Stage1 resume sampler consumed step drifted")
+    sample_cursor = state.get("sample_cursor")
+    if (
+        isinstance(sample_cursor, bool)
+        or not isinstance(sample_cursor, int)
+        or sample_cursor != step * effective_batch_size
+    ):
+        raise Stage1ContractError("Stage1 resume sampler cursor drifted")
+
+
+def _validate_stage1_optimizer_state(
+    optimizer: torch.optim.Optimizer,
+    state: Mapping[str, Any],
+    *,
+    step: int,
+) -> None:
+    current = optimizer.state_dict()
+    loaded_state = state.get("state")
+    loaded_groups = state.get("param_groups")
+    current_groups = current.get("param_groups")
+    if not isinstance(loaded_state, Mapping):
+        raise Stage1ContractError("Stage1 resume optimizer state is invalid")
+    if not isinstance(loaded_groups, list) or not isinstance(current_groups, list):
+        raise Stage1ContractError("Stage1 resume optimizer groups are invalid")
+    if len(loaded_groups) != len(current_groups):
+        raise Stage1ContractError("Stage1 resume optimizer group count drifted")
+    loaded_parameter_ids: set[int] = set()
+    live_parameters: dict[int, nn.Parameter] = {}
+    group_by_parameter_id: dict[int, Mapping[str, Any]] = {}
+    for loaded_group, current_group in zip(
+        loaded_groups, current_groups, strict=True
+    ):
+        if not isinstance(loaded_group, Mapping) or not isinstance(current_group, Mapping):
+            raise Stage1ContractError("Stage1 resume optimizer group is invalid")
+        loaded_parameters = loaded_group.get("params")
+        current_parameters = current_group.get("params")
+        if not isinstance(loaded_parameters, list) or not isinstance(
+            current_parameters, list
+        ):
+            raise Stage1ContractError("Stage1 resume optimizer parameter IDs are invalid")
+        if len(loaded_parameters) != len(current_parameters):
+            raise Stage1ContractError("Stage1 resume optimizer group size drifted")
+        if loaded_parameters != current_parameters:
+            raise Stage1ContractError(
+                "Stage1 resume optimizer parameter ID order drifted"
+            )
+        if loaded_group.get("role") != current_group.get("role"):
+            raise Stage1ContractError("Stage1 resume optimizer role drifted")
+        if set(loaded_group) != set(current_group):
+            raise Stage1ContractError("Stage1 resume optimizer group fields drifted")
+        for key in set(current_group) - {"params", "lr"}:
+            if loaded_group.get(key) != current_group.get(key):
+                raise Stage1ContractError(
+                    f"Stage1 resume optimizer static field drifted: {key}"
+                )
+        dynamic_lr = loaded_group.get("lr")
+        if (
+            isinstance(dynamic_lr, bool)
+            or not isinstance(dynamic_lr, (int, float))
+            or not math.isfinite(float(dynamic_lr))
+        ):
+            raise Stage1ContractError("Stage1 resume optimizer lr is non-finite")
+        if any(isinstance(value, bool) or not isinstance(value, int) for value in loaded_parameters):
+            raise Stage1ContractError("Stage1 resume optimizer parameter ID is invalid")
+        loaded_parameter_ids.update(loaded_parameters)
+    for current_group, live_group in zip(
+        current_groups, optimizer.param_groups, strict=True
+    ):
+        current_parameters = current_group["params"]
+        live_group_parameters = live_group["params"]
+        if len(current_parameters) != len(live_group_parameters):
+            raise Stage1ContractError("Stage1 resume optimizer live group size drifted")
+        for parameter_id, parameter in zip(
+            current_parameters, live_group_parameters, strict=True
+        ):
+            if not isinstance(parameter, nn.Parameter):
+                raise Stage1ContractError("Stage1 resume optimizer has a non-parameter")
+            live_parameters[parameter_id] = parameter
+            group_by_parameter_id[parameter_id] = current_group
+    if any(
+        isinstance(key, bool)
+        or not isinstance(key, int)
+        or key not in loaded_parameter_ids
+        or not isinstance(value, Mapping)
+        for key, value in loaded_state.items()
+    ):
+        raise Stage1ContractError("Stage1 resume optimizer parameter state is invalid")
+    for parameter_id, parameter_state in loaded_state.items():
+        parameter = live_parameters[parameter_id]
+        group = group_by_parameter_id[parameter_id]
+        expected_state_keys = {"step", "exp_avg", "exp_avg_sq"}
+        if group.get("amsgrad") is True:
+            expected_state_keys.add("max_exp_avg_sq")
+        if set(parameter_state) != expected_state_keys:
+            raise Stage1ContractError("Stage1 resume Adam state fields drifted")
+        state_step = parameter_state["step"]
+        if torch.is_tensor(state_step):
+            if state_step.numel() != 1 or not bool(torch.isfinite(state_step).all()):
+                raise Stage1ContractError("Stage1 resume Adam step is invalid")
+            state_step_value = float(state_step.item())
+        elif isinstance(state_step, (int, float)) and not isinstance(state_step, bool):
+            state_step_value = float(state_step)
+        else:
+            raise Stage1ContractError("Stage1 resume Adam step is invalid")
+        if (
+            not math.isfinite(state_step_value)
+            or not state_step_value.is_integer()
+            or not 1 <= int(state_step_value) <= step
+        ):
+            raise Stage1ContractError("Stage1 resume Adam step is invalid")
+        for key in expected_state_keys - {"step"}:
+            tensor = parameter_state[key]
+            if (
+                not torch.is_tensor(tensor)
+                or tuple(tensor.shape) != tuple(parameter.shape)
+                or tensor.dtype != parameter.dtype
+                or not bool(torch.isfinite(tensor).all())
+            ):
+                raise Stage1ContractError(
+                    f"Stage1 resume Adam tensor state is invalid: {key}"
+                )
+
+
+def _optimizer_serialized_parameter_names(
+    model: nn.Module,
+    optimizer: torch.optim.Optimizer,
+) -> dict[int, str]:
+    canonical_names = {
+        id(parameter): name
+        for name, parameter in unwrap_model(model).named_parameters()
+    }
+    optimizer_state = optimizer.state_dict()
+    serialized_groups = optimizer_state.get("param_groups")
+    if not isinstance(serialized_groups, list) or len(serialized_groups) != len(
+        optimizer.param_groups
+    ):
+        raise Stage1ContractError("Stage1 optimizer parameter-name mapping drifted")
+    result: dict[int, str] = {}
+    for serialized_group, live_group in zip(
+        serialized_groups, optimizer.param_groups, strict=True
+    ):
+        if not isinstance(serialized_group, Mapping):
+            raise Stage1ContractError("Stage1 optimizer serialized group is invalid")
+        serialized_ids = serialized_group.get("params")
+        live_parameters = live_group.get("params")
+        if not isinstance(serialized_ids, list) or not isinstance(live_parameters, list):
+            raise Stage1ContractError("Stage1 optimizer parameter list is invalid")
+        if len(serialized_ids) != len(live_parameters):
+            raise Stage1ContractError("Stage1 optimizer parameter list size drifted")
+        for serialized_id, parameter in zip(
+            serialized_ids, live_parameters, strict=True
+        ):
+            if isinstance(serialized_id, bool) or not isinstance(serialized_id, int):
+                raise Stage1ContractError("Stage1 optimizer serialized ID is invalid")
+            name = canonical_names.get(id(parameter))
+            if name is None:
+                raise Stage1ContractError(
+                    "Stage1 optimizer parameter lacks a canonical model name"
+                )
+            if serialized_id in result:
+                raise Stage1ContractError("Stage1 optimizer serialized ID is duplicated")
+            result[serialized_id] = name
+    return result
+
+
+def _validate_stage1_optimizer_state_ledger(
+    model: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    optimizer_state: Mapping[str, Any],
+    ledger: object,
+    *,
+    step: int,
+) -> dict[int, str]:
+    loaded_state = optimizer_state.get("state")
+    if not isinstance(loaded_state, Mapping):
+        raise Stage1ContractError("Stage1 optimizer state is invalid for ledger")
+    serialized_names = _optimizer_serialized_parameter_names(model, optimizer)
+    state_ids = set(loaded_state)
+    if ledger is None:
+        ledger_mapping: Mapping[object, object] = {
+            serialized_id: serialized_names[serialized_id]
+            for serialized_id in sorted(state_ids)
         }
+    elif isinstance(ledger, Mapping):
+        ledger_mapping = ledger
+    else:
+        raise Stage1ContractError("Stage1 optimizer state-name ledger is invalid")
+    if set(ledger_mapping) != state_ids:
+        raise Stage1ContractError(
+            "Stage1 optimizer state-name ledger keys differ from optimizer state"
+        )
+    normalized: dict[int, str] = {}
+    for serialized_id in sorted(state_ids):
+        if isinstance(serialized_id, bool) or not isinstance(serialized_id, int):
+            raise Stage1ContractError("Stage1 optimizer ledger ID is invalid")
+        value = ledger_mapping[serialized_id]
+        if not isinstance(value, str):
+            raise Stage1ContractError("Stage1 optimizer ledger name is invalid")
+        role = stage1_parameter_role(value)
+        phase_legal = (step > 0 and role == "skills_mixers") or (
+            step > 5000 and role in {"decoder_refine_head", "encoder34"}
+        )
+        if not phase_legal:
+            raise Stage1ContractError(
+                f"Stage1 optimizer ledger role is illegal at step {step}: {value}"
+            )
+        parameter_state = loaded_state[serialized_id]
+        state_step = parameter_state["step"]
+        state_step_value = (
+            int(state_step.item()) if torch.is_tensor(state_step) else int(state_step)
+        )
+        maximum_state_step = step if role == "skills_mixers" else step - 5000
+        if state_step_value > maximum_state_step:
+            raise Stage1ContractError(
+                "Stage1 optimizer ledger Adam step exceeds its phase-local "
+                f"maximum at ID {serialized_id}"
+            )
+        if serialized_names.get(serialized_id) != value:
+            raise Stage1ContractError(
+                f"Stage1 optimizer ledger name drifted at ID {serialized_id}"
+            )
+        normalized[serialized_id] = value
+    return normalized
+
+
+def _validate_stage1_rng_state(state: Mapping[str, Any]) -> None:
+    try:
+        random.Random().setstate(state["python"])
+        np.random.RandomState().set_state(state["numpy"])
+        cpu_state = state["torch_cpu"]
+        if not torch.is_tensor(cpu_state) or cpu_state.dtype != torch.uint8:
+            raise TypeError("invalid torch CPU RNG tensor")
+        torch.Generator(device="cpu").set_state(cpu_state)
+        cuda_states = state.get("torch_cuda_all")
+        if torch.cuda.is_available() and cuda_states is None:
+            raise ValueError("CUDA RNG state is missing")
+        if cuda_states is not None:
+            if not isinstance(cuda_states, (list, tuple)):
+                raise TypeError("invalid CUDA RNG state list")
+            if torch.cuda.is_available() and len(cuda_states) != torch.cuda.device_count():
+                raise ValueError("CUDA RNG state count drifted")
+            if any(
+                not torch.is_tensor(value) or value.dtype != torch.uint8
+                for value in cuda_states
+            ):
+                raise TypeError("invalid CUDA RNG tensor")
+            if torch.cuda.is_available():
+                current_cuda_states = torch.cuda.get_rng_state_all()
+                if any(
+                    tuple(value.shape) != tuple(reference.shape)
+                    for value, reference in zip(
+                        cuda_states, current_cuda_states, strict=True
+                    )
+                ):
+                    raise ValueError("CUDA RNG state shape drifted")
+    except (KeyError, TypeError, ValueError, RuntimeError) as exc:
+        raise Stage1ContractError("Stage1 resume RNG state is invalid") from exc
+
+
+def _validate_stage1_metrics(value: object, *, step: int) -> None:
+    if not isinstance(value, Mapping):
+        raise Stage1ContractError("Stage1 resume metrics must be a mapping")
+    groups = (
+        (
+            "best",
+            (
+                "best_group_a_psnr",
+                "best_group_a_ssim",
+                "best_single_psnr",
+                "best_single_ssim",
+                "best_step",
+            ),
+            "best_step",
+        ),
+        (
+            "current",
+            (
+                "group_a_psnr",
+                "group_a_ssim",
+                "single_psnr",
+                "single_ssim",
+                "validation_step",
+            ),
+            "validation_step",
+        ),
     )
+    for label, fields, step_field in groups:
+        present = [field in value for field in fields]
+        if any(present) and not all(present):
+            raise Stage1ContractError(f"Stage1 resume metrics has partial {label} fields")
+        if not all(present):
+            continue
+        metric_step = value[step_field]
+        if (
+            isinstance(metric_step, bool)
+            or not isinstance(metric_step, int)
+            or not 0 <= metric_step <= step
+        ):
+            raise Stage1ContractError(
+                f"Stage1 resume metrics {step_field} is invalid"
+            )
+        for field in fields:
+            if field == step_field:
+                continue
+            metric = value[field]
+            if (
+                isinstance(metric, bool)
+                or not isinstance(metric, (int, float))
+                or not math.isfinite(float(metric))
+            ):
+                raise Stage1ContractError(
+                    f"Stage1 resume metrics {field} is non-finite"
+                )
 
 
 def save_stage1_checkpoint(
@@ -591,15 +1146,54 @@ def save_stage1_checkpoint(
     *,
     step: int,
     model: nn.Module,
-    ema: ExponentialMovingAverage,
+    ema: Stage1PhaseAwareEMA,
     optimizer: torch.optim.Optimizer,
     scheduler: WarmupCosineScheduler,
     sampler: StatefulEpisodeSampler,
     provenance: Mapping[str, Any],
-    metrics: Mapping[str, float] | None = None,
+    metrics: Mapping[str, float | int] | None = None,
     model_as_ema: bool = False,
     pending_validation_step: int | None = None,
 ) -> None:
+    if isinstance(step, bool) or not isinstance(step, int) or step < 0:
+        raise Stage1ContractError(
+            "Stage1 checkpoint step must be a non-negative integer"
+        )
+    if not isinstance(ema, Stage1PhaseAwareEMA):
+        raise Stage1ContractError("Stage1 checkpoints require phase-aware EMA")
+    ema_state = ema.state_dict()
+    ema.validate_state_metadata(ema_state)
+    if ema.num_updates != step:
+        raise Stage1ContractError(
+            "Stage1 checkpoint step/EMA update count mismatch: "
+            f"step={step}, num_updates={ema.num_updates}"
+        )
+    if provenance.get("ema_policy") != ema_state["policy"]:
+        raise Stage1ContractError("Stage1 checkpoint provenance EMA policy drifted")
+    _validate_stage1_fixed_ema_state(
+        model,
+        unwrap_model(model).state_dict(),
+        ema.shadow,
+        step=step,
+        context="Stage1 save",
+    )
+    optimizer_state = optimizer.state_dict()
+    scheduler_state = scheduler.state_dict()
+    _validate_stage1_optimizer_state(optimizer, optimizer_state, step=step)
+    optimizer_state_name_ledger = _validate_stage1_optimizer_state_ledger(
+        model,
+        optimizer,
+        optimizer_state,
+        None,
+        step=step,
+    )
+    _validate_stage1_scheduler_state(
+        scheduler,
+        scheduler_state,
+        optimizer_state,
+        step=step,
+        context="Stage1 save",
+    )
     if pending_validation_step is not None and pending_validation_step != step:
         raise Stage1ContractError(
             "pending validation step must equal the checkpoint optimizer step"
@@ -611,7 +1205,7 @@ def save_stage1_checkpoint(
             stage="stage1",
             step=step,
             model=model,
-            ema_state=ema.state_dict(),
+            ema_state=ema_state,
             optimizer=optimizer,
             scheduler=scheduler,
             scaler=None,
@@ -622,6 +1216,7 @@ def save_stage1_checkpoint(
         payload["model_role"] = "ema_selection" if model_as_ema else "raw_training_state"
         payload["resumable"] = not model_as_ema
         payload["pending_validation_step"] = pending_validation_step
+        payload["optimizer_state_name_ledger"] = optimizer_state_name_ledger
         # Save while EMA weights are installed: state_dict tensors alias model
         # storage and would otherwise observe the restored raw weights.
         atomic_torch_save(payload, destination)
@@ -639,39 +1234,152 @@ def resume_stage1_checkpoint(
     checkpoint: str | Path,
     *,
     model: nn.Module,
-    ema: ExponentialMovingAverage,
+    ema: Stage1PhaseAwareEMA,
     optimizer: torch.optim.Optimizer,
     scheduler: WarmupCosineScheduler,
     sampler: StatefulEpisodeSampler,
     expected_provenance: Mapping[str, Any],
+    expected_validation_every: int,
+    expected_max_steps: int,
 ) -> dict[str, Any]:
-    payload = load_checkpoint(
-        checkpoint,
-        model=model,
-        optimizer=optimizer,
-        scheduler=scheduler,
-        scaler=None,
-        expected_provenance=expected_provenance,
-        require_resumable=True,
-        expected_model_role="raw_training_state",
-        restore_rng=True,
-        map_location="cpu",
-    )
-    if payload.get("stage") != "stage1":
-        raise Stage1ContractError("resume checkpoint is not Stage1")
+    if not isinstance(ema, Stage1PhaseAwareEMA):
+        raise Stage1ContractError("Stage1 resume requires phase-aware EMA")
+    if (
+        isinstance(expected_validation_every, bool)
+        or not isinstance(expected_validation_every, int)
+        or expected_validation_every <= 0
+    ):
+        raise Stage1ContractError("expected_validation_every must be positive")
+    if (
+        isinstance(expected_max_steps, bool)
+        or not isinstance(expected_max_steps, int)
+        or expected_max_steps <= 0
+    ):
+        raise Stage1ContractError("expected_max_steps must be positive")
+    # This is the sole payload read.  Validate every Stage1 contract field
+    # before mutating model/optimizer/scheduler/EMA/sampler/RNG state.
+    payload = torch.load(Path(checkpoint), map_location="cpu", weights_only=False)
+    if (
+        not isinstance(payload, Mapping)
+        or payload.get("schema_version") != "graphrestore-checkpoint-v1"
+        or payload.get("stage") != "stage1"
+        or payload.get("model_role") != "raw_training_state"
+        or payload.get("resumable") is not True
+        or payload.get("scaler") is not None
+    ):
+        raise Stage1ContractError(
+            "Stage1 resume requires a resumable raw Stage1 training checkpoint"
+        )
     step = payload.get("step")
     if isinstance(step, bool) or not isinstance(step, int) or step < 0:
         raise Stage1ContractError("resume checkpoint has invalid step")
+    if step > expected_max_steps:
+        raise Stage1ContractError("resume checkpoint step exceeds expected max_steps")
+    if "pending_validation_step" not in payload:
+        raise Stage1ContractError("resume checkpoint lacks pending_validation_step")
+    pending_validation_step = payload.get("pending_validation_step")
+    if pending_validation_step is not None:
+        if isinstance(pending_validation_step, bool) or not isinstance(
+            pending_validation_step, int
+        ):
+            raise Stage1ContractError(
+                "resume pending_validation_step must be an integer or null"
+            )
+        if pending_validation_step != step:
+            raise Stage1ContractError(
+                "resume pending_validation_step differs from checkpoint step"
+            )
+        if not (
+            pending_validation_step % expected_validation_every == 0
+            or pending_validation_step == expected_max_steps
+        ):
+            raise Stage1ContractError(
+                "resume pending_validation_step is not a validation boundary"
+            )
+    _validate_stage1_metrics(payload.get("metrics"), step=step)
     ema_state = payload.get("ema")
     if not isinstance(ema_state, Mapping):
         raise Stage1ContractError("resume checkpoint lacks EMA")
-    _move_loaded_ema_to_model(ema, ema_state)
+    ema.validate_state_metadata(ema_state)
+    loaded_shadow = _mapping_of_tensors(
+        ema_state.get("shadow"), "Stage1 resume EMA shadow"
+    )
+    if loaded_shadow.keys() != ema.shadow.keys():
+        raise Stage1ContractError("Stage1 resume EMA keys drifted")
+    if any(
+        tuple(tensor.shape) != tuple(ema.shadow[name].shape)
+        for name, tensor in loaded_shadow.items()
+    ):
+        raise Stage1ContractError("Stage1 resume EMA tensor shapes drifted")
+    if any(
+        tensor.dtype != ema.shadow[name].dtype for name, tensor in loaded_shadow.items()
+    ):
+        raise Stage1ContractError("Stage1 resume EMA tensor dtypes drifted")
+    if ema_state.get("num_updates") != step:
+        raise Stage1ContractError("Stage1 resume step/EMA update count mismatch")
     sampler_state = payload.get("sampler_state")
     if not isinstance(sampler_state, Mapping):
         raise Stage1ContractError("resume checkpoint lacks sampler state")
-    sampler.load_state_dict(dict(sampler_state))
     if sampler_state.get("consumed_optimizer_step") != step:
         raise Stage1ContractError("checkpoint step/sampler consumed step mismatch")
+    _validate_stage1_sampler_state(sampler, sampler_state, step=step)
+    provenance = payload.get("provenance")
+    if not isinstance(provenance, Mapping):
+        raise Stage1ContractError("resume checkpoint lacks provenance")
+    verify_provenance(provenance, expected_provenance)
+    if provenance.get("ema_policy") != ema_state.get("policy"):
+        raise Stage1ContractError("Stage1 resume provenance EMA policy drifted")
+    model_state = _mapping_of_tensors(payload.get("model"), "Stage1 model state")
+    current_model_state = unwrap_model(model).state_dict()
+    if model_state.keys() != current_model_state.keys():
+        raise Stage1ContractError("Stage1 resume model keys drifted")
+    for name, tensor in model_state.items():
+        reference = current_model_state[name]
+        if tuple(tensor.shape) != tuple(reference.shape):
+            raise Stage1ContractError(f"Stage1 resume model shape drifted: {name}")
+        if tensor.dtype != reference.dtype:
+            raise Stage1ContractError(f"Stage1 resume model dtype drifted: {name}")
+    optimizer_state = payload.get("optimizer")
+    scheduler_state = payload.get("scheduler")
+    rng_states = payload.get("rng_states")
+    if not isinstance(optimizer_state, Mapping):
+        raise Stage1ContractError("resume checkpoint lacks optimizer state")
+    if not isinstance(scheduler_state, Mapping):
+        raise Stage1ContractError("resume checkpoint lacks scheduler state")
+    if not isinstance(rng_states, Mapping):
+        raise Stage1ContractError("resume checkpoint lacks RNG state")
+    _validate_stage1_optimizer_state(optimizer, optimizer_state, step=step)
+    if "optimizer_state_name_ledger" not in payload:
+        raise Stage1ContractError("resume checkpoint lacks optimizer state-name ledger")
+    _validate_stage1_optimizer_state_ledger(
+        model,
+        optimizer,
+        optimizer_state,
+        payload.get("optimizer_state_name_ledger"),
+        step=step,
+    )
+    _validate_stage1_scheduler_state(
+        scheduler,
+        scheduler_state,
+        optimizer_state,
+        step=step,
+        context="Stage1 resume",
+    )
+    _validate_stage1_rng_state(rng_states)
+    _validate_stage1_fixed_ema_state(
+        model,
+        model_state,
+        loaded_shadow,
+        step=step,
+        context="Stage1 resume",
+    )
+
+    unwrap_model(model).load_state_dict(model_state, strict=True)
+    optimizer.load_state_dict(dict(optimizer_state))
+    scheduler.load_state_dict(dict(scheduler_state))
+    _move_loaded_ema_to_model(ema, ema_state)
+    sampler.load_state_dict(dict(sampler_state))
+    restore_rng_state(rng_states)
     set_stage1_trainability(model, step)
     return payload
 
@@ -710,7 +1418,7 @@ def choose_micro_batch(
                 raise Stage1ContractError("candidate does not divide effective batch")
             optimizer: torch.optim.Optimizer | None = None
             scheduler: WarmupCosineScheduler | None = None
-            ema: ExponentialMovingAverage | None = None
+            ema: Stage1PhaseAwareEMA | None = None
             image = target = guards = active = None
             model.load_state_dict(initial_state, strict=True)
             optimizer = build_stage1_optimizer(model)
@@ -720,7 +1428,7 @@ def choose_micro_batch(
                 max_steps=30_000,
                 min_lr=1.0e-6,
             )
-            ema = ExponentialMovingAverage(model, decay=0.9999)
+            ema = build_stage1_ema(model, decay=0.9999)
             set_stage1_trainability(model, step)
             model.train()
             torch.cuda.empty_cache()
@@ -1133,6 +1841,7 @@ def build_stage1_provenance(
             "agenticir_commit": agenticir_commit,
             "mioir_commit": mioir_commit,
         },
+        "ema_policy": stage1_ema_policy_metadata(float(config["ema"]["decay"])),
         "runtime": runtime,
         "dependency_versions": dependency_versions(),
     }
@@ -1163,13 +1872,17 @@ __all__ = [
     "MicroBatchTrial",
     "PROTOCOL_ID",
     "STAGE1_BACKBONE_WHITELIST",
+    "STAGE1_EMA_SCHEMA",
+    "STAGE1_EMA_SCOPE",
     "STAGE1_SCHEMA",
     "Stage1ContractError",
     "Stage1Loss",
+    "Stage1PhaseAwareEMA",
     "Stage1StepResult",
     "append_jsonl",
     "assert_first_backward_skill_gradients",
     "build_stage1_optimizer",
+    "build_stage1_ema",
     "build_stage1_provenance",
     "choose_micro_batch",
     "append_stage1_calibration_history",
@@ -1183,6 +1896,7 @@ __all__ = [
     "save_stage1_checkpoint",
     "set_stage1_trainability",
     "stage1_fidelity_loss",
+    "stage1_ema_policy_metadata",
     "stage1_parameter_role",
     "train_stage1_optimizer_step",
     "validate_stage1",

@@ -14,12 +14,14 @@ from scripts import train_stage3_planner
 from src.data.samplers import StatefulEpisodeSampler
 from src.net import GraphRestore, PlannerOutput
 from src.training.optimization import WarmupCosineScheduler
+from src.training.stage1_engine import STAGE1_EMA_SCOPE, stage1_ema_policy_metadata
 from src.training.stage3_engine import (
     Stage3ContractError,
     Stage3PlannerEMA,
     Stage3SupervisionBatch,
     build_stage3_optimizer,
     calibrate_presence_thresholds,
+    load_stage1_ema_into_graphrestore,
     resume_stage3_checkpoint,
     save_stage3_checkpoint,
     set_stage3_trainability,
@@ -157,6 +159,90 @@ def test_only_planner_is_trainable_and_receives_gradients() -> None:
         not torch.equal(model.state_dict()[name], value)
         for name, value in planner_before.items()
     )
+
+
+def test_stage3_parent_loader_rejects_old_stage1_ema_contract(tmp_path: Path) -> None:
+    stage1_source = {
+        name: value.detach().clone()
+        for name, value in _tiny_graphrestore().state_dict().items()
+        if not name.startswith("planner.") and name != "presence_thresholds"
+    }
+    payload = {
+        "schema_version": "graphrestore-checkpoint-v1",
+        "stage": "stage1",
+        "model_role": "ema_selection",
+        "resumable": False,
+        "step": 30_000,
+        "model": stage1_source,
+        "provenance": {"ema_policy": stage1_ema_policy_metadata(0.9999)},
+        "ema": {
+            "decay": 0.9999,
+            "num_updates": 30_000,
+            "scope": STAGE1_EMA_SCOPE,
+            "policy": stage1_ema_policy_metadata(0.9999),
+            "shadow": {name: value.clone() for name, value in stage1_source.items()},
+        },
+    }
+    valid_path = tmp_path / "best_ema.pth"
+    torch.save(payload, valid_path)
+    report = load_stage1_ema_into_graphrestore(_tiny_graphrestore(), valid_path)
+    assert report.checkpoint_step == 30_000
+
+    cases = (
+        ("missing_scope", "scope", None, "scope"),
+        ("wrong_scope", "scope", "generic_all_state_ema", "scope"),
+        ("missing_policy", "policy", None, "policy"),
+        ("wrong_policy", "policy", "wrong", "policy"),
+        ("missing_updates", "num_updates", None, "update count"),
+        ("wrong_updates", "num_updates", 29_999, "update count"),
+        ("wrong_decay", "decay_bundle", 0.9, "decay"),
+        ("missing_provenance", "provenance", None, "provenance"),
+        ("wrong_provenance", "provenance", "wrong", "provenance EMA policy"),
+        ("wrong_dtype", "dtype", torch.float64, "dtype"),
+    )
+    for label, field, bad_value, error_pattern in cases:
+        bad_directory = tmp_path / label
+        bad_directory.mkdir()
+        bad_path = bad_directory / "best_ema.pth"
+        bad_ema = dict(payload["ema"])
+        bad_payload = {
+            **payload,
+            "ema": bad_ema,
+            "provenance": dict(payload["provenance"]),
+        }
+        if field == "decay_bundle":
+            bad_ema["decay"] = bad_value
+            bad_ema["policy"] = stage1_ema_policy_metadata(float(bad_value))
+            bad_payload["provenance"]["ema_policy"] = bad_ema["policy"]
+        elif field == "provenance" and bad_value is None:
+            bad_payload.pop("provenance")
+        elif field == "provenance":
+            bad_payload["provenance"]["ema_policy"] = {
+                **bad_ema["policy"],
+                "buffer_update": "standard_ema",
+            }
+        elif field == "dtype":
+            bad_model = dict(payload["model"])
+            bad_shadow = dict(bad_ema["shadow"])
+            name = next(
+                key for key, value in bad_model.items() if value.is_floating_point()
+            )
+            bad_model[name] = bad_model[name].to(dtype=bad_value)
+            bad_shadow[name] = bad_shadow[name].to(dtype=bad_value)
+            bad_payload["model"] = bad_model
+            bad_ema["shadow"] = bad_shadow
+        elif bad_value is None:
+            bad_ema.pop(field)
+        elif field == "policy":
+            bad_ema[field] = {
+                **bad_ema[field],
+                "buffer_update": "standard_ema",
+            }
+        else:
+            bad_ema[field] = bad_value
+        torch.save(bad_payload, bad_path)
+        with pytest.raises(Stage3ContractError, match=error_pattern):
+            load_stage1_ema_into_graphrestore(_tiny_graphrestore(), bad_path)
 
 
 def test_real_stage3_loss_wires_stable_three_class_ambiguous_partial_label() -> None:

@@ -31,6 +31,7 @@ from src.data.episode_dataset import GraphRestoreEpisodeDataset
 from src.data.manifests import ALLOWED_GROUP_A, SKILLS, PrimaryRecipe, load_primary_manifest
 from src.metrics.agenticir_official import official_psnr_ssim, quantize_uint8_semantics
 from src.net.graphrestore import GuardedSkillRestormer, SkillExecutionOutput
+from src.training.stage1_engine import STAGE1_EMA_SCOPE, stage1_ema_policy_metadata
 from src.utils.git import git_commit
 from src.utils.hashing import sha256_file
 from src.utils.io import (
@@ -62,6 +63,7 @@ def stage2_resume_bindings(paths: "Stage2Paths") -> dict[str, Any]:
     root = paths.project_root.resolve()
     code_paths = [
         root / "src/training/stage2_distillation.py",
+        root / "src/training/stage1_engine.py",
         *sorted((root / "src/data").glob("*.py")),
         *sorted((root / "src/metrics").glob("*.py")),
         *sorted((root / "src/net").glob("*.py")),
@@ -640,7 +642,7 @@ def load_frozen_stage1_ema(
     if not isinstance(payload, Mapping) or payload.get("schema_version") != "graphrestore-checkpoint-v1":
         raise Stage2ContractError("Stage1 checkpoint schema is not graphrestore-checkpoint-v1")
     stage = str(payload.get("stage", "")).lower().replace("-", "_")
-    if not stage.startswith("stage1"):
+    if stage != "stage1":
         raise Stage2ContractError(f"Stage2 parent checkpoint is not Stage1: {stage!r}")
     if payload.get("model_role") != "ema_selection" or payload.get("resumable") is not False:
         raise Stage2ContractError(
@@ -648,6 +650,34 @@ def load_frozen_stage1_ema(
         )
     model_state = _strict_state_mapping(payload.get("model"), field="checkpoint.model")
     ema = _mapping(payload.get("ema"), field="checkpoint.ema")
+    if ema.get("scope") != STAGE1_EMA_SCOPE:
+        raise Stage2ContractError(
+            "Stage1 best EMA phase-aware scope is missing or invalid"
+        )
+    decay = ema.get("decay")
+    if (
+        isinstance(decay, bool)
+        or not isinstance(decay, (int, float))
+        or float(decay) != 0.9999
+    ):
+        raise Stage2ContractError("Stage1 best EMA decay is missing or invalid")
+    expected_policy = stage1_ema_policy_metadata(0.9999)
+    if ema.get("policy") != expected_policy:
+        raise Stage2ContractError(
+            "Stage1 best EMA phase-aware policy is missing or invalid"
+        )
+    provenance = _mapping(payload.get("provenance"), field="checkpoint.provenance")
+    if provenance.get("ema_policy") != expected_policy:
+        raise Stage2ContractError(
+            "Stage1 best provenance EMA policy is missing or invalid"
+        )
+    step = payload.get("step")
+    if isinstance(step, bool) or not isinstance(step, int) or step < 0:
+        raise Stage2ContractError("Stage1 checkpoint lacks a valid step")
+    if ema.get("num_updates") != step:
+        raise Stage2ContractError(
+            "Stage1 best EMA update count does not match checkpoint step"
+        )
     shadow = _strict_state_mapping(ema.get("shadow"), field="checkpoint.ema.shadow")
     if set(model_state) != set(shadow):
         raise Stage2ContractError("best EMA model/EMA shadow keys differ")
@@ -660,6 +690,15 @@ def load_frozen_stage1_ema(
             )
 
     model = model_factory()
+    target_state = model.state_dict()
+    if model_state.keys() != target_state.keys():
+        raise Stage2ContractError("Stage1 checkpoint model keys differ from executor")
+    for name, tensor in model_state.items():
+        target = target_state[name]
+        if tensor.shape != target.shape or tensor.dtype != target.dtype:
+            raise Stage2ContractError(
+                f"Stage1 checkpoint model metadata differs from executor at {name}"
+            )
     incompatible = model.load_state_dict(model_state, strict=True)
     if incompatible.missing_keys or incompatible.unexpected_keys:
         raise Stage2ContractError("Stage1 checkpoint did not load strictly")
@@ -668,9 +707,6 @@ def load_frozen_stage1_ema(
     model.to(device)
     if model.training or any(parameter.requires_grad for parameter in model.parameters()):
         raise Stage2ContractError("Stage2 executor was not fully frozen")
-    step = int(payload.get("step", -1))
-    if step < 0:
-        raise Stage2ContractError("Stage1 checkpoint lacks a valid step")
     if sha256_file(path) != checkpoint_sha:
         raise Stage2ContractError("Stage1 checkpoint changed while Stage2 was loading it")
     return FrozenStage1Snapshot(model=model, checkpoint_sha256=checkpoint_sha, checkpoint_step=step)

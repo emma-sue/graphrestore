@@ -47,6 +47,7 @@ from src.training.optimization import WarmupCosineScheduler
 from src.training.provenance import semantic_source_hashes
 from src.training.relation_supervision import non_ambiguous_relation_metrics
 from src.training.selection import ValidationScore
+from src.training.stage1_engine import STAGE1_EMA_SCOPE, stage1_ema_policy_metadata
 from src.utils.git import git_commit
 from src.utils.hashing import is_sha256, sha256_file, sha256_json
 from src.utils.io import (
@@ -634,10 +635,42 @@ def load_stage1_ema_into_graphrestore(
         )
     source = _strict_tensor_mapping(payload.get("model"), field="checkpoint.model")
     ema = _mapping(payload.get("ema"), field="checkpoint.ema")
+    if ema.get("scope") != STAGE1_EMA_SCOPE:
+        raise Stage3ContractError(
+            "Stage1 best EMA phase-aware scope is missing or invalid"
+        )
+    decay = ema.get("decay")
+    if (
+        isinstance(decay, bool)
+        or not isinstance(decay, (int, float))
+        or float(decay) != 0.9999
+    ):
+        raise Stage3ContractError("Stage1 best EMA decay is missing or invalid")
+    expected_policy = stage1_ema_policy_metadata(0.9999)
+    if ema.get("policy") != expected_policy:
+        raise Stage3ContractError(
+            "Stage1 best EMA phase-aware policy is missing or invalid"
+        )
+    provenance = _mapping(payload.get("provenance"), field="checkpoint.provenance")
+    if provenance.get("ema_policy") != expected_policy:
+        raise Stage3ContractError(
+            "Stage1 best provenance EMA policy is missing or invalid"
+        )
+    step = payload.get("step")
+    if isinstance(step, bool) or not isinstance(step, int) or step < 0:
+        raise Stage3ContractError("Stage1 parent checkpoint step is invalid")
+    if ema.get("num_updates") != step:
+        raise Stage3ContractError(
+            "Stage1 best EMA update count does not match checkpoint step"
+        )
     shadow = _strict_tensor_mapping(ema.get("shadow"), field="checkpoint.ema.shadow")
     if source.keys() != shadow.keys():
         raise Stage3ContractError("Stage1 best model/EMA keys differ")
     for name in source:
+        if source[name].shape != shadow[name].shape or source[name].dtype != shadow[name].dtype:
+            raise Stage3ContractError(
+                f"Stage1 best model/EMA metadata differs at {name}"
+            )
         if not torch.equal(source[name], shadow[name]):
             raise Stage3ContractError(f"Stage1 best checkpoint does not expose EMA at {name}")
     target = model.state_dict()
@@ -647,16 +680,22 @@ def load_stage1_ema_into_graphrestore(
         for name in set(source) & set(target)
         if tuple(source[name].shape) != tuple(target[name].shape)
     )
+    dtype_mismatch = sorted(
+        name
+        for name in set(source) & set(target)
+        if source[name].dtype != target[name].dtype
+    )
     missing = sorted(set(target) - set(source))
     invalid_missing = [
         name
         for name in missing
         if not (name.startswith("planner.") or name == "presence_thresholds")
     ]
-    if unexpected or shape_mismatch or invalid_missing:
+    if unexpected or shape_mismatch or dtype_mismatch or invalid_missing:
         raise Stage3ContractError(
             "Stage1->Stage3 strict load failed: "
             f"unexpected={unexpected[:8]}, shape={shape_mismatch[:8]}, "
+            f"dtype={dtype_mismatch[:8]}, "
             f"invalid_missing={invalid_missing[:8]}"
         )
     incompatible = model.load_state_dict(source, strict=False)
@@ -665,7 +704,7 @@ def load_stage1_ema_into_graphrestore(
     set_stage3_trainability(model)
     return Stage3ParentLoadReport(
         checkpoint_sha256=sha256_file(path),
-        checkpoint_step=int(payload.get("step", -1)),
+        checkpoint_step=step,
         loaded_count=len(source),
         initialized_planner_keys=tuple(missing),
     )

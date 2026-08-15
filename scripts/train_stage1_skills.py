@@ -19,15 +19,16 @@ if str(PROJECT_ROOT) not in sys.path:
 
 from src.data import GraphRestoreEpisodeDataset, build_dataloader  # noqa: E402
 from src.net import GuardedSkillRestormer  # noqa: E402
-from src.training.ema import ExponentialMovingAverage  # noqa: E402
 from src.training.optimization import WarmupCosineScheduler  # noqa: E402
 from src.training.selection import ValidationScore, is_better_checkpoint  # noqa: E402
 from src.training.stage0_engine import assert_validation_vram_preflight  # noqa: E402
 from src.training.stage1_engine import (  # noqa: E402
     STAGE1_SCHEMA,
     Stage1ContractError,
+    Stage1PhaseAwareEMA,
     append_stage1_calibration_history,
     append_jsonl,
+    build_stage1_ema,
     build_stage1_optimizer,
     build_stage1_provenance,
     choose_micro_batch,
@@ -128,8 +129,8 @@ def _score_from_checkpoint_metrics(metrics: object) -> ValidationScore | None:
 def _checkpoint_metrics(
     current: ValidationScore | None,
     best: ValidationScore | None,
-) -> dict[str, float]:
-    result: dict[str, float] = {}
+) -> dict[str, float | int]:
+    result: dict[str, float | int] = {}
     if current is not None:
         result.update(
             {
@@ -137,7 +138,7 @@ def _checkpoint_metrics(
                 "group_a_ssim": current.group_a_ssim,
                 "single_psnr": current.single_psnr,
                 "single_ssim": current.single_ssim,
-                "validation_step": float(current.step),
+                "validation_step": current.step,
             }
         )
     if best is not None:
@@ -147,7 +148,7 @@ def _checkpoint_metrics(
                 "best_group_a_ssim": best.group_a_ssim,
                 "best_single_psnr": best.single_psnr,
                 "best_single_ssim": best.single_ssim,
-                "best_step": float(best.step),
+                "best_step": best.step,
             }
         )
     return result
@@ -179,7 +180,7 @@ def _validate_resume_contract(
 def _save_validation(
     *,
     model: GuardedSkillRestormer,
-    ema: ExponentialMovingAverage,
+    ema: Stage1PhaseAwareEMA,
     validation_dataset: GraphRestoreEpisodeDataset,
     device: torch.device,
     output_dir: Path,
@@ -262,6 +263,7 @@ def run(arguments: argparse.Namespace) -> int:
     config = _mapping(load_yaml(config_path), "Stage1 config")
     validate_stage1_config(config)
     configured_max_steps = int(config["training"]["max_steps"])
+    validation_every = int(config["validation"]["every_steps"])
     requested_max_steps = arguments.max_steps
     if requested_max_steps is not None and not 0 < requested_max_steps <= configured_max_steps:
         raise Stage1ContractError("--max_steps must lie in [1, 30000]")
@@ -401,7 +403,7 @@ def run(arguments: argparse.Namespace) -> int:
         max_steps=configured_max_steps,
         min_lr=float(config["optimization"]["min_lr"]),
     )
-    ema = ExponentialMovingAverage(model, decay=float(config["ema"]["decay"]))
+    ema = build_stage1_ema(model, decay=float(config["ema"]["decay"]))
 
     provenance = build_stage1_provenance(
         config_path=config_path,
@@ -492,6 +494,8 @@ def run(arguments: argparse.Namespace) -> int:
             scheduler=scheduler,
             sampler=sampler,
             expected_provenance=provenance,
+            expected_validation_every=validation_every,
+            expected_max_steps=max_steps,
         )
         step = int(payload["step"])
         if step > max_steps:
@@ -512,7 +516,6 @@ def run(arguments: argparse.Namespace) -> int:
         sampler.set_step(0)
 
     log_path = output_dir / "train.jsonl"
-    validation_every = int(config["validation"]["every_steps"])
     if pending_validation_step is not None and not (
         pending_validation_step % validation_every == 0
         or pending_validation_step == max_steps

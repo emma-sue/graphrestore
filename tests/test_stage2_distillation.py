@@ -10,10 +10,12 @@ import pytest
 
 from src.data.manifests import SKILLS
 from src.net.graphrestore import GuardedSkillRestormer
+from src.training.stage1_engine import STAGE1_EMA_SCOPE, stage1_ema_policy_metadata
 from src.training.stage2_distillation import (
     AtomicJsonlShardWriter,
     EFFECT_FIELDS,
     ProgramScore,
+    Stage2ContractError,
     Stage2Paths,
     aggregate_effect_profiles,
     assign_relation_label,
@@ -321,18 +323,23 @@ def test_stage1_best_ema_load_is_strict_and_frozen(tmp_path: Path) -> None:
     source = factory()
     state = source.state_dict()
     checkpoint = tmp_path / "best_ema.pth"
-    torch.save(
-        {
-            "schema_version": "graphrestore-checkpoint-v1",
-            "stage": "stage1_skill_bank",
-            "model_role": "ema_selection",
-            "resumable": False,
-            "step": 30_000,
-            "model": state,
-            "ema": {"shadow": {name: value.clone() for name, value in state.items()}},
+    payload = {
+        "schema_version": "graphrestore-checkpoint-v1",
+        "stage": "stage1",
+        "model_role": "ema_selection",
+        "resumable": False,
+        "step": 30_000,
+        "model": state,
+        "provenance": {"ema_policy": stage1_ema_policy_metadata(0.9999)},
+        "ema": {
+            "decay": 0.9999,
+            "num_updates": 30_000,
+            "scope": STAGE1_EMA_SCOPE,
+            "policy": stage1_ema_policy_metadata(0.9999),
+            "shadow": {name: value.clone() for name, value in state.items()},
         },
-        checkpoint,
-    )
+    }
+    torch.save(payload, checkpoint)
     snapshot = load_frozen_stage1_ema(
         checkpoint, device=torch.device("cpu"), model_factory=factory
     )
@@ -340,3 +347,67 @@ def test_stage1_best_ema_load_is_strict_and_frozen(tmp_path: Path) -> None:
     assert len(snapshot.checkpoint_sha256) == 64
     assert snapshot.model.training is False
     assert not any(parameter.requires_grad for parameter in snapshot.model.parameters())
+
+    cases = (
+        ("missing_scope", "scope", None, "scope"),
+        ("wrong_scope", "scope", "generic_all_state_ema", "scope"),
+        ("missing_policy", "policy", None, "policy"),
+        ("wrong_policy", "policy", "wrong", "policy"),
+        ("missing_updates", "num_updates", None, "update count"),
+        ("wrong_updates", "num_updates", 29_999, "update count"),
+        ("wrong_decay", "decay_bundle", 0.9, "decay"),
+        ("missing_provenance", "provenance", None, "provenance"),
+        ("wrong_provenance", "provenance", "wrong", "provenance EMA policy"),
+        ("wrong_dtype", "dtype", torch.float64, "metadata differs from executor"),
+        ("stage10", "stage", "stage10", "not Stage1"),
+        ("stage1_alias", "stage", "stage1_skill_bank", "not Stage1"),
+    )
+    for label, field, bad_value, error_pattern in cases:
+        bad_directory = tmp_path / label
+        bad_directory.mkdir()
+        bad_checkpoint = bad_directory / "best_ema.pth"
+        bad_ema = dict(payload["ema"])
+        bad_payload = {
+            **payload,
+            "ema": bad_ema,
+            "provenance": dict(payload["provenance"]),
+        }
+        if field == "decay_bundle":
+            bad_ema["decay"] = bad_value
+            bad_ema["policy"] = stage1_ema_policy_metadata(float(bad_value))
+            bad_payload["provenance"]["ema_policy"] = bad_ema["policy"]
+        elif field == "provenance" and bad_value is None:
+            bad_payload.pop("provenance")
+        elif field == "provenance":
+            bad_payload["provenance"]["ema_policy"] = {
+                **bad_ema["policy"],
+                "buffer_update": "standard_ema",
+            }
+        elif field == "dtype":
+            bad_model = dict(payload["model"])
+            bad_shadow = dict(bad_ema["shadow"])
+            name = next(
+                key for key, value in bad_model.items() if value.is_floating_point()
+            )
+            bad_model[name] = bad_model[name].to(dtype=bad_value)
+            bad_shadow[name] = bad_shadow[name].to(dtype=bad_value)
+            bad_payload["model"] = bad_model
+            bad_ema["shadow"] = bad_shadow
+        elif field == "stage":
+            bad_payload["stage"] = bad_value
+        elif bad_value is None:
+            bad_ema.pop(field)
+        elif field == "policy":
+            bad_ema[field] = {
+                **bad_ema[field],
+                "buffer_update": "standard_ema",
+            }
+        else:
+            bad_ema[field] = bad_value
+        torch.save(bad_payload, bad_checkpoint)
+        with pytest.raises(Stage2ContractError, match=error_pattern):
+            load_frozen_stage1_ema(
+                bad_checkpoint,
+                device=torch.device("cpu"),
+                model_factory=factory,
+            )
