@@ -165,6 +165,68 @@ def test_stage1_checkpoint_keeps_empty_sparse_optimizer_ledger(
     assert payload["optimizer_state_name_ledger"] == {}
 
 
+def test_stage1_step0_formal_lr_groups_save_and_resume_bit_exact(
+    tmp_path: Path,
+) -> None:
+    model = _tiny_guarded()
+    optimizer = _optimizer(model)
+    scheduler = WarmupCosineScheduler(
+        optimizer,
+        warmup_steps=500,
+        max_steps=30_000,
+        min_lr=1.0e-6,
+    )
+    ema = build_stage1_ema(model, decay=0.9999)
+    provenance = {"ema_policy": stage1_ema_policy_metadata(0.9999)}
+    scale = float(1) / float(500)
+    expected_lrs = [base_lr * scale for base_lr in (1.0e-4, 1.0e-5, 2.0e-6)]
+    actual_lrs = [float(group["lr"]) for group in optimizer.param_groups]
+    assert [value.hex() for value in actual_lrs] == [
+        value.hex() for value in expected_lrs
+    ]
+    assert actual_lrs[2].hex() == (2.0e-6 * scale).hex()
+    assert actual_lrs[2].hex() != (2.0e-6 * float(1) / float(500)).hex()
+
+    checkpoint = tmp_path / "formal_step0.pth"
+    save_stage1_checkpoint(
+        checkpoint,
+        step=0,
+        model=model,
+        ema=ema,
+        optimizer=optimizer,
+        scheduler=scheduler,
+        sampler=_sampler(),
+        provenance=provenance,
+    )
+    assert checkpoint.is_file()
+
+    restored = _tiny_guarded()
+    restored_optimizer = _optimizer(restored)
+    restored_scheduler = WarmupCosineScheduler(
+        restored_optimizer,
+        warmup_steps=500,
+        max_steps=30_000,
+        min_lr=1.0e-6,
+    )
+    payload = resume_stage1_checkpoint(
+        checkpoint,
+        model=restored,
+        ema=build_stage1_ema(restored, decay=0.9999),
+        optimizer=restored_optimizer,
+        scheduler=restored_scheduler,
+        sampler=_sampler(),
+        expected_provenance=provenance,
+        expected_validation_every=3000,
+        expected_max_steps=30_000,
+    )
+    assert payload["step"] == 0
+    assert payload["optimizer"]["state"] == {}
+    assert payload["optimizer_state_name_ledger"] == {}
+    assert [float(group["lr"]).hex() for group in restored_optimizer.param_groups] == [
+        value.hex() for value in expected_lrs
+    ]
+
+
 def test_stage1_phase_aware_ema_update_policy_and_dynamic_unfreeze() -> None:
     model = _PhaseAwareEMAProbe()
     ema = build_stage1_ema(model, decay=0.75)

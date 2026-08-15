@@ -758,7 +758,8 @@ def _validate_stage1_scheduler_state(
         min_lr = float(state["min_lr"])
         floor = min(min_lr, float(base_lr))
         if warmup_steps and step < warmup_steps:
-            expected_lr = float(base_lr) * float(step + 1) / float(warmup_steps)
+            scale = float(step + 1) / float(warmup_steps)
+            expected_lr = float(base_lr) * scale
         else:
             progress = min(
                 1.0,
