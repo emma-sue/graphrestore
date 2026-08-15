@@ -18,6 +18,7 @@ from src.training.stage1_engine import (
     resume_stage1_checkpoint,
     save_stage1_checkpoint,
     set_stage1_trainability,
+    stage1_fidelity_loss,
     stage1_parameter_role,
     train_stage1_optimizer_step,
 )
@@ -145,6 +146,27 @@ def test_stage1_forward_backward_and_active_skill_gradient() -> None:
         assert torch.count_nonzero(block["noise"].up.weight).item() > 0
         for inactive in SKILLS[1:]:
             assert torch.count_nonzero(block[inactive].up.weight).item() == 0
+
+
+def test_stage1_ssim_loss_stays_fp32_under_bf16_autocast() -> None:
+    prediction = torch.full(
+        (1, 3, 16, 16), 0.5, dtype=torch.bfloat16, requires_grad=True
+    )
+    target = torch.full(prediction.shape, 0.5, dtype=torch.float32)
+    target[..., ::2, ::2] += 0.01
+    reference = stage1_fidelity_loss(prediction.detach().float(), target, step=6000)
+
+    with torch.autocast(device_type="cpu", dtype=torch.bfloat16):
+        result = stage1_fidelity_loss(prediction, target, step=6000)
+
+    torch.testing.assert_close(result.ssim, reference.ssim, rtol=0.0, atol=0.0)
+    assert result.ssim.dtype == torch.float32
+    assert result.total.dtype == torch.float32
+    assert bool(torch.isfinite(result.total))
+    assert float(result.ssim) >= 0.0
+    result.total.backward()
+    assert prediction.grad is not None
+    assert bool(torch.isfinite(prediction.grad).all())
 
 
 @dataclass(frozen=True)

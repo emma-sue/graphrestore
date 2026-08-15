@@ -30,6 +30,7 @@ from src.training.stage4_engine import (
     Stage4ContractError,
     Stage4EpisodeDataset,
     Stage4EpisodeSampler,
+    Stage4ProgramOutput,
     Stage4Request,
     build_stage4_optimizer,
     load_presence_thresholds,
@@ -464,6 +465,57 @@ def test_stage4_loss_and_cpu_optimizer_step_are_finite() -> None:
     assert ema.num_updates == 1
     assert result.round_diagnostics
     assert "active_skills" in result.round_diagnostics[0]
+
+
+def test_stage4_ssim_branches_stay_fp32_under_bf16_autocast() -> None:
+    batch = _stage4_batch(
+        batch_size=2,
+        size=16,
+        episode_types=("single_restoration", "clean_misuse"),
+    )
+    batch.input.fill_(0.5)
+    batch.input[..., ::2, ::2] += 0.01
+    batch.gt_clean.copy_(batch.input)
+
+    def image_loss(prediction: torch.Tensor):
+        program = Stage4ProgramOutput(
+            final=prediction,
+            step_images=(),
+            step_targets=(),
+            step_valid_masks=(),
+            planner_losses=(),
+            compiled_graphs=(),
+            graph_states=(),
+            teacher_flags=(),
+            executed_masks=(),
+            round_diagnostics=(),
+            reentry_request_count=0,
+            unexpected_activation_count=0,
+        )
+        return stage4_image_loss(program, batch, step=8000)
+
+    prediction = torch.full(
+        (2, 3, 16, 16), 0.5, dtype=torch.bfloat16, requires_grad=True
+    )
+    reference = image_loss(prediction.detach().float())
+    with torch.autocast(device_type="cpu", dtype=torch.bfloat16):
+        result = image_loss(prediction)
+
+    torch.testing.assert_close(
+        result.final_ssim, reference.final_ssim, rtol=0.0, atol=0.0
+    )
+    torch.testing.assert_close(
+        result.noop_ssim, reference.noop_ssim, rtol=0.0, atol=0.0
+    )
+    assert result.final_ssim.dtype == torch.float32
+    assert result.noop_ssim.dtype == torch.float32
+    assert result.total.dtype == torch.float32
+    assert bool(torch.isfinite(result.total))
+    assert float(result.final_ssim) >= 0.0
+    assert float(result.noop_ssim) >= 0.0
+    result.total.backward()
+    assert prediction.grad is not None
+    assert bool(torch.isfinite(prediction.grad).all())
 
 
 def test_approval_threshold_parent_ema_and_hash_binding(tmp_path: Path) -> None:

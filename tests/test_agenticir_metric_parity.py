@@ -11,6 +11,7 @@ from src.metrics.agenticir_official import (
     official_psnr,
     official_ssim,
     quantize_uint8_semantics,
+    train_ssim_y,
 )
 
 
@@ -27,6 +28,33 @@ def test_identical_official_metrics_match_pyiqa_caps() -> None:
     ssim = official_ssim(image, image)
     torch.testing.assert_close(psnr, torch.full_like(psnr, 80.0), rtol=0, atol=1e-6)
     torch.testing.assert_close(ssim, torch.ones_like(ssim), rtol=0, atol=1e-12)
+
+
+def test_train_ssim_y_is_fp32_inside_cpu_bf16_autocast() -> None:
+    """Low-variance SSIM must not lose its moments to outer BF16 autocast."""
+
+    prediction = torch.full(
+        (1, 3, 32, 32), 0.5, dtype=torch.bfloat16, requires_grad=True
+    )
+    target = torch.full(prediction.shape, 0.5, dtype=torch.float32)
+    target[..., ::2, ::2] += 0.01
+    reference = train_ssim_y(prediction.detach().float(), target)
+
+    with torch.autocast(device_type="cpu", dtype=torch.bfloat16):
+        actual = train_ssim_y(prediction, target)
+        loss = (1.0 - actual).mean()
+
+    assert actual.dtype == torch.float32
+    torch.testing.assert_close(actual, reference, rtol=0.0, atol=0.0)
+    assert bool(torch.isfinite(actual).all())
+    assert float(actual.max()) <= 1.0 + 1.0e-6
+    assert bool(torch.isfinite(loss))
+    assert float(loss) >= 0.0
+
+    loss.backward()
+    assert prediction.grad is not None
+    assert bool(torch.isfinite(prediction.grad).all())
+    assert float(prediction.grad.abs().sum()) > 0.0
 
 
 def test_strict_official_aggregation() -> None:

@@ -125,6 +125,63 @@ def _ssim_from_preprocessed(
     return similarity.mean(dim=(1, 2, 3))
 
 
+def _stable_train_ssim_from_preprocessed(
+    prediction: Tensor,
+    target: Tensor,
+    *,
+    data_range: float,
+) -> Tensor:
+    """SSIM's equivalent, cancellation-resistant form for FP32 training."""
+
+    if prediction.shape[-2] < 11 or prediction.shape[-1] < 11:
+        raise ValueError("SSIM requires height and width >= 11")
+    window = _gaussian_window(
+        prediction.shape[1], device=prediction.device, dtype=prediction.dtype
+    )
+
+    # A per-image/channel translation leaves variance and covariance unchanged,
+    # while keeping the squared terms away from cancellation around common
+    # image offsets such as 0.5.
+    prediction_offset = prediction.mean(dim=(-2, -1), keepdim=True)
+    target_offset = target.mean(dim=(-2, -1), keepdim=True)
+    prediction_centered = prediction - prediction_offset
+    target_centered = target - target_offset
+    mu_x_centered = F.conv2d(
+        prediction_centered, window, groups=prediction.shape[1]
+    )
+    mu_y_centered = F.conv2d(target_centered, window, groups=target.shape[1])
+    mu_x = mu_x_centered + prediction_offset
+    mu_y = mu_y_centered + target_offset
+    var_x = (
+        F.conv2d(
+            prediction_centered.square(), window, groups=prediction.shape[1]
+        )
+        - mu_x_centered.square()
+    ).clamp_min(0.0)
+    var_y = (
+        F.conv2d(target_centered.square(), window, groups=target.shape[1])
+        - mu_y_centered.square()
+    ).clamp_min(0.0)
+
+    # Var(x-y) = Var(x) + Var(y) - 2 Cov(x,y).  Computing the left side
+    # directly avoids a fragile covariance subtraction.  These equivalent
+    # difference forms make both SSIM factors at most one without clamping the
+    # final score or suppressing its gradients.
+    delta_centered = prediction_centered - target_centered
+    mu_delta_centered = mu_x_centered - mu_y_centered
+    var_delta = (
+        F.conv2d(delta_centered.square(), window, groups=prediction.shape[1])
+        - mu_delta_centered.square()
+    ).clamp_min(0.0)
+    c1 = (0.01 * data_range) ** 2
+    c2 = (0.03 * data_range) ** 2
+    luminance = 1.0 - (mu_x - mu_y).square() / (
+        mu_x.square() + mu_y.square() + c1
+    )
+    contrast = (1.0 - var_delta / (var_x + var_y + c2)).relu()
+    return (luminance * contrast).mean(dim=(1, 2, 3))
+
+
 def official_ssim(prediction: Tensor, target: Tensor, *, quantize: bool = True) -> Tensor:
     """AgenticIR official Y-channel SSIM with no downsampling or crop."""
 
@@ -145,9 +202,19 @@ def train_ssim_y(prediction: Tensor, target: Tensor) -> Tensor:
     """Differentiable non-quantized Y-channel SSIM for training loss."""
 
     _require_images(prediction, target)
-    prediction_y = _rgb_to_yiq_y(prediction, 1.0).to(torch.float32)
-    target_y = _rgb_to_yiq_y(target, 1.0).to(torch.float32)
-    return _ssim_from_preprocessed(prediction_y, target_y, data_range=1.0)
+    # This function is called from inside the BF16 model-forward autocast
+    # regions in Stage0/Stage1/Stage4.  Merely converting the inputs to FP32 is
+    # insufficient: autocast would cast the subsequent conv2d moments back to
+    # BF16, where cancellation in E[x^2] - E[x]^2 can yield invalid SSIM (even
+    # values above one) and therefore a negative training loss.  Keep the
+    # complete differentiable metric path in FP32; ``Tensor.float`` preserves
+    # the autograd connection to a BF16 model output.
+    with torch.autocast(device_type=prediction.device.type, enabled=False):
+        prediction_y = _rgb_to_yiq_y(prediction.float(), 1.0)
+        target_y = _rgb_to_yiq_y(target.float(), 1.0)
+        return _stable_train_ssim_from_preprocessed(
+            prediction_y, target_y, data_range=1.0
+        )
 
 
 def official_psnr_ssim(
