@@ -1,19 +1,48 @@
 __pycache__/
 *.py[cod]
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+htmlcov/
 .venv/
 .venv-reference/
-artifacts/cache/
-artifacts/checkpoints/
-artifacts/integration/
-artifacts/orchestration/
-artifacts/interaction_labels/
-artifacts/approvals/
-artifacts/stage2_smoke/
-artifacts/runtime/
-artifacts/logs/*.log
-artifacts/predictions/
-artifacts/tmp/
-artifacts/metrics/calibration_history.csv
-artifacts/metrics/stage*_primary_val_step_*.json
+
+# Local credentials and machine-specific secrets.
+.env
+.env.*
+!.env.example
+*.pem
+*.p12
+*.pfx
+id_rsa*
+id_ed25519*
+
+# Raw datasets are intentionally not distributed with this repository.
+/data/
+/datasets/
+/training_data/
+/MiO100/
+/MIO100/
+/mio100/
+
+# Generated experiment state is excluded by default. The release commit
+# force-adds only an audited allowlist of final weights and small provenance
+# artifacts; never force-add this directory wholesale.
+/artifacts/
+/wandb/
+/mlruns/
+/runs/
+/outputs/
+*.log
+
+# Local agent/session recovery material is not part of the scientific release.
+/CONVERSATION_RECOVERY.md
+/task_plan.md
+/findings.md
+/progress.md
+/ara/
+
+build/
+dist/
 *.egg-info/

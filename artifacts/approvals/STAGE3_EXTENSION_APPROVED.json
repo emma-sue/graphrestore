@@ -1,0 +1,47 @@
+{
+  "approved": true,
+  "authorized_pipeline": [
+    "stage3_extension",
+    "stage4"
+  ],
+  "base_approval_required": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_APPROVAL_REQUIRED.json",
+    "sha256": "33be4aba2c4229175ac33edef7a5914a48a249b8c733d86338c64a8662072825"
+  },
+  "base_stage3_approval": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_APPROVED.json",
+    "sha256": "7b351c0958aa681dc1f65114e801c58e3a5bc4bb7cc73c06507c0b647e51a08b"
+  },
+  "base_stage3_config": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage3_planner.yaml",
+    "sha256": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e"
+  },
+  "base_step": 12000,
+  "cycles": 3,
+  "formal_mio100_authorized": false,
+  "kind": "stage3_extension_approval",
+  "lr_policy": "hold_original_cosine_floor_after_schedule_horizon",
+  "min_lr": 2e-06,
+  "pre_extension_best_checkpoint": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/best_ema.pth",
+    "sha256": "b26ebca987fae140bbaff8a7b530692f7a4e0113bdeea863547b6aaec8958b20"
+  },
+  "pre_extension_last_checkpoint": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/last.pth",
+    "sha256": "39733371064c282e46e858aaf50df7b0d4a9fdf3c49c5bc8838798b4958e2438"
+  },
+  "pre_extension_run_contract": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/run_contract.json",
+    "sha256": "d98b7493b41a0ace9fcb228c50b3acbdf855f092bb2ddc9c9f479730cecf053f"
+  },
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "schedule_horizon_steps": 12000,
+  "schema_version": "graphrestore-stage3-extension-approval-v1",
+  "target_step": 18000,
+  "validation_every_steps": 2000,
+  "validation_steps": [
+    14000,
+    16000,
+    18000
+  ]
+}

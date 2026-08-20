@@ -1,0 +1,112 @@
+{
+  "created_utc": "2026-08-15T06:44:07Z",
+  "group_a_psnr": 23.889665255546568,
+  "group_a_ssim": 0.7558784358233654,
+  "image_count": 1600,
+  "peak_reserved_bytes": 11286872064,
+  "peak_reserved_fraction": 0.446790792515092,
+  "protocol_id": "agenticir_official_parity",
+  "replayed_pending": false,
+  "schema_version": "graphrestore-stage0-primary-val-v1",
+  "single_psnr": 27.42541962623596,
+  "single_ssim": 0.8586839712262866,
+  "step": 24000,
+  "task_means": {
+    "dark": {
+      "count": 100,
+      "group": "single",
+      "psnr": 27.502788162231447,
+      "ssim": 0.954183474518339
+    },
+    "dark+noise": {
+      "count": 100,
+      "group": "A",
+      "psnr": 23.87065113067627,
+      "ssim": 0.8378116502924827
+    },
+    "defocus blur": {
+      "count": 100,
+      "group": "single",
+      "psnr": 25.747987546920776,
+      "ssim": 0.7361852171148443
+    },
+    "defocus blur+haze": {
+      "count": 100,
+      "group": "A",
+      "psnr": 21.36012680053711,
+      "ssim": 0.7153885110026988
+    },
+    "defocus blur+jpeg compression artifact": {
+      "count": 100,
+      "group": "A",
+      "psnr": 24.94038688659668,
+      "ssim": 0.705159423760284
+    },
+    "haze": {
+      "count": 100,
+      "group": "single",
+      "psnr": 26.31095118522644,
+      "ssim": 0.9672670656349811
+    },
+    "jpeg compression artifact": {
+      "count": 100,
+      "group": "single",
+      "psnr": 30.161543369293213,
+      "ssim": 0.8991077099816518
+    },
+    "low resolution": {
+      "count": 100,
+      "group": "single",
+      "psnr": 26.622547130584717,
+      "ssim": 0.7793990724646293
+    },
+    "motion blur": {
+      "count": 100,
+      "group": "single",
+      "psnr": 21.19735786437988,
+      "ssim": 0.6940908433540417
+    },
+    "motion blur+dark": {
+      "count": 100,
+      "group": "A",
+      "psnr": 20.33681450843811,
+      "ssim": 0.6761711010030906
+    },
+    "motion blur+low resolution": {
+      "count": 100,
+      "group": "A",
+      "psnr": 22.153881216049193,
+      "ssim": 0.6521395941090047
+    },
+    "noise": {
+      "count": 100,
+      "group": "single",
+      "psnr": 27.626728172302247,
+      "ssim": 0.8754930751514947
+    },
+    "noise+jpeg compression artifact": {
+      "count": 100,
+      "group": "A",
+      "psnr": 27.87302682876587,
+      "ssim": 0.8010137175288393
+    },
+    "rain": {
+      "count": 100,
+      "group": "single",
+      "psnr": 34.233453578948975,
+      "ssim": 0.9637453115903112
+    },
+    "rain+haze": {
+      "count": 100,
+      "group": "A",
+      "psnr": 25.1140726852417,
+      "ssim": 0.9300664859709348
+    },
+    "rain+low resolution": {
+      "count": 100,
+      "group": "A",
+      "psnr": 25.468361988067628,
+      "ssim": 0.7292770029195883
+    }
+  }
+}

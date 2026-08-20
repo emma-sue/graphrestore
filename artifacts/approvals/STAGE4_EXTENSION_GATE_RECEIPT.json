@@ -1,0 +1,43 @@
+{
+  "additional_optimizer_steps": 8000,
+  "base_step": 40000,
+  "conditional_authorization": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE4_EXTENSION_CONDITIONAL_APPROVED.json",
+    "sha256": "f98193d8ad9705520199a195fa14a85407c6df6f5945af96218572742a45dbc4"
+  },
+  "created_utc": "2026-08-19T20:31:08Z",
+  "cycles": 2,
+  "decision": "DO_NOT_EXTEND",
+  "exact_resume": true,
+  "formal_mio100_authorized": false,
+  "further_extension_authorized": false,
+  "group_b_or_c_authorized": false,
+  "hard_terminal_step": 48000,
+  "kind": "stage4_extension_gate_receipt",
+  "lr_policy": "hold_original_cosine_floor_after_schedule_horizon",
+  "min_lr": 5e-07,
+  "observed_delta_decimal": "0.000370104312900",
+  "observed_lhs_decimal": "24.546857466697695",
+  "observed_rhs_decimal": "24.546487362384795",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "reset_ema": false,
+  "reset_optimizer": false,
+  "reset_rng": false,
+  "reset_sampler": false,
+  "reset_scheduler": false,
+  "schedule_horizon_steps": 40000,
+  "schema_version": "graphrestore-stage4-extension-gate-receipt-v1",
+  "snapshots": {},
+  "target_step": 48000,
+  "trigger_arithmetic": "decimal_exact_from_canonical_csv_strings",
+  "trigger_lhs_step": 40000,
+  "trigger_metric": "group_a_psnr",
+  "trigger_operator": "lhs_minus_rhs_greater_than_or_equal",
+  "trigger_rhs_step": 36000,
+  "trigger_threshold_decimal": "0.20",
+  "validation_every_steps": 4000,
+  "validation_steps": [
+    44000,
+    48000
+  ]
+}

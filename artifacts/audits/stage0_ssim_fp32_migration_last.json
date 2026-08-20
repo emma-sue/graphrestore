@@ -1,0 +1,410 @@
+{
+  "all_checkpoint_tensors_finite": true,
+  "code_commit": "27bd4006fdd6b205421da6a9dcbbb629eb3b3d14",
+  "compile_decision": {
+    "decision": "disable: compilation failed; eager remains the safe default",
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/audits/stage0_compile_ab.json",
+    "recommend_torch_compile": false,
+    "safe_default": "eager",
+    "sha256": "e8480bca479c0c699290aebc2bf9a73d944c0392e81463ea66fe9847c97debb8"
+  },
+  "config": {
+    "config_sha256": "1bfb0444e311d110c6929ce30fdcf888a73d0f10167ed27e3328492a08406283",
+    "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage0_mio_stagea.yaml"
+  },
+  "created_utc": "2026-08-15T03:46:29Z",
+  "destination": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage0/last_ssim_fp32_migrated.pth",
+    "sha256": "ed2da98d9dea2a16d286abf78df8a6c29fa4dd4ee12f7d95404108aa9da5ef48"
+  },
+  "destination_preexisted": false,
+  "discarded_log_range": {
+    "classification": "discarded_transient_not_in_step12000_checkpoint",
+    "event_counts": {
+      "train_step": 25
+    },
+    "maximum_step": 12500,
+    "minimum_step": 12020,
+    "record_count": 25,
+    "train_step_count": 25
+  },
+  "exact_provenance_leaf_diff": [
+    {
+      "new": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+      "old": "0b318b8534bbc72885171281a6a20a41cc04b7b0c1a2583770b8dbb6d266faec",
+      "path": "compile_ab.code_sha256.src/metrics/agenticir_official.py"
+    },
+    {
+      "new": "e8480bca479c0c699290aebc2bf9a73d944c0392e81463ea66fe9847c97debb8",
+      "old": "420109fe8c98abcec687c5f103f2c1c1b713b8ef5b30a6b55130ad30f18bd944",
+      "path": "compile_ab.sha256"
+    },
+    {
+      "new": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+      "old": "0b318b8534bbc72885171281a6a20a41cc04b7b0c1a2583770b8dbb6d266faec",
+      "path": "semantic_source_sha256.src/metrics/agenticir_official.py"
+    }
+  ],
+  "expected_role": "raw_training_state",
+  "gate_hashes": {
+    "compile_ab_sha256": "e8480bca479c0c699290aebc2bf9a73d944c0392e81463ea66fe9847c97debb8",
+    "config_sha256": "1bfb0444e311d110c6929ce30fdcf888a73d0f10167ed27e3328492a08406283",
+    "fresh_gate_artifact_sha256": {
+      "artifacts/audits/data_audit.json": "7cc4c07389624fa5f105d36800713f0475d8c9c11dce4f3d97040307cc4d6891",
+      "artifacts/audits/degradation_parity.json": "2ead16c43fac62e7ec1f4f9380302b9c99ac5f339f4fd9e3f1e6c6f40c97c827",
+      "artifacts/audits/stage0_compile_ab.json": "e8480bca479c0c699290aebc2bf9a73d944c0392e81463ea66fe9847c97debb8",
+      "artifacts/audits/validation_vram_probe.json": "aef95294ff0265d9e0cfe5d1c12b9fa8f6bbf41e8c21d473289253e868d3290c",
+      "artifacts/integration/stage0_ssim_fp32_recovery_100_steps/INTEGRATION_REPORT.md": "dc8fb9607677373f209faaf54af9b61e768ed1f307df622dfd31426e88e1f275",
+      "artifacts/integration/stage0_ssim_fp32_recovery_100_steps/last.pth": "3e1ffa8d4417aad52ca31aa8e2900664d6aa2aa23d341c9dfecff046596692e7",
+      "artifacts/integration/stage0_ssim_fp32_recovery_100_steps/micro_batch_probe.json": "0bdd7ffd2daa87f113ca34ab1ab059c824e7db31980f0abc02480721cba6dc83",
+      "artifacts/integration/stage0_ssim_fp32_recovery_100_steps/summary.json": "2e02feb776c0dccee0ec29db7d5b8b172429578db6300592ff049b6c4e385207",
+      "artifacts/integration/stage0_ssim_fp32_recovery_100_steps/train.jsonl": "e5098b444661c965f56463028a41eb51f1f750ad3aed73bcf06e39ef98e07b00",
+      "artifacts/metrics/metric_parity_per_image.csv": "c115fdde75a42078fc7d5e8680c15ed92023bab0f38a89a18f14b5eafc7806bc",
+      "artifacts/metrics/metric_parity_summary.json": "554f34cb53639d2faa484bc2f2d2273c657f863edbe8258bcbfc1985abd6c35c"
+    },
+    "metric_source_sha256": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+    "migration_script_sha256": "c4be7e7f6ce78e2666020b9b83711849beaa145d5f3041cd3fb90d26916dde04",
+    "source_checkpoint_sha256": "4ef4c817e925cedc413f2a529c1588f6643e22d07c02696f6585fd92a4b304f8",
+    "train_log_sha256": "12ebc55136af38f734af766e060153e373f93b39bc1b803e4c3ae69f3157335d"
+  },
+  "gate_hashes_sha256": "8f5a775735b4e0a4fe123ad086903bfa961e6c37d3e64088c719d39184fd3f48",
+  "metric_git_facts": {
+    "after_sha256": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+    "before_sha256": "0b318b8534bbc72885171281a6a20a41cc04b7b0c1a2583770b8dbb6d266faec",
+    "change_commit": "1e41f8c1a8b0c8aca017693997785af1b0adb413",
+    "path": "/root/autodl-tmp/aaa/graphrestore/src/metrics/agenticir_official.py",
+    "sha256": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219"
+  },
+  "migration": "stage0_step12000_fp32_training_ssim_provenance_only",
+  "new_checkpoint_sha256": "ed2da98d9dea2a16d286abf78df8a6c29fa4dd4ee12f7d95404108aa9da5ef48",
+  "new_provenance_json_sha256": "aa38a9175489423eea103c7520e1c871f9b621b7d6c79e18d97db1967ee59200",
+  "old_checkpoint_sha256": "4ef4c817e925cedc413f2a529c1588f6643e22d07c02696f6585fd92a4b304f8",
+  "old_provenance_json_sha256": "25c56dfde62484cdb55462d6c327a1933e1391e4eb353c83043c507a85975187",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "receipt": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/audits/stage0_ssim_fp32_migration_last.json"
+  },
+  "receipt_written_after_destination": true,
+  "schema_version": "graphrestore-stage0-ssim-fp32-migration-v1",
+  "section_fingerprints_and_counts": {
+    "amp": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 5
+        },
+        "sha256": "adb6702811ca1097f51be6e30f4a20c88049c55d6e503dd04f618fe9e793b9bc"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 5
+        },
+        "sha256": "adb6702811ca1097f51be6e30f4a20c88049c55d6e503dd04f618fe9e793b9bc"
+      }
+    },
+    "ema": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 2,
+          "nodes": 997,
+          "tensor_bytes": 101748880,
+          "tensor_numel": 25437220,
+          "tensors": 495
+        },
+        "sha256": "7393eef0b41a8ab7d479b272b9d8e47ce5d4aca0e6c74218b6374c5b18c56748"
+      },
+      "old": {
+        "counts": {
+          "mappings": 2,
+          "nodes": 997,
+          "tensor_bytes": 101748880,
+          "tensor_numel": 25437220,
+          "tensors": 495
+        },
+        "sha256": "7393eef0b41a8ab7d479b272b9d8e47ce5d4aca0e6c74218b6374c5b18c56748"
+      }
+    },
+    "metrics": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 25
+        },
+        "sha256": "b12fe3ce7f9be7ac73955fec3e3dac0f98a61eb4ec349ca25070252811d176f5"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 25
+        },
+        "sha256": "b12fe3ce7f9be7ac73955fec3e3dac0f98a61eb4ec349ca25070252811d176f5"
+      }
+    },
+    "model": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 991,
+          "tensor_bytes": 101748880,
+          "tensor_numel": 25437220,
+          "tensors": 495
+        },
+        "sha256": "2b43162dca8322cd6baaa56612260410232233cf4c42d36278fded18095b8268"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 991,
+          "tensor_bytes": 101748880,
+          "tensor_numel": 25437220,
+          "tensors": 495
+        },
+        "sha256": "2b43162dca8322cd6baaa56612260410232233cf4c42d36278fded18095b8268"
+      }
+    },
+    "model_role": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "f76edd005b7e0b0bac772d5518c03354eb4da03885250790c74e905ad8ea3de5"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "f76edd005b7e0b0bac772d5518c03354eb4da03885250790c74e905ad8ea3de5"
+      }
+    },
+    "optimizer": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 503,
+          "nodes": 4622,
+          "sequences": 13,
+          "tensor_bytes": 203499740,
+          "tensor_numel": 50874935,
+          "tensors": 1485
+        },
+        "sha256": "2d9a4bcb1a410102064cce20ed8dd52c28e93766e80a85d163194a39208dbf6f"
+      },
+      "old": {
+        "counts": {
+          "mappings": 503,
+          "nodes": 4622,
+          "sequences": 13,
+          "tensor_bytes": 203499740,
+          "tensor_numel": 50874935,
+          "tensors": 1485
+        },
+        "sha256": "2d9a4bcb1a410102064cce20ed8dd52c28e93766e80a85d163194a39208dbf6f"
+      }
+    },
+    "pending_validation_step": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+      }
+    },
+    "provenance": {
+      "bit_exact": false,
+      "new": {
+        "counts": {
+          "mappings": 15,
+          "nodes": 245,
+          "sequences": 3
+        },
+        "sha256": "97328bd5f8130d36abe728b068f73b718bacd37237e22cbb4fc8c8d3d5dc2117"
+      },
+      "old": {
+        "counts": {
+          "mappings": 15,
+          "nodes": 245,
+          "sequences": 3
+        },
+        "sha256": "a5c07b66346310161bc6e0851a6f661b8966be56256833edac581371a398b060"
+      }
+    },
+    "resumable": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "716559ee7989d340d16b2b36d8073aad42f51c5eebd25de9390f6a788b3fca5f"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "716559ee7989d340d16b2b36d8073aad42f51c5eebd25de9390f6a788b3fca5f"
+      }
+    },
+    "rng_states": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 643,
+          "numpy_arrays": 1,
+          "numpy_bytes": 2496,
+          "sequences": 4,
+          "tensor_bytes": 5072,
+          "tensor_numel": 5072,
+          "tensors": 2
+        },
+        "sha256": "e00810b2c62d8a82a7c94b33e6656ca58a986dc905ec0c0b6019028bab9f7893"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 643,
+          "numpy_arrays": 1,
+          "numpy_bytes": 2496,
+          "sequences": 4,
+          "tensor_bytes": 5072,
+          "tensor_numel": 5072,
+          "tensors": 2
+        },
+        "sha256": "e00810b2c62d8a82a7c94b33e6656ca58a986dc905ec0c0b6019028bab9f7893"
+      }
+    },
+    "sampler_state": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 15
+        },
+        "sha256": "f1ab6c0437b4a77625f662743563763b5508cc3a72491c58f48a0e06d6dc8bd6"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 15
+        },
+        "sha256": "f1ab6c0437b4a77625f662743563763b5508cc3a72491c58f48a0e06d6dc8bd6"
+      }
+    },
+    "scaler": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+      }
+    },
+    "scheduler": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 31,
+          "sequences": 2
+        },
+        "sha256": "735901e0ca221fb3c8ad54a8aa5751562a8e82b5ad33bed7a63e16ff5670ac76"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 31,
+          "sequences": 2
+        },
+        "sha256": "735901e0ca221fb3c8ad54a8aa5751562a8e82b5ad33bed7a63e16ff5670ac76"
+      }
+    },
+    "schema_version": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "745620579ff5f5e0a99858db2894cb4767883ac0ffc0e81f5fc97e1d0fc973ad"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "745620579ff5f5e0a99858db2894cb4767883ac0ffc0e81f5fc97e1d0fc973ad"
+      }
+    },
+    "stage": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "c25f32f1f61f0a34d45f11625813434728c7c525f7c75b0f82f3ba1df94270e3"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "c25f32f1f61f0a34d45f11625813434728c7c525f7c75b0f82f3ba1df94270e3"
+      }
+    },
+    "step": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "ad6fc85992343bbbd537e32fa49aabfeaa78131b6ad5d22dd7bce561cb1ed7e8"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "ad6fc85992343bbbd537e32fa49aabfeaa78131b6ad5d22dd7bce561cb1ed7e8"
+      }
+    }
+  },
+  "source": {
+    "expected_sha256": "4ef4c817e925cedc413f2a529c1588f6643e22d07c02696f6585fd92a4b304f8",
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage0/recovery_step12000_before_ssim_fix.pth",
+    "sha256": "4ef4c817e925cedc413f2a529c1588f6643e22d07c02696f6585fd92a4b304f8"
+  },
+  "state_round_trip_bit_exact_outside_provenance": true,
+  "train_log_audit": {
+    "accepted_maximum_step": 12000,
+    "accepted_minimum_step": 1,
+    "accepted_train_step_record_count": 602,
+    "discarded_transient": {
+      "classification": "discarded_transient_not_in_step12000_checkpoint",
+      "event_counts": {
+        "train_step": 25
+      },
+      "maximum_step": 12500,
+      "minimum_step": 12020,
+      "record_count": 25,
+      "train_step_count": 25
+    },
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage0/train.jsonl",
+    "pre_boundary_lambda_ssim_all_zero": true,
+    "pre_boundary_ssim_loss_all_zero": true,
+    "sha256": "12ebc55136af38f734af766e060153e373f93b39bc1b803e4c3ae69f3157335d"
+  }
+}

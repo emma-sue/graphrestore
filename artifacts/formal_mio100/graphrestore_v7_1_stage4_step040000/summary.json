@@ -1,0 +1,147 @@
+{
+  "aggregation": {
+    "combinations": {
+      "dark+defocus blur+jpeg compression artifact": {
+        "count": 100,
+        "psnr": 15.699723777770997,
+        "ssim": 0.5225380034960818
+      },
+      "dark+noise": {
+        "count": 80,
+        "psnr": 26.33369607925415,
+        "ssim": 0.8520174716044918
+      },
+      "defocus blur+haze": {
+        "count": 80,
+        "psnr": 22.38914797306061,
+        "ssim": 0.7780569097041856
+      },
+      "defocus blur+jpeg compression artifact": {
+        "count": 80,
+        "psnr": 25.187470173835756,
+        "ssim": 0.7139193642925925
+      },
+      "defocus blur+low resolution": {
+        "count": 100,
+        "psnr": 24.71186194419861,
+        "ssim": 0.6777125339808259
+      },
+      "haze+motion blur+low resolution": {
+        "count": 100,
+        "psnr": 15.49556788444519,
+        "ssim": 0.515950551468158
+      },
+      "haze+noise": {
+        "count": 100,
+        "psnr": 14.206177039146423,
+        "ssim": 0.6451947515084581
+      },
+      "motion blur+dark": {
+        "count": 80,
+        "psnr": 20.49496042728424,
+        "ssim": 0.6454416920812314
+      },
+      "motion blur+defocus blur+noise": {
+        "count": 100,
+        "psnr": 19.388004655838014,
+        "ssim": 0.5344638419577975
+      },
+      "motion blur+jpeg compression artifact": {
+        "count": 100,
+        "psnr": 21.752933549880982,
+        "ssim": 0.6449678488701296
+      },
+      "motion blur+low resolution": {
+        "count": 80,
+        "psnr": 21.735155832767486,
+        "ssim": 0.6139959146284342
+      },
+      "noise+jpeg compression artifact": {
+        "count": 80,
+        "psnr": 28.302772569656373,
+        "ssim": 0.8439630269315932
+      },
+      "rain+dark": {
+        "count": 100,
+        "psnr": 18.620868854522705,
+        "ssim": 0.7036183292838727
+      },
+      "rain+haze": {
+        "count": 80,
+        "psnr": 25.20911878347397,
+        "ssim": 0.8974481296948624
+      },
+      "rain+low resolution": {
+        "count": 80,
+        "psnr": 25.341243386268616,
+        "ssim": 0.7345679868621634
+      },
+      "rain+noise+low resolution": {
+        "count": 100,
+        "psnr": 23.515649452209473,
+        "ssim": 0.652398547282245
+      }
+    },
+    "groups": {
+      "A": {
+        "psnr": 24.37419565320015,
+        "ssim": 0.7599263119749443
+      },
+      "B": {
+        "psnr": 19.82296034693718,
+        "ssim": 0.6678733659108216
+      },
+      "C": {
+        "psnr": 18.524736442565917,
+        "ssim": 0.5563377360510706
+      }
+    },
+    "image_count": 1440,
+    "weighted_all_images": {
+      "psnr": 21.485113842950927,
+      "ssim": 0.6778036669782787
+    }
+  },
+  "authorization_sha256": "38647a598503ff0c1776e618a559c6d25d1a8b552fbf1bace765b08ddad9b474",
+  "checkpoint_sha256": "6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd",
+  "created_utc": "2026-08-20T08:42:42Z",
+  "formal_data_inventory": {
+    "files_digest": "e38d71c6d760b39371b7a3a1712a1c118dcce33e619373e1f6c0238ee6dc8f57",
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/formal_data_inventory.json",
+    "rows_digest": "033733a935f6c413e0cd6d39f89aef3ae2d816cc78c1734be02a4fde9dd23254",
+    "sha256": "489d9c216589bb73f4b99ec8301abd57d77b7d418489cef02c162bc135aa91ae"
+  },
+  "image_count": 1440,
+  "manifest_sha256": "83fb90dfa121681123f55e73df32eb6c1bc37e685c0e27ae07ad7e59a687a7f5",
+  "method_name": "graphrestore_v7_1_stage4_step040000",
+  "metric_protocol": {
+    "group_reduction": "equal_combination_mean",
+    "prediction_source": "lossless_png_readback",
+    "psnr": "AgenticIR/pyiqa-0.1.10 RGB parity",
+    "ssim": "AgenticIR/pyiqa-0.1.10 Y parity",
+    "weighted_all_images": "additional_only"
+  },
+  "outputs": {
+    "agenticir_methods_root": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/methods/graphrestore_v7_1_stage4_step040000",
+    "per_image_csv": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/per_image.csv",
+    "table1_input_jsonl": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/table1_input.jsonl"
+  },
+  "predictions_digest": "e922e274f42d40a93673252336950595f1bb552e83d0abf75992e40424ffce6e",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "run_contract_sha256": "cae873ae874102d31e1433df253be4c4caac753481ad25d04f1c7981eea78296",
+  "runtime": {
+    "active_skill_calls": 2619,
+    "dropped_edges": 0,
+    "mean_latency_ms": 330.16168197306496,
+    "mean_program_levels": 1.1784722222222221,
+    "parallel_level_fraction": 0.5356511490866235,
+    "parallel_levels": 909,
+    "peak_reserved_fraction": 0.12120300205723418,
+    "precycle_graphs": 0,
+    "program_levels": 1697,
+    "reentry_requests": 169,
+    "total_latency_ms": 475432.8220412135,
+    "unexpected_activations": 1
+  },
+  "schema_version": "graphrestore-formal-mio100-summary-v1"
+}

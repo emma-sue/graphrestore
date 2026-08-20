@@ -1,0 +1,134 @@
+{
+  "candidate_order": [
+    "pre_finetune",
+    "post_finetune_endpoint"
+  ],
+  "candidates": {
+    "post_finetune_endpoint": {
+      "checkpoint": "/root/autodl-tmp/aaa/provir/artifacts/checkpoints/stage_a/finetune/finetune_final.ckpt",
+      "checkpoint_sha256": "66e056ff3537ea99416aeb119173e90fbcafc9e9f809db169ef7381cc93f77b8",
+      "epoch": 5,
+      "global_step": 41530,
+      "phase": "finetune",
+      "score": 33.688726584637614,
+      "settings": {
+        "dehaze": {
+          "num_images": 205,
+          "psnr_db": 36.43194587952725,
+          "ssim": 0.9897805554110829
+        },
+        "denoise15": {
+          "num_images": 103,
+          "psnr_db": 34.77705775608225,
+          "ssim": 0.9398076106043696
+        },
+        "denoise25": {
+          "num_images": 103,
+          "psnr_db": 32.2885079284459,
+          "ssim": 0.9082623297728382
+        },
+        "denoise50": {
+          "num_images": 103,
+          "psnr_db": 28.999221739501785,
+          "ssim": 0.8425614723881472
+        },
+        "derain": {
+          "num_images": 20,
+          "psnr_db": 35.94689961963086,
+          "ssim": 0.9752360165119172
+        }
+      }
+    },
+    "pre_finetune": {
+      "checkpoint": "/root/autodl-tmp/aaa/provir/artifacts/checkpoints/stage_a/best_locked_val.ckpt",
+      "checkpoint_sha256": "ac2fffef68a6ac3091e7b0a172f0587e16929378970bfc97f13bf261df67e0ac",
+      "epoch": 75,
+      "global_step": 155700,
+      "phase": "pretrain",
+      "score": 33.421925263690014,
+      "settings": {
+        "dehaze": {
+          "num_images": 205,
+          "psnr_db": 35.37155861161939,
+          "ssim": 0.9884711864517957
+        },
+        "denoise15": {
+          "num_images": 103,
+          "psnr_db": 34.73684146915537,
+          "ssim": 0.9390883341576289
+        },
+        "denoise25": {
+          "num_images": 103,
+          "psnr_db": 32.2430665168895,
+          "ssim": 0.9071475614621801
+        },
+        "denoise50": {
+          "num_images": 103,
+          "psnr_db": 28.94760171391781,
+          "ssim": 0.8403413272598415
+        },
+        "derain": {
+          "num_images": 20,
+          "psnr_db": 35.81055800686798,
+          "ssim": 0.9746321529150009
+        }
+      }
+    }
+  },
+  "claim_boundary": "locked-validation two-endpoint backbone selection under the results-aware endpoint amendment only; no official-test or intervention claim",
+  "continuation": {
+    "path": "/root/autodl-tmp/aaa/provir/artifacts/manifests/post_diagnostic_continuation_20260808.json",
+    "sha256": "9c88f5f7396b62a982c59643b8f565c2b23a3e072c4a4c4e433d2b270a69d399"
+  },
+  "created_utc": "2026-08-08T19:36:44.275256+00:00",
+  "finetune_early_stopping_amendment": {
+    "chronology": {
+      "disclosure": "The user issued this compute-allocation amendment after seeing validation through finetune epoch 5 and before epoch 6 validation. It is results-aware and must not be represented as a pre-result preregistration.",
+      "finetune_epoch006_validation_existed_when_frozen": false,
+      "results_available_when_authorized": [
+        "finetune_epoch001",
+        "finetune_epoch002",
+        "finetune_epoch003",
+        "finetune_epoch004",
+        "finetune_epoch005"
+      ],
+      "training_was_running_inside_epoch006_when_frozen": true
+    },
+    "endpoint_epoch": 5,
+    "endpoint_source": "/root/autodl-tmp/aaa/provir/artifacts/checkpoints/stage_a/finetune/best_locked_val.ckpt",
+    "endpoint_source_sha256": "66e056ff3537ea99416aeb119173e90fbcafc9e9f809db169ef7381cc93f77b8",
+    "path": "/root/autodl-tmp/aaa/provir/artifacts/manifests/finetune_early_stopping_amendment_20260808.json",
+    "policy_id": "finetune_epoch4_min_delta_002_patience2_historical_best",
+    "sha256": "aceccaee067ff4069cf4d3795e92c986a469d236accabe3b856f681edc0fe1e8",
+    "trigger_epoch": 5
+  },
+  "finetune_endpoint_policy": "results_aware_early_stop_historical_best",
+  "kind": "stage_a_post_diagnostic_two_candidate_selection",
+  "metric": "five_setting_equal_weight_macro_psnr",
+  "official_test_used": false,
+  "preserved_early_stop_e085_artifacts": {
+    "oracle_csv": {
+      "path": "/root/autodl-tmp/aaa/provir/artifacts/metrics/oracle_ceiling_early_stop_e085.csv",
+      "sha256": "cfb187dcfc08fe38f7861a10ddc6882e6804c90020fe18ea3e3a9a776b0c84c3"
+    },
+    "per_image_csv": {
+      "path": "/root/autodl-tmp/aaa/provir/artifacts/metrics/counterfactual_per_image_early_stop_e085.csv",
+      "sha256": "0be539984ac59b1b94701bac8f8927e9d07fa63d7d9830612b2ded6b00587055"
+    },
+    "report": {
+      "path": "/root/autodl-tmp/aaa/provir/reports/COUNTERFACTUAL_DIAGNOSTIC_EARLY_STOP_E085.md",
+      "sha256": "eacb131f24e9f645b92eff26d3e258be90170a1a01b55b4db47e6171c09b5430"
+    },
+    "stats_json": {
+      "path": "/root/autodl-tmp/aaa/provir/artifacts/stats/counterfactual_stats_early_stop_e085.json",
+      "sha256": "203c23c34432ae09d2f84f672b6903fe36dd8378fe199e312c78ea779711b3e2"
+    }
+  },
+  "schema_version": "1.0",
+  "selected": "post_finetune_endpoint",
+  "selected_checkpoint": "/root/autodl-tmp/aaa/provir/artifacts/checkpoints/stage_a/final_backbone.ckpt",
+  "selected_checkpoint_sha256": "66e056ff3537ea99416aeb119173e90fbcafc9e9f809db169ef7381cc93f77b8",
+  "selected_source_checkpoint": "/root/autodl-tmp/aaa/provir/artifacts/checkpoints/stage_a/finetune/finetune_final.ckpt",
+  "selected_source_checkpoint_sha256": "66e056ff3537ea99416aeb119173e90fbcafc9e9f809db169ef7381cc93f77b8",
+  "tie_break": "pre_finetune"
+}

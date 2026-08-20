@@ -1,0 +1,460 @@
+{
+  "all_checkpoint_tensors_finite": true,
+  "approval_and_bindings_unchanged": {
+    "approval_required_sha256": "33be4aba2c4229175ac33edef7a5914a48a249b8c733d86338c64a8662072825",
+    "approval_sha256": "7b351c0958aa681dc1f65114e801c58e3a5bc4bb7cc73c06507c0b647e51a08b",
+    "binding_count": 22,
+    "binding_sha256": {
+      "clean_train_manifest": "00247444a3b7304fe83a4783cae694181e6796253c6915d2491009def03df257",
+      "clean_val_manifest": "88276445c7cc1166ace77904276dbeb61f3a049572e3b23fd1aad2b5f831947d",
+      "config_resolved_paths": "de5523bf9b786f40bafa7860c3b3bc0e0067f3d539e827f91fb4517a490d5e8c",
+      "config_stage0": "1bfb0444e311d110c6929ce30fdcf888a73d0f10167ed27e3328492a08406283",
+      "config_stage1": "c673a769d06f5476f3c8cae05214c6d7217eee4e2c98ab7320a799c3a1cd5a4c",
+      "config_stage2": "0ec91a4327d238c0b4195b0ba89e9bd5f4c71e438c9ff311f1846de08b071ff8",
+      "config_stage3": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e",
+      "config_stage4": "ef1f53623d9171d1e5a6b052ee6ef9230137e1b8555dbc17924620870ea99d71",
+      "global_priority": "80504122f5ce8e8beedf630426bd8e15485efc9db0f9b3d0adf39ca6dd54b0d8",
+      "interaction_report": "6631942335487f05f27a4bde22c58918565507fd11bb9f51ea6c43163daf7a5c",
+      "interaction_summary_csv": "06ec62420273acbd85ddb65751279f884a97725830d2803923a66cfc4ac143ce",
+      "interaction_train_manifest": "d8f80d59fa46b9afe303693e30c353e6beb870503de7a8bc9fca7d59e1a7b32c",
+      "interaction_val_manifest": "359bbef307812f546dae0cc42675a1041649fda77338c674bbdadd72df1df3d2",
+      "pair_prior": "4116725bce4ecfaceaa1429183e86738ee7ec38835e25886cacd9aa3aec38d82",
+      "primary_all_manifest": "f4080efc2572ce2377646a8acabcbebe092e4a3feeabafc4200984b716c8e8eb",
+      "primary_train_manifest": "83da30d0b8445d5bb427c336b125214ee62f2a0ec3a5bab61ca7119703044071",
+      "primary_val_manifest": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b",
+      "relation_train": "b65de122964c963636c94b14fac7494c9c995c3f9c4022e405d4d6d026642c18",
+      "relation_val": "6c641406fc50e26a5e1af30b4d113a00439576341b5620022e5ab8514c189f30",
+      "skill_effect_profiles": "a1af32c5c285591a0eb18cd21c89a82a43f11b2fac19aefb0d6c10d1c3d0ef07",
+      "stage1_checkpoint": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa",
+      "stage2_decision": "434e209ac0db201ca7f1be045e3811547d8f3cc974ff3ef740c96c3689329a47"
+    }
+  },
+  "backup": {
+    "checkpoint": {
+      "device": 2304,
+      "hard_link_verified": true,
+      "inode": 6493795583,
+      "mode": 384,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_guard_alignment_pending2000_v1/last.pre_guard_alignment.526b4a2d43695204c33fa99f88278a69512eb7d7213583680b21d0258a054921.pth",
+      "sha256": "526b4a2d43695204c33fa99f88278a69512eb7d7213583680b21d0258a054921"
+    },
+    "run_contract": {
+      "device": 2304,
+      "hard_link_verified": true,
+      "inode": 6493795556,
+      "mode": 384,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_guard_alignment_pending2000_v1/run_contract.pre_guard_alignment.18238a9e6fae059e7034b0228b8b0028181087a8a7a5c6899903c2a9a6188cbd.json",
+      "sha256": "18238a9e6fae059e7034b0228b8b0028181087a8a7a5c6899903c2a9a6188cbd"
+    }
+  },
+  "backup_read_only_after_publication": true,
+  "checkpoint_section_fingerprints": {
+    "amp": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 5
+        },
+        "sha256": "adb6702811ca1097f51be6e30f4a20c88049c55d6e503dd04f618fe9e793b9bc"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 5
+        },
+        "sha256": "adb6702811ca1097f51be6e30f4a20c88049c55d6e503dd04f618fe9e793b9bc"
+      }
+    },
+    "ema": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 3,
+          "nodes": 3307,
+          "tensor_bytes": 107773664,
+          "tensor_numel": 26943416,
+          "tensors": 1640
+        },
+        "sha256": "9e029dca4d57c98757180471e8e52ae0c2cc0cf979aefde6d19830f1b59d76fd"
+      },
+      "old": {
+        "counts": {
+          "mappings": 3,
+          "nodes": 3307,
+          "tensor_bytes": 107773664,
+          "tensor_numel": 26943416,
+          "tensors": 1640
+        },
+        "sha256": "9e029dca4d57c98757180471e8e52ae0c2cc0cf979aefde6d19830f1b59d76fd"
+      }
+    },
+    "executor_frozen": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "716559ee7989d340d16b2b36d8073aad42f51c5eebd25de9390f6a788b3fca5f"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "716559ee7989d340d16b2b36d8073aad42f51c5eebd25de9390f6a788b3fca5f"
+      }
+    },
+    "metrics": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 1
+        },
+        "sha256": "510077a5a948a95930b12d86a19ec47901e7dabb3c9e3653da3012f8a0e6f822"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 1
+        },
+        "sha256": "510077a5a948a95930b12d86a19ec47901e7dabb3c9e3653da3012f8a0e6f822"
+      }
+    },
+    "model": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 3281,
+          "tensor_bytes": 107773664,
+          "tensor_numel": 26943416,
+          "tensors": 1640
+        },
+        "sha256": "880a4f12efdbdb97586b4da9b26090bf20595c05e40298eaae5f8b964f671661"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 3281,
+          "tensor_bytes": 107773664,
+          "tensor_numel": 26943416,
+          "tensors": 1640
+        },
+        "sha256": "880a4f12efdbdb97586b4da9b26090bf20595c05e40298eaae5f8b964f671661"
+      }
+    },
+    "model_role": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "f76edd005b7e0b0bac772d5518c03354eb4da03885250790c74e905ad8ea3de5"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "f76edd005b7e0b0bac772d5518c03354eb4da03885250790c74e905ad8ea3de5"
+      }
+    },
+    "optimizer": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 106,
+          "nodes": 959,
+          "sequences": 3,
+          "tensor_bytes": 3822076,
+          "tensor_numel": 955519,
+          "tensors": 309
+        },
+        "sha256": "2fed14a6559f3853afe1bb02ce24427f756f01550e302f8d79230a9083011d1b"
+      },
+      "old": {
+        "counts": {
+          "mappings": 106,
+          "nodes": 959,
+          "sequences": 3,
+          "tensor_bytes": 3822076,
+          "tensor_numel": 955519,
+          "tensors": 309
+        },
+        "sha256": "2fed14a6559f3853afe1bb02ce24427f756f01550e302f8d79230a9083011d1b"
+      }
+    },
+    "optimizer_state_name_ledger": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 207
+        },
+        "sha256": "4e4cf084438bb2eecfcb6a708e9f6ed417c36c530d973a1fe92983fb937c98c5"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 207
+        },
+        "sha256": "4e4cf084438bb2eecfcb6a708e9f6ed417c36c530d973a1fe92983fb937c98c5"
+      }
+    },
+    "optimizer_transaction_active": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "334be0be8db6b8cb6ea4290b802ace9ae766ac73ae255939d8a489c4c8fa028e"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "334be0be8db6b8cb6ea4290b802ace9ae766ac73ae255939d8a489c4c8fa028e"
+      }
+    },
+    "pending_validation_step": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "211bc9bd59304f57b34e7a82b4b40855605e8357e493a619ea373fe50f49cd7a"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "211bc9bd59304f57b34e7a82b4b40855605e8357e493a619ea373fe50f49cd7a"
+      }
+    },
+    "provenance": {
+      "bit_exact": false,
+      "new": {
+        "counts": {
+          "mappings": 36,
+          "nodes": 433,
+          "sequences": 3
+        },
+        "sha256": "59e046b825dec02defbf6ca8e2a5b5011f5d2054dc7ca4b4a0d89b9c84a673f5"
+      },
+      "old": {
+        "counts": {
+          "mappings": 36,
+          "nodes": 433,
+          "sequences": 3
+        },
+        "sha256": "d4df2cf7e67b0e3f691e994a649b1aae77e7cc7d17b0713e2ef53a18ebc4b1ef"
+      }
+    },
+    "resumable": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "716559ee7989d340d16b2b36d8073aad42f51c5eebd25de9390f6a788b3fca5f"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "716559ee7989d340d16b2b36d8073aad42f51c5eebd25de9390f6a788b3fca5f"
+      }
+    },
+    "rng_states": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 643,
+          "numpy_arrays": 1,
+          "numpy_bytes": 2496,
+          "sequences": 4,
+          "tensor_bytes": 5072,
+          "tensor_numel": 5072,
+          "tensors": 2
+        },
+        "sha256": "c3dc999ac5be5f370adb5f6e7f2e00f9c254a59e286f30fe9e1e57acd11c252d"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 643,
+          "numpy_arrays": 1,
+          "numpy_bytes": 2496,
+          "sequences": 4,
+          "tensor_bytes": 5072,
+          "tensor_numel": 5072,
+          "tensors": 2
+        },
+        "sha256": "c3dc999ac5be5f370adb5f6e7f2e00f9c254a59e286f30fe9e1e57acd11c252d"
+      }
+    },
+    "sampler_state": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 15
+        },
+        "sha256": "0b727d85e424d743fb554eb87daa958c6bc5b5e91a97fab5a6945f405b89c38b"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 15
+        },
+        "sha256": "0b727d85e424d743fb554eb87daa958c6bc5b5e91a97fab5a6945f405b89c38b"
+      }
+    },
+    "scaler": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+      }
+    },
+    "scheduler": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 21,
+          "sequences": 2
+        },
+        "sha256": "6a4372eb97ec87c5a5992f61f7e9584525b2db32f764c81ee88fcc55819f3214"
+      },
+      "old": {
+        "counts": {
+          "mappings": 1,
+          "nodes": 21,
+          "sequences": 2
+        },
+        "sha256": "6a4372eb97ec87c5a5992f61f7e9584525b2db32f764c81ee88fcc55819f3214"
+      }
+    },
+    "schema_version": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "745620579ff5f5e0a99858db2894cb4767883ac0ffc0e81f5fc97e1d0fc973ad"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "745620579ff5f5e0a99858db2894cb4767883ac0ffc0e81f5fc97e1d0fc973ad"
+      }
+    },
+    "stage": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "20a270d26cc1b8f3587a5670cfe67db0663fe861fcb1829e07e5f881be034048"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "20a270d26cc1b8f3587a5670cfe67db0663fe861fcb1829e07e5f881be034048"
+      }
+    },
+    "step": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "211bc9bd59304f57b34e7a82b4b40855605e8357e493a619ea373fe50f49cd7a"
+      },
+      "old": {
+        "counts": {
+          "nodes": 1
+        },
+        "sha256": "211bc9bd59304f57b34e7a82b4b40855605e8357e493a619ea373fe50f49cd7a"
+      }
+    },
+    "trainable_prefixes": {
+      "bit_exact": true,
+      "new": {
+        "counts": {
+          "nodes": 2,
+          "sequences": 1
+        },
+        "sha256": "ccf05c7f214d3ecd2e07ee720e52a07b68024ec1b3bf58effe03d9a7b4d4a329"
+      },
+      "old": {
+        "counts": {
+          "nodes": 2,
+          "sequences": 1
+        },
+        "sha256": "ccf05c7f214d3ecd2e07ee720e52a07b68024ec1b3bf58effe03d9a7b4d4a329"
+      }
+    }
+  },
+  "checkpoint_state_bit_exact_outside_provenance": true,
+  "completed_utc": "2026-08-17T12:11:09Z",
+  "cpu_only": true,
+  "created_utc": "2026-08-17T12:11:07Z",
+  "cuda_visible_devices": "",
+  "exact_provenance_leaf_diff": [
+    {
+      "new": "65a0812ea60dba4721e1dc4f744282ef23990ac78c32106ad8774d7dafa71a14",
+      "old": "a8b4aad04f1bafa1e1721c2a3a4fbc70ca4e5c05b23db43fcfc50c01801980aa",
+      "path": "semantic_source_sha256.src/training/stage3_engine.py"
+    },
+    {
+      "new": "e2fbfbc2ee580b90cb92c48e6b289d6bc6d3d4651c42d34295ce07fc664814b6",
+      "old": "03f8af0f0cd57bbaa56c2e2ab5163f8b52d81756e131c43794bceec111aeed34",
+      "path": "semantic_source_sha256.src/training/stage4_engine.py"
+    }
+  ],
+  "migration": "stage3_pending_2000_guard_alignment_provenance_only",
+  "migration_script_sha256": "96b28d294e9632882afafb1a93d23fd10c21f8458fa675a8d37276d41d0a90db",
+  "new": {
+    "checkpoint_sha256": "39bc85036a372df040774bf93d3000d0a5e36853e0e07b4648d7a01953a30d16",
+    "provenance_json_sha256": "9be0581d675b2aa760f58574b4f707db98c0a2e817bdfa3100300f7cc16c4f31",
+    "run_contract_sha256": "156a57b5f74659c45d2123e98c3e89c02b4611136e960d1134d0d88b092084b5"
+  },
+  "old": {
+    "checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/last.pth",
+      "sha256": "526b4a2d43695204c33fa99f88278a69512eb7d7213583680b21d0258a054921"
+    },
+    "provenance_json_sha256": "8bbb2e2fe55912df23fb6256531660f86605d371f0980ad54fc7f7b73ff142bf",
+    "run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/run_contract.json",
+      "sha256": "18238a9e6fae059e7034b0228b8b0028181087a8a7a5c6899903c2a9a6188cbd"
+    }
+  },
+  "orchestration_state": {
+    "current_stage": "FAILED",
+    "gpu": "released",
+    "last_exit_code": 3,
+    "next_command": "python scripts/orchestrate.py --resume_post_approval_pipeline",
+    "status": "FAILED"
+  },
+  "orchestration_state_sha256": "3a20c96c0aab19c4519c1f6b8692a7bdad11f1fc685f3e32de819205e2b5eabe",
+  "pending_validation_step": 2000,
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "run_contract_bit_exact_outside_provenance": true,
+  "schema_version": "graphrestore-stage3-guard-alignment-migration-v1",
+  "status": "COMPLETE",
+  "step": 2000
+}

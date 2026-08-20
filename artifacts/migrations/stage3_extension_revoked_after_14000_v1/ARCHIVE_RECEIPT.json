@@ -1,0 +1,58 @@
+{
+  "created_utc": "2026-08-18T05:29:45Z",
+  "files": {
+    "extension_authorization": {
+      "archive_inode": 8616813686,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/STAGE3_EXTENSION_APPROVED.json",
+      "archive_sha256": "43e010f9c66301415b8bd2d3ac7e48aa7653283671a2756dc744926a4a4724fd",
+      "mode": "0444",
+      "source_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_EXTENSION_APPROVED.json",
+      "source_sha256": "43e010f9c66301415b8bd2d3ac7e48aa7653283671a2756dc744926a4a4724fd"
+    },
+    "failed_orchestration_state": {
+      "archive_inode": 8616813683,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/failed_state.json",
+      "archive_sha256": "3218ebf9ff3f5a610dadd2fbeb4eaf12fa20a9fa8b1af2554550c3c0fe595ff3",
+      "mode": "0444",
+      "source_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/orchestration/state.json",
+      "source_sha256": "3218ebf9ff3f5a610dadd2fbeb4eaf12fa20a9fa8b1af2554550c3c0fe595ff3"
+    },
+    "orchestrator_console": {
+      "archive_inode": 8616813687,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/orchestrator_console.log",
+      "archive_sha256": "a60d05f47f314c0f90f76fe0113bb5b37acc138e6a56fb47a5054c1c3e0471ae",
+      "mode": "0444",
+      "source_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/logs/stage3_stage4_orchestrator_console.log",
+      "source_sha256": "a60d05f47f314c0f90f76fe0113bb5b37acc138e6a56fb47a5054c1c3e0471ae"
+    },
+    "run_contract": {
+      "archive_inode": 8616813682,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/run_contract.json",
+      "archive_sha256": "0f38784922de0670a2974f234de22b1c464495fd3c268d08128e29205ed26311",
+      "mode": "0444",
+      "source_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/run_contract.json",
+      "source_sha256": "0f38784922de0670a2974f234de22b1c464495fd3c268d08128e29205ed26311"
+    },
+    "stage3_last_pending_14000": {
+      "archive_inode": 8616813684,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/abandoned_last_step14000_pending14000.pth",
+      "archive_sha256": "c5455bea98322a23923c9d7173ead50abb818d8ca37e2498fcea4faf9283cc67",
+      "mode": "0444",
+      "source_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/last.pth",
+      "source_sha256": "c5455bea98322a23923c9d7173ead50abb818d8ca37e2498fcea4faf9283cc67"
+    },
+    "stage3_train_log": {
+      "archive_inode": 8616813685,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/train.jsonl",
+      "archive_sha256": "b125ae025b934f72ed18a33e1c39e93d1e1807c25c3750cf04c52e7ce26d365a",
+      "mode": "0444",
+      "source_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/train.jsonl",
+      "source_sha256": "b125ae025b934f72ed18a33e1c39e93d1e1807c25c3750cf04c52e7ce26d365a"
+    }
+  },
+  "kind": "stage3_abandoned_extension_audit_archive",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "reason": "User revoked the mistaken Stage3 extension after step14000 became pending and before its validation committed; all copied state is audit-only and must never enter checkpoint selection or Stage4.",
+  "schema_version": "graphrestore-stage3-abandoned-extension-archive-v1",
+  "user_decision_sha256": "94c0bf820f9a101c51389a27ee7ac151938edd8de228d43ab12338fb9b4632e4"
+}

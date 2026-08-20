@@ -1,0 +1,13 @@
+{
+  "best_checkpoint": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage1/best_ema.pth",
+  "completed_utc": "2026-08-17T02:51:23Z",
+  "last_checkpoint": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage1/last.pth",
+  "maximum_train_peak_reserved_bytes": 19025362944,
+  "maximum_train_peak_reserved_fraction": 0.7531189278515263,
+  "maximum_validation_peak_reserved_bytes": 11851005952,
+  "maximum_validation_peak_reserved_fraction": 0.4691220305653632,
+  "provenance_sha256": "c852975870a6cac75996875f37e419835febb29d705c2615c8ace174445f2a1e",
+  "report": "/root/autodl-tmp/aaa/graphrestore/reports/STAGE1_SKILL_BANK.md",
+  "schema_version": "graphrestore-stage1-complete-v1",
+  "step": 30000
+}

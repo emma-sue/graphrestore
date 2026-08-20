@@ -1,0 +1,155 @@
+{
+  "created_utc": "2026-08-17T02:51:20Z",
+  "dataset": "primary_val_single_and_group_a_only",
+  "episodes": {
+    "pair_isolation": {
+      "active_rate": 0.125,
+      "count": 1600,
+      "psnr": 29.241925800442697,
+      "residual_norm": 0.06343052643040835,
+      "ssim": 0.8468425488412182
+    },
+    "pair_parallel": {
+      "active_rate": 0.25,
+      "count": 800,
+      "psnr": 25.470635026693344,
+      "residual_norm": 0.10325484938803128,
+      "ssim": 0.772928579242125
+    },
+    "single_skill": {
+      "active_rate": 0.125,
+      "count": 800,
+      "psnr": 28.985509393215178,
+      "residual_norm": 0.07115191363169288,
+      "ssim": 0.8669213048307631
+    }
+  },
+  "group_a_combinations": {
+    "dark+noise": {
+      "active_rate": 0.25,
+      "count": 100,
+      "psnr": 26.453959140777588,
+      "residual_norm": 0.1851519037038088,
+      "ssim": 0.8044079781071869
+    },
+    "defocus blur+haze": {
+      "active_rate": 0.25,
+      "count": 100,
+      "psnr": 24.479460105895996,
+      "residual_norm": 0.14022058386355638,
+      "ssim": 0.8145887261386511
+    },
+    "defocus blur+jpeg compression artifact": {
+      "active_rate": 0.25,
+      "count": 100,
+      "psnr": 25.571225070953368,
+      "residual_norm": 0.03257153442595154,
+      "ssim": 0.7307615917493798
+    },
+    "motion blur+dark": {
+      "active_rate": 0.25,
+      "count": 100,
+      "psnr": 21.588362979888917,
+      "residual_norm": 0.15183984510600568,
+      "ssim": 0.6854666846284231
+    },
+    "motion blur+low resolution": {
+      "active_rate": 0.25,
+      "count": 100,
+      "psnr": 22.167508020401,
+      "residual_norm": 0.01414294510614127,
+      "ssim": 0.6574120792055952
+    },
+    "noise+jpeg compression artifact": {
+      "active_rate": 0.25,
+      "count": 100,
+      "psnr": 28.61029842376709,
+      "residual_norm": 0.05006653317250311,
+      "ssim": 0.8355489090472078
+    },
+    "rain+haze": {
+      "active_rate": 0.25,
+      "count": 100,
+      "psnr": 28.545420818328857,
+      "residual_norm": 0.1810393189638853,
+      "ssim": 0.9139320229938884
+    },
+    "rain+low resolution": {
+      "active_rate": 0.25,
+      "count": 100,
+      "psnr": 26.348845653533935,
+      "residual_norm": 0.07100613076239824,
+      "ssim": 0.7413106420666675
+    }
+  },
+  "group_a_equal_combination_mean": {
+    "active_rate": 0.25,
+    "combination_count": 8,
+    "count": 800,
+    "psnr": 25.470635026693344,
+    "residual_norm": 0.10325484938803128,
+    "ssim": 0.772928579242125
+  },
+  "image_program_evaluations": 3200,
+  "output_quantization": "clamp_round_uint8",
+  "per_skill": {
+    "defocus_blur": {
+      "active_rate": 0.175,
+      "count": 500,
+      "psnr": 26.68306267166138,
+      "residual_norm": 0.051721637916751204,
+      "ssim": 0.787832191988631
+    },
+    "haze": {
+      "active_rate": 0.175,
+      "count": 500,
+      "psnr": 28.962133674621583,
+      "residual_norm": 0.1533066575974226,
+      "ssim": 0.9336079928750631
+    },
+    "jpeg_artifact": {
+      "active_rate": 0.175,
+      "count": 500,
+      "psnr": 28.26549118614197,
+      "residual_norm": 0.026908277188660578,
+      "ssim": 0.8062985388457473
+    },
+    "low_light": {
+      "active_rate": 0.175,
+      "count": 500,
+      "psnr": 26.75832883834839,
+      "residual_norm": 0.16303086549043655,
+      "ssim": 0.8306008359855177
+    },
+    "low_resolution": {
+      "active_rate": 0.175,
+      "count": 500,
+      "psnr": 27.07714722633362,
+      "residual_norm": 0.03350030265795067,
+      "ssim": 0.770401914606571
+    },
+    "motion_blur": {
+      "active_rate": 0.175,
+      "count": 500,
+      "psnr": 23.51637876701355,
+      "residual_norm": 0.03405433425738011,
+      "ssim": 0.7296103061881106
+    },
+    "noise": {
+      "active_rate": 0.175,
+      "count": 500,
+      "psnr": 29.005861930847168,
+      "residual_norm": 0.09381380617649665,
+      "ssim": 0.8313122257143967
+    },
+    "rain": {
+      "active_rate": 0.175,
+      "count": 500,
+      "psnr": 31.188605381011964,
+      "residual_norm": 0.09090038314461708,
+      "ssim": 0.880677691391882
+    }
+  },
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "schema_version": "graphrestore-stage1-validation-v1"
+}

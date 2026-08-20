@@ -1,0 +1,264 @@
+{
+  "abandoned_pending_validation_step": 14000,
+  "abandoned_step": 14000,
+  "allowed_semantic_source_drift": [
+    "scripts/train_stage3_planner.py",
+    "src/training/orchestration.py",
+    "src/training/stage3_engine.py",
+    "src/training/stage4_engine.py"
+  ],
+  "authorized_pipeline": [
+    "stage3_finalize_only",
+    "stage4"
+  ],
+  "bindings": {
+    "abandoned_last_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/abandoned_last_step14000_pending14000.pth",
+      "sha256": "c5455bea98322a23923c9d7173ead50abb818d8ca37e2498fcea4faf9283cc67"
+    },
+    "approval_required": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_APPROVAL_REQUIRED.json",
+      "sha256": "33be4aba2c4229175ac33edef7a5914a48a249b8c733d86338c64a8662072825"
+    },
+    "calibration_history": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/calibration_history.csv",
+      "sha256": "b282987c3f77034f76788a412e91823cd4570ce8c6c10cd93030ee181612e034"
+    },
+    "global_priority": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/global_priority.json",
+      "sha256": "80504122f5ce8e8beedf630426bd8e15485efc9db0f9b3d0adf39ca6dd54b0d8"
+    },
+    "historical_extension_authorization": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_EXTENSION_APPROVED.json",
+      "sha256": "43e010f9c66301415b8bd2d3ac7e48aa7653283671a2756dc744926a4a4724fd"
+    },
+    "historical_extension_migration_receipt": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/MIGRATION_RECEIPT.json",
+      "sha256": "a5fe047b065542e825ba39a1729d94ffe76eba0aa268d5cfaa81a3213867a9a1"
+    },
+    "pair_prior": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/pair_prior.json",
+      "sha256": "4116725bce4ecfaceaa1429183e86738ee7ec38835e25886cacd9aa3aec38d82"
+    },
+    "pre_extension_best_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/best_ema.pth",
+      "sha256": "b26ebca987fae140bbaff8a7b530692f7a4e0113bdeea863547b6aaec8958b20"
+    },
+    "pre_extension_last_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/last.pth",
+      "sha256": "39733371064c282e46e858aaf50df7b0d4a9fdf3c49c5bc8838798b4958e2438"
+    },
+    "pre_extension_run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/run_contract.json",
+      "sha256": "d98b7493b41a0ace9fcb228c50b3acbdf855f092bb2ddc9c9f479730cecf053f"
+    },
+    "primary_val_manifest": {
+      "path": "/root/autodl-tmp/graph/training_data/manifests/primary_val.jsonl",
+      "sha256": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b"
+    },
+    "relation_val": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/group_a_relations_val.jsonl",
+      "sha256": "6c641406fc50e26a5e1af30b4d113a00439576341b5620022e5ab8514c189f30"
+    },
+    "run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/run_contract.json",
+      "sha256": "0f38784922de0670a2974f234de22b1c464495fd3c268d08128e29205ed26311"
+    },
+    "selected_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/best_ema.pth",
+      "sha256": "9114974f68f202119d4241077d0c46333315204959d58b7eabecaf68a3e32ff3"
+    },
+    "selected_validation": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/selected_validation.json",
+      "sha256": "85355a5d6b183e688170c846b121fece3735b44bdef9a5b000ce546478c17bec"
+    },
+    "stage1_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage1/best_ema.pth",
+      "sha256": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa"
+    },
+    "stage3_approval": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_APPROVED.json",
+      "sha256": "7b351c0958aa681dc1f65114e801c58e3a5bc4bb7cc73c06507c0b647e51a08b"
+    },
+    "stage3_config": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage3_planner.yaml",
+      "sha256": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e"
+    },
+    "target_contract": {
+      "path": "/root/autodl-tmp/graphed/GUARDED_GRAPHRESTORE_FINAL_V7_1_AGENTICIR_CODEX_PROMPT.md",
+      "sha256": "08144e29c275d2f2a962e9139b1458eebe8ab0d50e4807d0a1e420ecf68ad702"
+    },
+    "user_instruction": {
+      "path": "/root/.codex/attachments/e03c2857-f7a9-4774-9d9a-102b0ffce048/pasted-text.txt",
+      "sha256": "94c0bf820f9a101c51389a27ee7ac151938edd8de228d43ab12338fb9b4632e4"
+    }
+  },
+  "calibration_history_byte_exact_required": true,
+  "created_utc": "2026-08-18T06:06:44Z",
+  "current_semantic_source_sha256": {
+    "scripts/eval_guard_diagnostics.py": "b461ce62ce233505f32239d364f13a406d40dbcbea333b2dc034b32510780eec",
+    "scripts/train_stage3_planner.py": "f26ee322106a9c33d998c7ad40df7a15a7ac4b2abb0dfc37c409fd5d513136dc",
+    "src/__init__.py": "457b63d50d01f3c33d60220d67dfa8c4717085a136db419c6a584b3408e44669",
+    "src/data/__init__.py": "ef568ed92708ff8ce9693b058c282ddd62203442b8dcfcfd5bf817eaf30afea7",
+    "src/data/agenticir_degradations.py": "7a7d160aa6ca228b031bb00e65f8f31c61d734ef8a572881e95e0ee42ba89e54",
+    "src/data/episode_dataset.py": "867519c6c5f22f5b0926b3af47d5938a8f1ebe6ca336dcedbb74f5d29bae24cb",
+    "src/data/manifests.py": "7319d67dc34f15ddb7f2e607fc3d8c0f0010c693756ae3f198c4acf89953e710",
+    "src/data/samplers.py": "4e79abc547bd413d8fd4787a5c499892d75b46de7396e80a0f8f3da52d9b3ea4",
+    "src/data/scale_canonicalizer.py": "3e66a83c4bd09679741a38d7fae0b0876dbe8c1357d4108193ebfc8e58c8fe8f",
+    "src/data/subset_targets.py": "7521871e29bb58b71b7f6abf9a8e69b1b52208befce239b8976c9f71e5f68405",
+    "src/losses/__init__.py": "e2c87fe8637f928278ceef6f2f94ff81c596474eace3444f89c0b4e10d6c611e",
+    "src/losses/cycle_consistency.py": "c4c45e5ac01e07ca5d68cf8f8fa4d8b90a50a5c4e969f626231a21ca700f4bf7",
+    "src/losses/guard_losses.py": "34ece30ee865defe580ae4e0a2795e143df4da2f6f06cde6c42ddd2cd80b7a51",
+    "src/losses/planner_losses.py": "a2a0fa419272a840846ba00411e05dd12ad39bbf62b140459398fc3523a6492e",
+    "src/losses/restoration.py": "c8a6a5bf0ffd96032dfbdc272d53ed6a516479714275c5271b9b24e15cde7294",
+    "src/metrics/__init__.py": "24fd1a749ea4dac6603c70c2636c69af96c366d3cc0d56d2c2c5594ecea442ae",
+    "src/metrics/agenticir_official.py": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+    "src/net/__init__.py": "f255aab130fe8a2f63a695dedb08e2fcfe712abf538fb529c45a441ee34d1eab",
+    "src/net/cooperative_executor.py": "10d6d3ceb69bb7e517df4a2d2b970d62f4ce15097a99943c2af35a1b192c07fd",
+    "src/net/graph_compiler.py": "49529ab6e04cbd63dd392b0795da8bf06ee9d64b43b151b64cf303d4dfe14d65",
+    "src/net/graphrestore.py": "2bdb139b94a82818e6a16dde45e2d2fee066a03cd4eca447715d310d1fecc6d8",
+    "src/net/latent_skill_bank.py": "161878c2c38db929eb8c6f00e5a5a7829ab1544da2cb946341a6508bbaf3d71f",
+    "src/net/mio_stagea.py": "6d00daae0b4f1f6a66ee2a6fe72f8077443df2623f86c391c7e0001af5b131e9",
+    "src/net/program_planner.py": "c395c41b5b85dec8e178d3a4bf9216ad5acf28b56c5a4abcb12db4ba3ab829a7",
+    "src/net/restormer_blocks.py": "0fd43c1dbf2ccec239e3ee5eded1c643ace3e68d90dda82b1f184e626eab501d",
+    "src/net/skill_adapter.py": "93e1b79e07832219cb3f37d3f6d453e8c8ffc86f2f507ebea4d49e65d416dfd3",
+    "src/net/trace_pyramid.py": "f8c55d10bba8bc10829a73bc1ae2bb87b89b4d62d99d2bd0e2b798dc2f4ee62f",
+    "src/training/__init__.py": "eab12a7cec3421440b882b27532ba321503e47b780eb42b1b605d930f99a930b",
+    "src/training/checkpointing.py": "063e31657922ad2006f45a6e31677aa9953b2b95d38dbaf6207bcc20bb47f072",
+    "src/training/ema.py": "7c11d3857f194a406fc6bdd6b2d2b96adc4f1e8bfe1cc8f1acf0ecb3154234d4",
+    "src/training/optimization.py": "7d7b4486822697e96c17ce24e86377023444c512d5c6328547612619022494e7",
+    "src/training/orchestration.py": "19984cb936a8c711b05b5154cef9b4fdd2b25b0ad5c3b14c2c9a3529e90c0cf3",
+    "src/training/provenance.py": "d49f2de6d65e52bf4bddb4a0049ed88058879d7e877069cc61ed5e8508735020",
+    "src/training/relation_supervision.py": "82c94341cb0a009f15e9e91c5b96dce3b36ef45ee11731505c757d1f40b68699",
+    "src/training/runtime.py": "47e550c55e5684150fc6cffee90d1874a8ca2afd0d2652345462261a644c3dfe",
+    "src/training/selection.py": "8a6c75e19913168dd876bf9af9c0d7702599b4e59131426d0136315712310166",
+    "src/training/stage0_engine.py": "9357c67de16c2fc3eaa79c0b9687e77d841cec22c0bbb605835b47ec7759182a",
+    "src/training/stage1_engine.py": "ab76a61422532d0deac8d7c01da69dae9f1d8154a277a4c0c26658b936c36f6c",
+    "src/training/stage2_distillation.py": "4cd37e4a1e5725e9b948c758eab893ff9a95f1c23357a2cdea3215df93d1b06c",
+    "src/training/stage3_engine.py": "1d373d8d3e416e6431d52721c2cd2eef15541241a2d7c28af8a688181a972548",
+    "src/training/stage4_engine.py": "b02464374dc7eae28e6590e73e700116c380644a28250c6000c6ca1891aaa91f",
+    "src/utils/__init__.py": "f665f064cf3c517389fe1cea13dd6632ba6a3bf17bedde46d60bff743289524c",
+    "src/utils/audit.py": "ba50200e5a88afd3ed97ef3ce82a3f4003bd90cd90f0f83ac2269e9e1acc772a",
+    "src/utils/git.py": "1fe4fd00a7f3d8db39cdbbd0233a424da5c81dd9a345b3a5e3e62b6a92197a8b",
+    "src/utils/hashing.py": "173749dc7552576f047c08fc8fdccbec252cec3cef3c1e78d9a43784d90d9980",
+    "src/utils/io.py": "321384d77f0d85ffae0da2d8b63ff03afe2afafc51a320d50543aab8afaad61f",
+    "src/utils/paths.py": "c739fa180d6857972bd193500825076d782d00f28ef26beefd94493a86fef337"
+  },
+  "extension_training_permanently_disabled": true,
+  "finalizer_semantic_source_sha256": {
+    "scripts/finalize_stage3.py": "30c65dcd38f0a7947d7da82898db432d8ea2e9a9b6977561776006fd07dc3460",
+    "src/__init__.py": "457b63d50d01f3c33d60220d67dfa8c4717085a136db419c6a584b3408e44669",
+    "src/data/__init__.py": "ef568ed92708ff8ce9693b058c282ddd62203442b8dcfcfd5bf817eaf30afea7",
+    "src/data/agenticir_degradations.py": "7a7d160aa6ca228b031bb00e65f8f31c61d734ef8a572881e95e0ee42ba89e54",
+    "src/data/episode_dataset.py": "867519c6c5f22f5b0926b3af47d5938a8f1ebe6ca336dcedbb74f5d29bae24cb",
+    "src/data/manifests.py": "7319d67dc34f15ddb7f2e607fc3d8c0f0010c693756ae3f198c4acf89953e710",
+    "src/data/samplers.py": "4e79abc547bd413d8fd4787a5c499892d75b46de7396e80a0f8f3da52d9b3ea4",
+    "src/data/scale_canonicalizer.py": "3e66a83c4bd09679741a38d7fae0b0876dbe8c1357d4108193ebfc8e58c8fe8f",
+    "src/data/subset_targets.py": "7521871e29bb58b71b7f6abf9a8e69b1b52208befce239b8976c9f71e5f68405",
+    "src/losses/__init__.py": "e2c87fe8637f928278ceef6f2f94ff81c596474eace3444f89c0b4e10d6c611e",
+    "src/losses/cycle_consistency.py": "c4c45e5ac01e07ca5d68cf8f8fa4d8b90a50a5c4e969f626231a21ca700f4bf7",
+    "src/losses/guard_losses.py": "34ece30ee865defe580ae4e0a2795e143df4da2f6f06cde6c42ddd2cd80b7a51",
+    "src/losses/planner_losses.py": "a2a0fa419272a840846ba00411e05dd12ad39bbf62b140459398fc3523a6492e",
+    "src/losses/restoration.py": "c8a6a5bf0ffd96032dfbdc272d53ed6a516479714275c5271b9b24e15cde7294",
+    "src/metrics/__init__.py": "24fd1a749ea4dac6603c70c2636c69af96c366d3cc0d56d2c2c5594ecea442ae",
+    "src/metrics/agenticir_official.py": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+    "src/net/__init__.py": "f255aab130fe8a2f63a695dedb08e2fcfe712abf538fb529c45a441ee34d1eab",
+    "src/net/cooperative_executor.py": "10d6d3ceb69bb7e517df4a2d2b970d62f4ce15097a99943c2af35a1b192c07fd",
+    "src/net/graph_compiler.py": "49529ab6e04cbd63dd392b0795da8bf06ee9d64b43b151b64cf303d4dfe14d65",
+    "src/net/graphrestore.py": "2bdb139b94a82818e6a16dde45e2d2fee066a03cd4eca447715d310d1fecc6d8",
+    "src/net/latent_skill_bank.py": "161878c2c38db929eb8c6f00e5a5a7829ab1544da2cb946341a6508bbaf3d71f",
+    "src/net/mio_stagea.py": "6d00daae0b4f1f6a66ee2a6fe72f8077443df2623f86c391c7e0001af5b131e9",
+    "src/net/program_planner.py": "c395c41b5b85dec8e178d3a4bf9216ad5acf28b56c5a4abcb12db4ba3ab829a7",
+    "src/net/restormer_blocks.py": "0fd43c1dbf2ccec239e3ee5eded1c643ace3e68d90dda82b1f184e626eab501d",
+    "src/net/skill_adapter.py": "93e1b79e07832219cb3f37d3f6d453e8c8ffc86f2f507ebea4d49e65d416dfd3",
+    "src/net/trace_pyramid.py": "f8c55d10bba8bc10829a73bc1ae2bb87b89b4d62d99d2bd0e2b798dc2f4ee62f",
+    "src/training/__init__.py": "eab12a7cec3421440b882b27532ba321503e47b780eb42b1b605d930f99a930b",
+    "src/training/checkpointing.py": "063e31657922ad2006f45a6e31677aa9953b2b95d38dbaf6207bcc20bb47f072",
+    "src/training/ema.py": "7c11d3857f194a406fc6bdd6b2d2b96adc4f1e8bfe1cc8f1acf0ecb3154234d4",
+    "src/training/optimization.py": "7d7b4486822697e96c17ce24e86377023444c512d5c6328547612619022494e7",
+    "src/training/orchestration.py": "19984cb936a8c711b05b5154cef9b4fdd2b25b0ad5c3b14c2c9a3529e90c0cf3",
+    "src/training/provenance.py": "d49f2de6d65e52bf4bddb4a0049ed88058879d7e877069cc61ed5e8508735020",
+    "src/training/relation_supervision.py": "82c94341cb0a009f15e9e91c5b96dce3b36ef45ee11731505c757d1f40b68699",
+    "src/training/runtime.py": "47e550c55e5684150fc6cffee90d1874a8ca2afd0d2652345462261a644c3dfe",
+    "src/training/selection.py": "8a6c75e19913168dd876bf9af9c0d7702599b4e59131426d0136315712310166",
+    "src/training/stage0_engine.py": "9357c67de16c2fc3eaa79c0b9687e77d841cec22c0bbb605835b47ec7759182a",
+    "src/training/stage1_engine.py": "ab76a61422532d0deac8d7c01da69dae9f1d8154a277a4c0c26658b936c36f6c",
+    "src/training/stage2_distillation.py": "4cd37e4a1e5725e9b948c758eab893ff9a95f1c23357a2cdea3215df93d1b06c",
+    "src/training/stage3_engine.py": "1d373d8d3e416e6431d52721c2cd2eef15541241a2d7c28af8a688181a972548",
+    "src/training/stage3_finalization.py": "ff8ba3b1adbd11d6139cf16ef0388ff377215de06f912859a7d26b98330a10b5",
+    "src/training/stage4_engine.py": "b02464374dc7eae28e6590e73e700116c380644a28250c6000c6ca1891aaa91f",
+    "src/utils/__init__.py": "f665f064cf3c517389fe1cea13dd6632ba6a3bf17bedde46d60bff743289524c",
+    "src/utils/audit.py": "ba50200e5a88afd3ed97ef3ce82a3f4003bd90cd90f0f83ac2269e9e1acc772a",
+    "src/utils/git.py": "1fe4fd00a7f3d8db39cdbbd0233a424da5c81dd9a345b3a5e3e62b6a92197a8b",
+    "src/utils/hashing.py": "173749dc7552576f047c08fc8fdccbec252cec3cef3c1e78d9a43784d90d9980",
+    "src/utils/io.py": "321384d77f0d85ffae0da2d8b63ff03afe2afafc51a320d50543aab8afaad61f",
+    "src/utils/paths.py": "c739fa180d6857972bd193500825076d782d00f28ef26beefd94493a86fef337"
+  },
+  "formal_mio100_authorized": false,
+  "historical_semantic_source_sha256": {
+    "scripts/eval_guard_diagnostics.py": "b461ce62ce233505f32239d364f13a406d40dbcbea333b2dc034b32510780eec",
+    "scripts/train_stage3_planner.py": "1e7db4c46f640d62501e91eb50862073f8c6473b9090018771b41fe1bdfc4b9d",
+    "src/__init__.py": "457b63d50d01f3c33d60220d67dfa8c4717085a136db419c6a584b3408e44669",
+    "src/data/__init__.py": "ef568ed92708ff8ce9693b058c282ddd62203442b8dcfcfd5bf817eaf30afea7",
+    "src/data/agenticir_degradations.py": "7a7d160aa6ca228b031bb00e65f8f31c61d734ef8a572881e95e0ee42ba89e54",
+    "src/data/episode_dataset.py": "867519c6c5f22f5b0926b3af47d5938a8f1ebe6ca336dcedbb74f5d29bae24cb",
+    "src/data/manifests.py": "7319d67dc34f15ddb7f2e607fc3d8c0f0010c693756ae3f198c4acf89953e710",
+    "src/data/samplers.py": "4e79abc547bd413d8fd4787a5c499892d75b46de7396e80a0f8f3da52d9b3ea4",
+    "src/data/scale_canonicalizer.py": "3e66a83c4bd09679741a38d7fae0b0876dbe8c1357d4108193ebfc8e58c8fe8f",
+    "src/data/subset_targets.py": "7521871e29bb58b71b7f6abf9a8e69b1b52208befce239b8976c9f71e5f68405",
+    "src/losses/__init__.py": "e2c87fe8637f928278ceef6f2f94ff81c596474eace3444f89c0b4e10d6c611e",
+    "src/losses/cycle_consistency.py": "c4c45e5ac01e07ca5d68cf8f8fa4d8b90a50a5c4e969f626231a21ca700f4bf7",
+    "src/losses/guard_losses.py": "34ece30ee865defe580ae4e0a2795e143df4da2f6f06cde6c42ddd2cd80b7a51",
+    "src/losses/planner_losses.py": "a2a0fa419272a840846ba00411e05dd12ad39bbf62b140459398fc3523a6492e",
+    "src/losses/restoration.py": "c8a6a5bf0ffd96032dfbdc272d53ed6a516479714275c5271b9b24e15cde7294",
+    "src/metrics/__init__.py": "24fd1a749ea4dac6603c70c2636c69af96c366d3cc0d56d2c2c5594ecea442ae",
+    "src/metrics/agenticir_official.py": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+    "src/net/__init__.py": "f255aab130fe8a2f63a695dedb08e2fcfe712abf538fb529c45a441ee34d1eab",
+    "src/net/cooperative_executor.py": "10d6d3ceb69bb7e517df4a2d2b970d62f4ce15097a99943c2af35a1b192c07fd",
+    "src/net/graph_compiler.py": "49529ab6e04cbd63dd392b0795da8bf06ee9d64b43b151b64cf303d4dfe14d65",
+    "src/net/graphrestore.py": "2bdb139b94a82818e6a16dde45e2d2fee066a03cd4eca447715d310d1fecc6d8",
+    "src/net/latent_skill_bank.py": "161878c2c38db929eb8c6f00e5a5a7829ab1544da2cb946341a6508bbaf3d71f",
+    "src/net/mio_stagea.py": "6d00daae0b4f1f6a66ee2a6fe72f8077443df2623f86c391c7e0001af5b131e9",
+    "src/net/program_planner.py": "c395c41b5b85dec8e178d3a4bf9216ad5acf28b56c5a4abcb12db4ba3ab829a7",
+    "src/net/restormer_blocks.py": "0fd43c1dbf2ccec239e3ee5eded1c643ace3e68d90dda82b1f184e626eab501d",
+    "src/net/skill_adapter.py": "93e1b79e07832219cb3f37d3f6d453e8c8ffc86f2f507ebea4d49e65d416dfd3",
+    "src/net/trace_pyramid.py": "f8c55d10bba8bc10829a73bc1ae2bb87b89b4d62d99d2bd0e2b798dc2f4ee62f",
+    "src/training/__init__.py": "eab12a7cec3421440b882b27532ba321503e47b780eb42b1b605d930f99a930b",
+    "src/training/checkpointing.py": "063e31657922ad2006f45a6e31677aa9953b2b95d38dbaf6207bcc20bb47f072",
+    "src/training/ema.py": "7c11d3857f194a406fc6bdd6b2d2b96adc4f1e8bfe1cc8f1acf0ecb3154234d4",
+    "src/training/optimization.py": "7d7b4486822697e96c17ce24e86377023444c512d5c6328547612619022494e7",
+    "src/training/orchestration.py": "8691c56fafafd6f5f2b37d53ab01009b092ca0395735a69ab71ab97f34a9b622",
+    "src/training/provenance.py": "d49f2de6d65e52bf4bddb4a0049ed88058879d7e877069cc61ed5e8508735020",
+    "src/training/relation_supervision.py": "82c94341cb0a009f15e9e91c5b96dce3b36ef45ee11731505c757d1f40b68699",
+    "src/training/runtime.py": "47e550c55e5684150fc6cffee90d1874a8ca2afd0d2652345462261a644c3dfe",
+    "src/training/selection.py": "8a6c75e19913168dd876bf9af9c0d7702599b4e59131426d0136315712310166",
+    "src/training/stage0_engine.py": "9357c67de16c2fc3eaa79c0b9687e77d841cec22c0bbb605835b47ec7759182a",
+    "src/training/stage1_engine.py": "ab76a61422532d0deac8d7c01da69dae9f1d8154a277a4c0c26658b936c36f6c",
+    "src/training/stage2_distillation.py": "4cd37e4a1e5725e9b948c758eab893ff9a95f1c23357a2cdea3215df93d1b06c",
+    "src/training/stage3_engine.py": "7c65d89f9778dd3f49250774fcfaa4f3f6209d62ac6e9f9f507991fe22427e0a",
+    "src/training/stage4_engine.py": "518b10b49320fd24879febc3483d30f7a8b28e96037588102ddb65f89a958845",
+    "src/utils/__init__.py": "f665f064cf3c517389fe1cea13dd6632ba6a3bf17bedde46d60bff743289524c",
+    "src/utils/audit.py": "ba50200e5a88afd3ed97ef3ce82a3f4003bd90cd90f0f83ac2269e9e1acc772a",
+    "src/utils/git.py": "1fe4fd00a7f3d8db39cdbbd0233a424da5c81dd9a345b3a5e3e62b6a92197a8b",
+    "src/utils/hashing.py": "173749dc7552576f047c08fc8fdccbec252cec3cef3c1e78d9a43784d90d9980",
+    "src/utils/io.py": "321384d77f0d85ffae0da2d8b63ff03afe2afafc51a320d50543aab8afaad61f",
+    "src/utils/paths.py": "c739fa180d6857972bd193500825076d782d00f28ef26beefd94493a86fef337"
+  },
+  "kind": "stage3_extension_revocation",
+  "optimizer_steps_authorized": 0,
+  "post_calibration_diagnostic_runs_authorized": 1,
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "revoked": true,
+  "schema_version": "graphrestore-stage3-extension-revocation-v1",
+  "selected_checkpoint_byte_exact_required": true,
+  "selected_step": 12000,
+  "selected_validation_byte_exact_required": true,
+  "stage3_checkpoint_write_authorized": false,
+  "stage3_finalize_authorized": true,
+  "stage3_optimizer_authorized": false,
+  "stage3_scheduler_authorized": false,
+  "stage3_train_loader_authorized": false,
+  "stage3_training_authorized": false,
+  "stage4_authorized": true,
+  "threshold_calibration_runs_authorized": 1
+}

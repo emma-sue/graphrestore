@@ -1,0 +1,959 @@
+{
+  "all_checkpoint_tensors_finite": true,
+  "backup": {
+    "best_checkpoint": {
+      "archive_device": 2304,
+      "archive_inode": 6450552609,
+      "archive_mode": 292,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage4_step4000_calibration_history_routing_v1/old-best_ema.pth",
+      "archive_sha256": "5465e55b99923e55a00e2ac70f4ee61399e2e4c1ff2e4d651da0d41321529989",
+      "byte_exact": true,
+      "canonical_mode": 384,
+      "canonical_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/best_ema.pth",
+      "canonical_sha256": "5465e55b99923e55a00e2ac70f4ee61399e2e4c1ff2e4d651da0d41321529989",
+      "same_filesystem": true
+    },
+    "calibration_history": {
+      "archive_device": 2304,
+      "archive_inode": 6450552611,
+      "archive_mode": 292,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage4_step4000_calibration_history_routing_v1/calibration_history.csv",
+      "archive_sha256": "b282987c3f77034f76788a412e91823cd4570ce8c6c10cd93030ee181612e034",
+      "byte_exact": true,
+      "canonical_mode": 384,
+      "canonical_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/calibration_history.csv",
+      "canonical_sha256": "b282987c3f77034f76788a412e91823cd4570ce8c6c10cd93030ee181612e034",
+      "same_filesystem": true
+    },
+    "failure_log": {
+      "archive_device": 2304,
+      "archive_inode": 6450552613,
+      "archive_mode": 292,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage4_step4000_calibration_history_routing_v1/main_pipeline.log",
+      "archive_sha256": "28c578ff9095f92938be52cc6c547d54afc900afb972aad5762de20b198559f3",
+      "byte_exact": true,
+      "canonical_mode": 420,
+      "canonical_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/logs/main_pipeline.log",
+      "canonical_sha256": "28c578ff9095f92938be52cc6c547d54afc900afb972aad5762de20b198559f3",
+      "same_filesystem": true
+    },
+    "last_checkpoint": {
+      "archive_device": 2304,
+      "archive_inode": 6450552608,
+      "archive_mode": 292,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage4_step4000_calibration_history_routing_v1/old-last.pth",
+      "archive_sha256": "22d8254d1833efd267d897ba2ddcc4addee93c0000d7dbded72df9a2000193cb",
+      "byte_exact": true,
+      "canonical_mode": 384,
+      "canonical_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/last.pth",
+      "canonical_sha256": "22d8254d1833efd267d897ba2ddcc4addee93c0000d7dbded72df9a2000193cb",
+      "same_filesystem": true
+    },
+    "run_contract": {
+      "archive_device": 2304,
+      "archive_inode": 6450552607,
+      "archive_mode": 292,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage4_step4000_calibration_history_routing_v1/old-run_contract.json",
+      "archive_sha256": "46aca21b891b5da7194546a04a44d156d713315c06965c53b53e6334e14ca0ab",
+      "byte_exact": true,
+      "canonical_mode": 384,
+      "canonical_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/run_contract.json",
+      "canonical_sha256": "46aca21b891b5da7194546a04a44d156d713315c06965c53b53e6334e14ca0ab",
+      "same_filesystem": true
+    },
+    "state": {
+      "archive_device": 2304,
+      "archive_inode": 6450552612,
+      "archive_mode": 292,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage4_step4000_calibration_history_routing_v1/orchestration_state.json",
+      "archive_sha256": "ef3d144b7cdc71417bc813ebf0fb1f1a4a45656d490189ac85f55aef83bb155c",
+      "byte_exact": true,
+      "canonical_mode": 384,
+      "canonical_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/orchestration/state.json",
+      "canonical_sha256": "ef3d144b7cdc71417bc813ebf0fb1f1a4a45656d490189ac85f55aef83bb155c",
+      "same_filesystem": true
+    },
+    "train_tail": {
+      "archive_device": 2304,
+      "archive_inode": 6450552614,
+      "archive_mode": 292,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage4_step4000_calibration_history_routing_v1/train_tail.jsonl",
+      "archive_sha256": "0c65182a9917120356e91f4bb221da83c0e41188734244051e323f2e0d1ec411",
+      "byte_exact_tail": true,
+      "canonical_mode": 420,
+      "canonical_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/train.jsonl",
+      "canonical_sha256": "6cf0f60f34f1820c2626c085bfa79b2facece3c2cff2235e33760d08e83a26f3",
+      "same_filesystem": true,
+      "tail_line_count": 16,
+      "tail_sha256": "0c65182a9917120356e91f4bb221da83c0e41188734244051e323f2e0d1ec411"
+    },
+    "validation_latest": {
+      "archive_device": 2304,
+      "archive_inode": 6450552610,
+      "archive_mode": 292,
+      "archive_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage4_step4000_calibration_history_routing_v1/validation_latest.json",
+      "archive_sha256": "c2e560ebf2929b3c8933628b78a3591de471524394fadbac9afecbe02dc39a77",
+      "byte_exact": true,
+      "canonical_mode": 384,
+      "canonical_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/validation_latest.json",
+      "canonical_sha256": "c2e560ebf2929b3c8933628b78a3591de471524394fadbac9afecbe02dc39a77",
+      "same_filesystem": true
+    }
+  },
+  "backup_read_only_after_publication": true,
+  "both_checkpoints_bit_exact_outside_provenance": true,
+  "calibration_history_routing": {
+    "mapping": {
+      "columns": [
+        "step",
+        "single_psnr",
+        "single_ssim",
+        "group_a_psnr",
+        "group_a_ssim",
+        "planner_macro_f1",
+        "relation_accuracy",
+        "parallel_precision",
+        "parallel_recall",
+        "pre_cycle_rate",
+        "dropped_edge_rate",
+        "guard_spearman_rain",
+        "guard_spearman_haze",
+        "guard_mae_rain",
+        "guard_mae_haze",
+        "guard_std_rain",
+        "guard_std_haze",
+        "guard_high_frac_rain",
+        "guard_high_frac_haze",
+        "clean_misuse_psnr",
+        "clean_misuse_ssim",
+        "clean_misuse_residual_norm",
+        "wrong_skill_identity_psnr",
+        "wrong_skill_identity_ssim",
+        "wrong_skill_residual_norm",
+        "reentry_request_rate",
+        "unexpected_skill_activation_rate",
+        "mean_program_levels"
+      ],
+      "frozen_stage3_history": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/calibration_history.csv",
+        "sha256": "b282987c3f77034f76788a412e91823cd4570ce8c6c10cd93030ee181612e034"
+      },
+      "schema_version": "graphrestore-stage4-calibration-ledger-v1",
+      "stage4_history_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/stage4_calibration_history.csv",
+      "stage4_marker_columns": [
+        "clean_misuse_psnr",
+        "clean_misuse_ssim",
+        "clean_misuse_residual_norm",
+        "wrong_skill_identity_psnr",
+        "wrong_skill_identity_ssim",
+        "wrong_skill_residual_norm"
+      ],
+      "validation_steps": [
+        4000,
+        8000,
+        12000,
+        16000,
+        20000,
+        24000,
+        28000,
+        32000,
+        36000,
+        40000
+      ]
+    },
+    "schema_version": "graphrestore-stage4-calibration-ledger-v1",
+    "sha256": "6fa3a7f6eb6c5ad3790ed7ea2d332c9d422e3999f2adc7bfa47495830e3802a0"
+  },
+  "checkpoint_section_fingerprints": {
+    "best_checkpoint": {
+      "amp": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 5
+          },
+          "sha256": "adb6702811ca1097f51be6e30f4a20c88049c55d6e503dd04f618fe9e793b9bc"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 5
+          },
+          "sha256": "adb6702811ca1097f51be6e30f4a20c88049c55d6e503dd04f618fe9e793b9bc"
+        }
+      },
+      "ema": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 3,
+            "nodes": 3307,
+            "tensor_bytes": 107773664,
+            "tensor_numel": 26943416,
+            "tensors": 1640
+          },
+          "sha256": "41f4381a40310b2941782132081f4e5d2dd983a430757b20ad392ffd3e49a065"
+        },
+        "old": {
+          "counts": {
+            "mappings": 3,
+            "nodes": 3307,
+            "tensor_bytes": 107773664,
+            "tensor_numel": 26943416,
+            "tensors": 1640
+          },
+          "sha256": "41f4381a40310b2941782132081f4e5d2dd983a430757b20ad392ffd3e49a065"
+        }
+      },
+      "metrics": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 21
+          },
+          "sha256": "b15c7517850a7e209bb51f0a2ed19c5c3b63aa6dc04c1982694f530d304bada6"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 21
+          },
+          "sha256": "b15c7517850a7e209bb51f0a2ed19c5c3b63aa6dc04c1982694f530d304bada6"
+        }
+      },
+      "model": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 3281,
+            "tensor_bytes": 107773664,
+            "tensor_numel": 26943416,
+            "tensors": 1640
+          },
+          "sha256": "2b4fae5023d0f44cbf6abec17501261b84c5bbb74f5469dd5c92fae6ca366098"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 3281,
+            "tensor_bytes": 107773664,
+            "tensor_numel": 26943416,
+            "tensors": 1640
+          },
+          "sha256": "2b4fae5023d0f44cbf6abec17501261b84c5bbb74f5469dd5c92fae6ca366098"
+        }
+      },
+      "model_role": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "efafa2c6d4e38fbe99b5e198da8cfa7633fc6d4153505a5433a64751feda33c7"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "efafa2c6d4e38fbe99b5e198da8cfa7633fc6d4153505a5433a64751feda33c7"
+        }
+      },
+      "optimizer": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1536,
+            "nodes": 13971,
+            "sequences": 17,
+            "tensor_bytes": 208798712,
+            "tensor_numel": 52199678,
+            "tensors": 4578
+          },
+          "sha256": "335623a23f37776c03aa3ef30cb149d5987a6a3a9e7847518f4e26a48866bc08"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1536,
+            "nodes": 13971,
+            "sequences": 17,
+            "tensor_bytes": 208798712,
+            "tensor_numel": 52199678,
+            "tensors": 4578
+          },
+          "sha256": "335623a23f37776c03aa3ef30cb149d5987a6a3a9e7847518f4e26a48866bc08"
+        }
+      },
+      "optimizer_state_name_ledger": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1527,
+            "nodes": 12209
+          },
+          "sha256": "9e2f318ae842eba4151720c3ca608635b38175168e3266ffb2db1a571075ab01"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1527,
+            "nodes": 12209
+          },
+          "sha256": "9e2f318ae842eba4151720c3ca608635b38175168e3266ffb2db1a571075ab01"
+        }
+      },
+      "pending_validation_step": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+        }
+      },
+      "provenance": {
+        "bit_exact": false,
+        "new": {
+          "counts": {
+            "mappings": 28,
+            "nodes": 367,
+            "sequences": 3
+          },
+          "sha256": "870367c846fc17bbe85ec6a5a0f25bba02c1605441101119aaa465ae7a664a4f"
+        },
+        "old": {
+          "counts": {
+            "mappings": 26,
+            "nodes": 305
+          },
+          "sha256": "4b3e0e11cf7ba04b299672498e9d7d05a99a1fb8c38326089399a8eba424e169"
+        }
+      },
+      "resumable": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "334be0be8db6b8cb6ea4290b802ace9ae766ac73ae255939d8a489c4c8fa028e"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "334be0be8db6b8cb6ea4290b802ace9ae766ac73ae255939d8a489c4c8fa028e"
+        }
+      },
+      "rng_states": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 643,
+            "numpy_arrays": 1,
+            "numpy_bytes": 2496,
+            "sequences": 4,
+            "tensor_bytes": 5072,
+            "tensor_numel": 5072,
+            "tensors": 2
+          },
+          "sha256": "6cef8d57c2019d03d83220c49bda373ab4c8770d0d823060ee1d3de8d3c67baa"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 643,
+            "numpy_arrays": 1,
+            "numpy_bytes": 2496,
+            "sequences": 4,
+            "tensor_bytes": 5072,
+            "tensor_numel": 5072,
+            "tensors": 2
+          },
+          "sha256": "6cef8d57c2019d03d83220c49bda373ab4c8770d0d823060ee1d3de8d3c67baa"
+        }
+      },
+      "sampler_state": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 15
+          },
+          "sha256": "0112035e1e1ac2e67cbc03d63cd088cb8c26526218d19e78f534ae9f823a4322"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 15
+          },
+          "sha256": "0112035e1e1ac2e67cbc03d63cd088cb8c26526218d19e78f534ae9f823a4322"
+        }
+      },
+      "scaler": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+        }
+      },
+      "scheduler": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 35,
+            "sequences": 2
+          },
+          "sha256": "ede72d16b92fbcce1dbf83e82e282b063eb70903cadd8cb663af6ac8a817e0b2"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 35,
+            "sequences": 2
+          },
+          "sha256": "ede72d16b92fbcce1dbf83e82e282b063eb70903cadd8cb663af6ac8a817e0b2"
+        }
+      },
+      "schema_version": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "745620579ff5f5e0a99858db2894cb4767883ac0ffc0e81f5fc97e1d0fc973ad"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "745620579ff5f5e0a99858db2894cb4767883ac0ffc0e81f5fc97e1d0fc973ad"
+        }
+      },
+      "stage": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b7d0a958122435022a20383fae4b3f369db6714935af926b9ea766ec957b66bc"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b7d0a958122435022a20383fae4b3f369db6714935af926b9ea766ec957b66bc"
+        }
+      },
+      "step": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b2398b23866cf080017c43cd9cc6b68d712d4cd33252b56f6d217f2fa1894390"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b2398b23866cf080017c43cd9cc6b68d712d4cd33252b56f6d217f2fa1894390"
+        }
+      }
+    },
+    "last_checkpoint": {
+      "amp": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 5
+          },
+          "sha256": "adb6702811ca1097f51be6e30f4a20c88049c55d6e503dd04f618fe9e793b9bc"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 5
+          },
+          "sha256": "adb6702811ca1097f51be6e30f4a20c88049c55d6e503dd04f618fe9e793b9bc"
+        }
+      },
+      "ema": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 3,
+            "nodes": 3307,
+            "tensor_bytes": 107773664,
+            "tensor_numel": 26943416,
+            "tensors": 1640
+          },
+          "sha256": "41f4381a40310b2941782132081f4e5d2dd983a430757b20ad392ffd3e49a065"
+        },
+        "old": {
+          "counts": {
+            "mappings": 3,
+            "nodes": 3307,
+            "tensor_bytes": 107773664,
+            "tensor_numel": 26943416,
+            "tensors": 1640
+          },
+          "sha256": "41f4381a40310b2941782132081f4e5d2dd983a430757b20ad392ffd3e49a065"
+        }
+      },
+      "metrics": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 1
+          },
+          "sha256": "510077a5a948a95930b12d86a19ec47901e7dabb3c9e3653da3012f8a0e6f822"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 1
+          },
+          "sha256": "510077a5a948a95930b12d86a19ec47901e7dabb3c9e3653da3012f8a0e6f822"
+        }
+      },
+      "model": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 3281,
+            "tensor_bytes": 107773664,
+            "tensor_numel": 26943416,
+            "tensors": 1640
+          },
+          "sha256": "9dad3c075a30799af7c27881a5e67493a1efa0627b02186a299640ff5966aaac"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 3281,
+            "tensor_bytes": 107773664,
+            "tensor_numel": 26943416,
+            "tensors": 1640
+          },
+          "sha256": "9dad3c075a30799af7c27881a5e67493a1efa0627b02186a299640ff5966aaac"
+        }
+      },
+      "model_role": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "f76edd005b7e0b0bac772d5518c03354eb4da03885250790c74e905ad8ea3de5"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "f76edd005b7e0b0bac772d5518c03354eb4da03885250790c74e905ad8ea3de5"
+        }
+      },
+      "optimizer": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1536,
+            "nodes": 13971,
+            "sequences": 17,
+            "tensor_bytes": 208798712,
+            "tensor_numel": 52199678,
+            "tensors": 4578
+          },
+          "sha256": "335623a23f37776c03aa3ef30cb149d5987a6a3a9e7847518f4e26a48866bc08"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1536,
+            "nodes": 13971,
+            "sequences": 17,
+            "tensor_bytes": 208798712,
+            "tensor_numel": 52199678,
+            "tensors": 4578
+          },
+          "sha256": "335623a23f37776c03aa3ef30cb149d5987a6a3a9e7847518f4e26a48866bc08"
+        }
+      },
+      "optimizer_state_name_ledger": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1527,
+            "nodes": 12209
+          },
+          "sha256": "9e2f318ae842eba4151720c3ca608635b38175168e3266ffb2db1a571075ab01"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1527,
+            "nodes": 12209
+          },
+          "sha256": "9e2f318ae842eba4151720c3ca608635b38175168e3266ffb2db1a571075ab01"
+        }
+      },
+      "pending_validation_step": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b2398b23866cf080017c43cd9cc6b68d712d4cd33252b56f6d217f2fa1894390"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b2398b23866cf080017c43cd9cc6b68d712d4cd33252b56f6d217f2fa1894390"
+        }
+      },
+      "provenance": {
+        "bit_exact": false,
+        "new": {
+          "counts": {
+            "mappings": 28,
+            "nodes": 367,
+            "sequences": 3
+          },
+          "sha256": "870367c846fc17bbe85ec6a5a0f25bba02c1605441101119aaa465ae7a664a4f"
+        },
+        "old": {
+          "counts": {
+            "mappings": 26,
+            "nodes": 305
+          },
+          "sha256": "4b3e0e11cf7ba04b299672498e9d7d05a99a1fb8c38326089399a8eba424e169"
+        }
+      },
+      "resumable": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "716559ee7989d340d16b2b36d8073aad42f51c5eebd25de9390f6a788b3fca5f"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "716559ee7989d340d16b2b36d8073aad42f51c5eebd25de9390f6a788b3fca5f"
+        }
+      },
+      "rng_states": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 643,
+            "numpy_arrays": 1,
+            "numpy_bytes": 2496,
+            "sequences": 4,
+            "tensor_bytes": 5072,
+            "tensor_numel": 5072,
+            "tensors": 2
+          },
+          "sha256": "6cef8d57c2019d03d83220c49bda373ab4c8770d0d823060ee1d3de8d3c67baa"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 643,
+            "numpy_arrays": 1,
+            "numpy_bytes": 2496,
+            "sequences": 4,
+            "tensor_bytes": 5072,
+            "tensor_numel": 5072,
+            "tensors": 2
+          },
+          "sha256": "6cef8d57c2019d03d83220c49bda373ab4c8770d0d823060ee1d3de8d3c67baa"
+        }
+      },
+      "sampler_state": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 15
+          },
+          "sha256": "0112035e1e1ac2e67cbc03d63cd088cb8c26526218d19e78f534ae9f823a4322"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 15
+          },
+          "sha256": "0112035e1e1ac2e67cbc03d63cd088cb8c26526218d19e78f534ae9f823a4322"
+        }
+      },
+      "scaler": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "571003b627aebac2adedc7e1e1a9aa0ceb20446a67e29d5805f6aefd6d781b65"
+        }
+      },
+      "scheduler": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 35,
+            "sequences": 2
+          },
+          "sha256": "ede72d16b92fbcce1dbf83e82e282b063eb70903cadd8cb663af6ac8a817e0b2"
+        },
+        "old": {
+          "counts": {
+            "mappings": 1,
+            "nodes": 35,
+            "sequences": 2
+          },
+          "sha256": "ede72d16b92fbcce1dbf83e82e282b063eb70903cadd8cb663af6ac8a817e0b2"
+        }
+      },
+      "schema_version": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "745620579ff5f5e0a99858db2894cb4767883ac0ffc0e81f5fc97e1d0fc973ad"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "745620579ff5f5e0a99858db2894cb4767883ac0ffc0e81f5fc97e1d0fc973ad"
+        }
+      },
+      "stage": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b7d0a958122435022a20383fae4b3f369db6714935af926b9ea766ec957b66bc"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b7d0a958122435022a20383fae4b3f369db6714935af926b9ea766ec957b66bc"
+        }
+      },
+      "step": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b2398b23866cf080017c43cd9cc6b68d712d4cd33252b56f6d217f2fa1894390"
+        },
+        "old": {
+          "counts": {
+            "nodes": 1
+          },
+          "sha256": "b2398b23866cf080017c43cd9cc6b68d712d4cd33252b56f6d217f2fa1894390"
+        }
+      }
+    }
+  },
+  "checkpoint_top_level_bit_exact_outside_provenance_count": 16,
+  "checkpoint_top_level_count": 17,
+  "completed_utc": "2026-08-18T12:58:17Z",
+  "cpu_only": true,
+  "created_utc": "2026-08-18T12:58:08Z",
+  "cuda_visible_devices": "",
+  "exact_provenance_leaf_diff": [
+    {
+      "new": {
+        "columns": [
+          "step",
+          "single_psnr",
+          "single_ssim",
+          "group_a_psnr",
+          "group_a_ssim",
+          "planner_macro_f1",
+          "relation_accuracy",
+          "parallel_precision",
+          "parallel_recall",
+          "pre_cycle_rate",
+          "dropped_edge_rate",
+          "guard_spearman_rain",
+          "guard_spearman_haze",
+          "guard_mae_rain",
+          "guard_mae_haze",
+          "guard_std_rain",
+          "guard_std_haze",
+          "guard_high_frac_rain",
+          "guard_high_frac_haze",
+          "clean_misuse_psnr",
+          "clean_misuse_ssim",
+          "clean_misuse_residual_norm",
+          "wrong_skill_identity_psnr",
+          "wrong_skill_identity_ssim",
+          "wrong_skill_residual_norm",
+          "reentry_request_rate",
+          "unexpected_skill_activation_rate",
+          "mean_program_levels"
+        ],
+        "frozen_stage3_history": {
+          "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/calibration_history.csv",
+          "sha256": "b282987c3f77034f76788a412e91823cd4570ce8c6c10cd93030ee181612e034"
+        },
+        "schema_version": "graphrestore-stage4-calibration-ledger-v1",
+        "stage4_history_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/stage4_calibration_history.csv",
+        "stage4_marker_columns": [
+          "clean_misuse_psnr",
+          "clean_misuse_ssim",
+          "clean_misuse_residual_norm",
+          "wrong_skill_identity_psnr",
+          "wrong_skill_identity_ssim",
+          "wrong_skill_residual_norm"
+        ],
+        "validation_steps": [
+          4000,
+          8000,
+          12000,
+          16000,
+          20000,
+          24000,
+          28000,
+          32000,
+          36000,
+          40000
+        ]
+      },
+      "old": "<absent>",
+      "path": "calibration_history_routing"
+    },
+    {
+      "new": "884487c1ba6b39706e92e52f748ad6aa5bbca5f4aea8fde701915c55a031b104",
+      "old": "6eaaef9d6a88b85d1cce7339927064f7ad70529a63f2dbaa465654c578b0629b",
+      "path": "semantic_source_sha256.scripts/train_stage4_e2e.py"
+    }
+  ],
+  "execution_confirmation_token_sha256": "4ab4a4ec5ebceff1ba4fce60ab6a2c77a2c3ccd7e88ad5be5a34d1a58cf991ae",
+  "flock": {
+    "device": 2304,
+    "exclusive_nonblocking": true,
+    "inode": 6450552605,
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations"
+  },
+  "migration": "stage4_pending_4000_calibration_history_routing_provenance_only",
+  "migration_script_sha256": "16998f44b5c16fa108d70f1861dedafc1ff97b738f8a298868896734debf0bcb",
+  "new": {
+    "best_checkpoint": "a98cfb7ccc4e5472b15deeb5ece4306e0554dca92287099aef5ec699ba431384",
+    "last_checkpoint": "02d7f3266f9db67e65c9e96d34e7e587ed708e6af36ebf619b81158f76795f30",
+    "provenance_json_sha256": "a28650bc3cd1e5a47e0007d400a4e50e0450d131c5d40bf03d78c4d169a911fc",
+    "run_contract": "522c0f855db85af69617bbc8e2c17544be2b3485371d6adcf8e9ede9ef4624ea"
+  },
+  "old": {
+    "best_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/best_ema.pth",
+      "sha256": "5465e55b99923e55a00e2ac70f4ee61399e2e4c1ff2e4d651da0d41321529989"
+    },
+    "last_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/last.pth",
+      "sha256": "22d8254d1833efd267d897ba2ddcc4addee93c0000d7dbded72df9a2000193cb"
+    },
+    "provenance_json_sha256": "894f6a42952bf8744ce790abf1e6da246fa2a194ca7c909ae12b2d536fde421c",
+    "run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/run_contract.json",
+      "sha256": "46aca21b891b5da7194546a04a44d156d713315c06965c53b53e6334e14ca0ab"
+    }
+  },
+  "protected_evidence": {
+    "calibration_history": {
+      "historical_non_stage4_rows_at_step4000": 2,
+      "marker_columns": [
+        "clean_misuse_psnr",
+        "clean_misuse_ssim",
+        "clean_misuse_residual_norm",
+        "wrong_skill_identity_psnr",
+        "wrong_skill_identity_ssim",
+        "wrong_skill_residual_norm"
+      ],
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/calibration_history.csv",
+      "row_count": 31,
+      "sha256": "b282987c3f77034f76788a412e91823cd4570ce8c6c10cd93030ee181612e034",
+      "stage4_rows_at_step4000": 0
+    },
+    "failure_log": {
+      "failure_marker": "STAGE4_REFUSED: multiple Stage4 calibration rows already exist for step 4000",
+      "failure_marker_count": 1,
+      "failure_marker_sha256": "074de10084ec67eefe11be79d3d7d067a8be199862b8f8ed148e2e503f1ce5a1",
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/logs/main_pipeline.log",
+      "sha256": "28c578ff9095f92938be52cc6c547d54afc900afb972aad5762de20b198559f3",
+      "terminal_end": "[2026-08-18T12:08:08Z] END stage4: exit=2",
+      "terminal_start": "[2026-08-18T08:43:48Z] START stage4: /root/miniconda3/bin/python scripts/train_stage4_e2e.py --config configs/stage4_graphrestore_e2e.yaml"
+    },
+    "orchestration_state": {
+      "current_stage": "FAILED",
+      "gpu": "released",
+      "last_exit_code": 2,
+      "next_command": "python scripts/orchestrate.py --resume_post_approval_pipeline --stage3_finalization_authorization /root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_EXTENSION_REVOKED.json",
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/orchestration/state.json",
+      "sha256": "ef3d144b7cdc71417bc813ebf0fb1f1a4a45656d490189ac85f55aef83bb155c",
+      "status": "FAILED"
+    },
+    "train_log": {
+      "final_event": {
+        "created_utc": "2026-08-18T10:11:08Z",
+        "event": "pre_validation_checkpoint",
+        "schema_version": "graphrestore-stage4-runtime-v1",
+        "step": 4000
+      },
+      "line_count": 4001,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/train.jsonl",
+      "sha256": "6cf0f60f34f1820c2626c085bfa79b2facece3c2cff2235e33760d08e83a26f3",
+      "tail_line_count": 16,
+      "tail_sha256": "0c65182a9917120356e91f4bb221da83c0e41188734244051e323f2e0d1ec411"
+    },
+    "validation_latest": {
+      "image_count": 1600,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/validation_latest.json",
+      "sha256": "c2e560ebf2929b3c8933628b78a3591de471524394fadbac9afecbe02dc39a77"
+    }
+  },
+  "protected_evidence_unchanged_after_publication": true,
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "run_contract_bit_exact_outside_provenance": true,
+  "schema_version": "graphrestore-stage4-step4000-calibration-routing-migration-v1",
+  "semantic_source_count": 47,
+  "status": "COMPLETE",
+  "step": 4000,
+  "unchanged_semantic_source_count": 46
+}

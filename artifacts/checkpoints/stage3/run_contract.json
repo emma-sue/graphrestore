@@ -1,0 +1,369 @@
+{
+  "created_utc": "2026-08-17T09:30:11Z",
+  "micro_batch_trials": [
+    {
+      "completed_optimizer_steps": 10,
+      "error": null,
+      "images_per_second": 14.448971845857336,
+      "micro_batch": 8,
+      "passed": true,
+      "peak_reserved_bytes": 1914699776,
+      "peak_reserved_fraction": 0.07579338416318822
+    },
+    {
+      "completed_optimizer_steps": 10,
+      "error": null,
+      "images_per_second": 16.282797973176486,
+      "micro_batch": 4,
+      "passed": true,
+      "peak_reserved_bytes": 1287651328,
+      "peak_reserved_fraction": 0.05097167346790533
+    },
+    {
+      "completed_optimizer_steps": 10,
+      "error": null,
+      "images_per_second": 9.217094400745527,
+      "micro_batch": 2,
+      "passed": true,
+      "peak_reserved_bytes": 899678208,
+      "peak_reserved_fraction": 0.035613758823666755
+    },
+    {
+      "completed_optimizer_steps": 10,
+      "error": null,
+      "images_per_second": 4.9676139706838685,
+      "micro_batch": 1,
+      "passed": true,
+      "peak_reserved_bytes": 687865856,
+      "peak_reserved_fraction": 0.027229167585460828
+    }
+  ],
+  "parent_load": {
+    "initialized_planner_key_count": 105,
+    "loaded_count": 1535
+  },
+  "provenance": {
+    "bindings": {
+      "clean_train_manifest": {
+        "path": "/root/autodl-tmp/graph/training_data/manifests/clean_train.jsonl",
+        "sha256": "00247444a3b7304fe83a4783cae694181e6796253c6915d2491009def03df257"
+      },
+      "clean_val_manifest": {
+        "path": "/root/autodl-tmp/graph/training_data/manifests/clean_val.jsonl",
+        "sha256": "88276445c7cc1166ace77904276dbeb61f3a049572e3b23fd1aad2b5f831947d"
+      },
+      "config_resolved_paths": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/configs/resolved_paths.yaml",
+        "sha256": "de5523bf9b786f40bafa7860c3b3bc0e0067f3d539e827f91fb4517a490d5e8c"
+      },
+      "config_stage0": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage0_mio_stagea.yaml",
+        "sha256": "1bfb0444e311d110c6929ce30fdcf888a73d0f10167ed27e3328492a08406283"
+      },
+      "config_stage1": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage1_skill_bank.yaml",
+        "sha256": "c673a769d06f5476f3c8cae05214c6d7217eee4e2c98ab7320a799c3a1cd5a4c"
+      },
+      "config_stage2": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage2_interaction_distill.yaml",
+        "sha256": "0ec91a4327d238c0b4195b0ba89e9bd5f4c71e438c9ff311f1846de08b071ff8"
+      },
+      "config_stage3": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage3_planner.yaml",
+        "sha256": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e"
+      },
+      "config_stage4": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage4_graphrestore_e2e.yaml",
+        "sha256": "ef1f53623d9171d1e5a6b052ee6ef9230137e1b8555dbc17924620870ea99d71"
+      },
+      "global_priority": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/global_priority.json",
+        "sha256": "80504122f5ce8e8beedf630426bd8e15485efc9db0f9b3d0adf39ca6dd54b0d8"
+      },
+      "interaction_report": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/reports/INTERACTION_DISTILLATION.md",
+        "sha256": "6631942335487f05f27a4bde22c58918565507fd11bb9f51ea6c43163daf7a5c"
+      },
+      "interaction_summary_csv": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/stage2_interaction_summary.csv",
+        "sha256": "06ec62420273acbd85ddb65751279f884a97725830d2803923a66cfc4ac143ce"
+      },
+      "interaction_train_manifest": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/interaction_train_manifest.jsonl",
+        "sha256": "d8f80d59fa46b9afe303693e30c353e6beb870503de7a8bc9fca7d59e1a7b32c"
+      },
+      "interaction_val_manifest": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/interaction_val_manifest.jsonl",
+        "sha256": "359bbef307812f546dae0cc42675a1041649fda77338c674bbdadd72df1df3d2"
+      },
+      "pair_prior": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/pair_prior.json",
+        "sha256": "4116725bce4ecfaceaa1429183e86738ee7ec38835e25886cacd9aa3aec38d82"
+      },
+      "primary_all_manifest": {
+        "path": "/root/autodl-tmp/graph/training_data/manifests/primary_all.jsonl",
+        "sha256": "f4080efc2572ce2377646a8acabcbebe092e4a3feeabafc4200984b716c8e8eb"
+      },
+      "primary_train_manifest": {
+        "path": "/root/autodl-tmp/graph/training_data/manifests/primary_train.jsonl",
+        "sha256": "83da30d0b8445d5bb427c336b125214ee62f2a0ec3a5bab61ca7119703044071"
+      },
+      "primary_val_manifest": {
+        "path": "/root/autodl-tmp/graph/training_data/manifests/primary_val.jsonl",
+        "sha256": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b"
+      },
+      "relation_train": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/group_a_relations_train.jsonl",
+        "sha256": "b65de122964c963636c94b14fac7494c9c995c3f9c4022e405d4d6d026642c18"
+      },
+      "relation_val": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/group_a_relations_val.jsonl",
+        "sha256": "6c641406fc50e26a5e1af30b4d113a00439576341b5620022e5ab8514c189f30"
+      },
+      "skill_effect_profiles": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/skill_effect_profiles.json",
+        "sha256": "a1af32c5c285591a0eb18cd21c89a82a43f11b2fac19aefb0d6c10d1c3d0ef07"
+      },
+      "stage1_checkpoint": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage1/best_ema.pth",
+        "sha256": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa"
+      },
+      "stage2_decision": {
+        "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/stage2_decision.json",
+        "sha256": "434e209ac0db201ca7f1be045e3811547d8f3cc974ff3ef740c96c3689329a47"
+      }
+    },
+    "config_semantic_sha256": "0d076c64f653d79aadd23736293245dd7b004b50a8ce410226202858cb78c7c6",
+    "config_sha256": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e",
+    "data_exposure": {
+      "group_b_or_c": false,
+      "mio100": false,
+      "train": "primary_train single/A only",
+      "validation": "primary_val single/A + interaction_val labels"
+    },
+    "dependency_versions": {
+      "basicsr": "not-installed",
+      "cuda_runtime": "12.1",
+      "cudnn": 8902,
+      "numpy": "2.4.6",
+      "opencv": "5.0.0",
+      "pyiqa": "0.1.16",
+      "python": "3.12.3",
+      "torch": "2.3.0+cu121"
+    },
+    "effect_profiles_sha256": "a1af32c5c285591a0eb18cd21c89a82a43f11b2fac19aefb0d6c10d1c3d0ef07",
+    "ema_policy": {
+      "buffer_update": "copy_current_value_bitwise",
+      "decay": 0.9999,
+      "frozen_parameter_update": "copy_current_value_bitwise",
+      "parameter_selector": "state_name_prefix_planner_dot",
+      "phase_transition": "single_phase_without_shadow_reset",
+      "planner_parameter_update": "standard_fp32_exponential_moving_average",
+      "schema_version": "graphrestore-stage3-planner-ema-policy-v1",
+      "scope": "planner_parameters_only_executor_bitwise_frozen"
+    },
+    "global_priority_sha256": "80504122f5ce8e8beedf630426bd8e15485efc9db0f9b3d0adf39ca6dd54b0d8",
+    "pair_prior_sha256": "4116725bce4ecfaceaa1429183e86738ee7ec38835e25886cacd9aa3aec38d82",
+    "parent_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage1/best_ema.pth",
+      "sha256": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa",
+      "source": "stage1_best_ema_model_equals_shadow",
+      "step": 30000
+    },
+    "protocol_id": "graphrestore-v7.1-agenticir-locked",
+    "relation_supervision": {
+      "ambiguous": "serial_mass_partial_label_weight_0.25_once",
+      "class_count": 3,
+      "orientation": "ProgramPlanner.PAIR_INDICES_ascending_normative_skill_id",
+      "train_sha256": "b65de122964c963636c94b14fac7494c9c995c3f9c4022e405d4d6d026642c18",
+      "validation_sha256": "6c641406fc50e26a5e1af30b4d113a00439576341b5620022e5ab8514c189f30",
+      "validation_source": "interaction_val_only"
+    },
+    "repositories": {
+      "agenticir_commit": "9640a291480dee3ba8f2974125d4ee9e3440f3d6",
+      "mioir_commit": "4d5f6ca0235cf2c307319673242d5722ee35d73f"
+    },
+    "resolved_paths_sha256": "de5523bf9b786f40bafa7860c3b3bc0e0067f3d539e827f91fb4517a490d5e8c",
+    "runtime": {
+      "accumulation_steps": 2,
+      "allocator_conf": "backend:native,expandable_segments:True",
+      "amp_dtype": "bf16",
+      "crop_size": 192,
+      "effective_batch_size": 8,
+      "max_steps": 12000,
+      "micro_batch": 4,
+      "model_generated_intermediate_maximum_fraction": 0.1,
+      "tf32": true,
+      "training_target_step": 18000,
+      "validation_vram_gate": {
+        "completed_rounds": 3,
+        "finite": true,
+        "image_size": 2040,
+        "max_rounds": 3,
+        "maximum_peak_reserved_fraction": 0.9,
+        "optimizer_state_empty_after": true,
+        "passed": true,
+        "peak_reserved_bytes": 12152995840,
+        "peak_reserved_fraction": 0.4810762992614192,
+        "resident_ema_bytes": 107773664,
+        "resident_optimizer_state_bytes": 3822076,
+        "resident_optimizer_state_entries": 103,
+        "schema_version": "graphrestore-stage3-validation-vram-gate-v1",
+        "topologies": [
+          {
+            "active_skill_count": 3,
+            "active_skill_counts_by_round": [
+              1,
+              1,
+              1
+            ],
+            "compiler_mode": "forced_total_order",
+            "completed_rounds": 3,
+            "finite": true,
+            "metric_psnr": 10.492520332336426,
+            "metric_ssim": 0.02707342558377183,
+            "passed": true,
+            "peak_reserved_bytes": 12152995840,
+            "peak_reserved_fraction": 0.4810762992614192
+          },
+          {
+            "active_skill_count": 3,
+            "active_skill_counts_by_round": [
+              3
+            ],
+            "compiler_mode": "parallel_only",
+            "completed_rounds": 1,
+            "finite": true,
+            "metric_psnr": 10.528512954711914,
+            "metric_ssim": 0.03512454928489588,
+            "passed": true,
+            "peak_reserved_bytes": 11171528704,
+            "peak_reserved_fraction": 0.4422249259992373
+          }
+        ]
+      },
+      "validation_vram_gate_sha256": "50a7047f65a3655b1713448cfab69d946956ef7ee31f5669509177f715a4ca28"
+    },
+    "schema_version": "graphrestore-stage3-runtime-v1",
+    "semantic_source_sha256": {
+      "scripts/eval_guard_diagnostics.py": "b461ce62ce233505f32239d364f13a406d40dbcbea333b2dc034b32510780eec",
+      "scripts/train_stage3_planner.py": "1e7db4c46f640d62501e91eb50862073f8c6473b9090018771b41fe1bdfc4b9d",
+      "src/__init__.py": "457b63d50d01f3c33d60220d67dfa8c4717085a136db419c6a584b3408e44669",
+      "src/data/__init__.py": "ef568ed92708ff8ce9693b058c282ddd62203442b8dcfcfd5bf817eaf30afea7",
+      "src/data/agenticir_degradations.py": "7a7d160aa6ca228b031bb00e65f8f31c61d734ef8a572881e95e0ee42ba89e54",
+      "src/data/episode_dataset.py": "867519c6c5f22f5b0926b3af47d5938a8f1ebe6ca336dcedbb74f5d29bae24cb",
+      "src/data/manifests.py": "7319d67dc34f15ddb7f2e607fc3d8c0f0010c693756ae3f198c4acf89953e710",
+      "src/data/samplers.py": "4e79abc547bd413d8fd4787a5c499892d75b46de7396e80a0f8f3da52d9b3ea4",
+      "src/data/scale_canonicalizer.py": "3e66a83c4bd09679741a38d7fae0b0876dbe8c1357d4108193ebfc8e58c8fe8f",
+      "src/data/subset_targets.py": "7521871e29bb58b71b7f6abf9a8e69b1b52208befce239b8976c9f71e5f68405",
+      "src/losses/__init__.py": "e2c87fe8637f928278ceef6f2f94ff81c596474eace3444f89c0b4e10d6c611e",
+      "src/losses/cycle_consistency.py": "c4c45e5ac01e07ca5d68cf8f8fa4d8b90a50a5c4e969f626231a21ca700f4bf7",
+      "src/losses/guard_losses.py": "34ece30ee865defe580ae4e0a2795e143df4da2f6f06cde6c42ddd2cd80b7a51",
+      "src/losses/planner_losses.py": "a2a0fa419272a840846ba00411e05dd12ad39bbf62b140459398fc3523a6492e",
+      "src/losses/restoration.py": "c8a6a5bf0ffd96032dfbdc272d53ed6a516479714275c5271b9b24e15cde7294",
+      "src/metrics/__init__.py": "24fd1a749ea4dac6603c70c2636c69af96c366d3cc0d56d2c2c5594ecea442ae",
+      "src/metrics/agenticir_official.py": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+      "src/net/__init__.py": "f255aab130fe8a2f63a695dedb08e2fcfe712abf538fb529c45a441ee34d1eab",
+      "src/net/cooperative_executor.py": "10d6d3ceb69bb7e517df4a2d2b970d62f4ce15097a99943c2af35a1b192c07fd",
+      "src/net/graph_compiler.py": "49529ab6e04cbd63dd392b0795da8bf06ee9d64b43b151b64cf303d4dfe14d65",
+      "src/net/graphrestore.py": "2bdb139b94a82818e6a16dde45e2d2fee066a03cd4eca447715d310d1fecc6d8",
+      "src/net/latent_skill_bank.py": "161878c2c38db929eb8c6f00e5a5a7829ab1544da2cb946341a6508bbaf3d71f",
+      "src/net/mio_stagea.py": "6d00daae0b4f1f6a66ee2a6fe72f8077443df2623f86c391c7e0001af5b131e9",
+      "src/net/program_planner.py": "c395c41b5b85dec8e178d3a4bf9216ad5acf28b56c5a4abcb12db4ba3ab829a7",
+      "src/net/restormer_blocks.py": "0fd43c1dbf2ccec239e3ee5eded1c643ace3e68d90dda82b1f184e626eab501d",
+      "src/net/skill_adapter.py": "93e1b79e07832219cb3f37d3f6d453e8c8ffc86f2f507ebea4d49e65d416dfd3",
+      "src/net/trace_pyramid.py": "f8c55d10bba8bc10829a73bc1ae2bb87b89b4d62d99d2bd0e2b798dc2f4ee62f",
+      "src/training/__init__.py": "eab12a7cec3421440b882b27532ba321503e47b780eb42b1b605d930f99a930b",
+      "src/training/checkpointing.py": "063e31657922ad2006f45a6e31677aa9953b2b95d38dbaf6207bcc20bb47f072",
+      "src/training/ema.py": "7c11d3857f194a406fc6bdd6b2d2b96adc4f1e8bfe1cc8f1acf0ecb3154234d4",
+      "src/training/optimization.py": "7d7b4486822697e96c17ce24e86377023444c512d5c6328547612619022494e7",
+      "src/training/orchestration.py": "8691c56fafafd6f5f2b37d53ab01009b092ca0395735a69ab71ab97f34a9b622",
+      "src/training/provenance.py": "d49f2de6d65e52bf4bddb4a0049ed88058879d7e877069cc61ed5e8508735020",
+      "src/training/relation_supervision.py": "82c94341cb0a009f15e9e91c5b96dce3b36ef45ee11731505c757d1f40b68699",
+      "src/training/runtime.py": "47e550c55e5684150fc6cffee90d1874a8ca2afd0d2652345462261a644c3dfe",
+      "src/training/selection.py": "8a6c75e19913168dd876bf9af9c0d7702599b4e59131426d0136315712310166",
+      "src/training/stage0_engine.py": "9357c67de16c2fc3eaa79c0b9687e77d841cec22c0bbb605835b47ec7759182a",
+      "src/training/stage1_engine.py": "ab76a61422532d0deac8d7c01da69dae9f1d8154a277a4c0c26658b936c36f6c",
+      "src/training/stage2_distillation.py": "4cd37e4a1e5725e9b948c758eab893ff9a95f1c23357a2cdea3215df93d1b06c",
+      "src/training/stage3_engine.py": "7c65d89f9778dd3f49250774fcfaa4f3f6209d62ac6e9f9f507991fe22427e0a",
+      "src/training/stage4_engine.py": "518b10b49320fd24879febc3483d30f7a8b28e96037588102ddb65f89a958845",
+      "src/utils/__init__.py": "f665f064cf3c517389fe1cea13dd6632ba6a3bf17bedde46d60bff743289524c",
+      "src/utils/audit.py": "ba50200e5a88afd3ed97ef3ce82a3f4003bd90cd90f0f83ac2269e9e1acc772a",
+      "src/utils/git.py": "1fe4fd00a7f3d8db39cdbbd0233a424da5c81dd9a345b3a5e3e62b6a92197a8b",
+      "src/utils/hashing.py": "173749dc7552576f047c08fc8fdccbec252cec3cef3c1e78d9a43784d90d9980",
+      "src/utils/io.py": "321384d77f0d85ffae0da2d8b63ff03afe2afafc51a320d50543aab8afaad61f",
+      "src/utils/paths.py": "c739fa180d6857972bd193500825076d782d00f28ef26beefd94493a86fef337"
+    },
+    "stage3_approval": {
+      "approval_required_sha256": "33be4aba2c4229175ac33edef7a5914a48a249b8c733d86338c64a8662072825",
+      "both_explicit_orchestrator_flags_verified": true,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_APPROVED.json",
+      "sha256": "7b351c0958aa681dc1f65114e801c58e3a5bc4bb7cc73c06507c0b647e51a08b",
+      "stage2_decision_sha256": "434e209ac0db201ca7f1be045e3811547d8f3cc974ff3ef740c96c3689329a47"
+    },
+    "stage3_extension": {
+      "base_step": 12000,
+      "cycles": 3,
+      "lr_policy": "hold_original_cosine_floor_after_schedule_horizon",
+      "min_lr": 2e-06,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_EXTENSION_APPROVED.json",
+      "schedule_horizon_steps": 12000,
+      "sha256": "43e010f9c66301415b8bd2d3ac7e48aa7653283671a2756dc744926a4a4724fd",
+      "target_step": 18000,
+      "validation_every_steps": 2000,
+      "validation_steps": [
+        14000,
+        16000,
+        18000
+      ]
+    }
+  },
+  "schema_version": "graphrestore-stage3-runtime-v1",
+  "validation_vram_gate": {
+    "completed_rounds": 3,
+    "finite": true,
+    "image_size": 2040,
+    "max_rounds": 3,
+    "maximum_peak_reserved_fraction": 0.9,
+    "optimizer_state_empty_after": true,
+    "passed": true,
+    "peak_reserved_bytes": 12152995840,
+    "peak_reserved_fraction": 0.4810762992614192,
+    "resident_ema_bytes": 107773664,
+    "resident_optimizer_state_bytes": 3822076,
+    "resident_optimizer_state_entries": 103,
+    "schema_version": "graphrestore-stage3-validation-vram-gate-v1",
+    "topologies": [
+      {
+        "active_skill_count": 3,
+        "active_skill_counts_by_round": [
+          1,
+          1,
+          1
+        ],
+        "compiler_mode": "forced_total_order",
+        "completed_rounds": 3,
+        "finite": true,
+        "metric_psnr": 10.492520332336426,
+        "metric_ssim": 0.02707342558377183,
+        "passed": true,
+        "peak_reserved_bytes": 12152995840,
+        "peak_reserved_fraction": 0.4810762992614192
+      },
+      {
+        "active_skill_count": 3,
+        "active_skill_counts_by_round": [
+          3
+        ],
+        "compiler_mode": "parallel_only",
+        "completed_rounds": 1,
+        "finite": true,
+        "metric_psnr": 10.528512954711914,
+        "metric_ssim": 0.03512454928489588,
+        "passed": true,
+        "peak_reserved_bytes": 11171528704,
+        "peak_reserved_fraction": 0.4422249259992373
+      }
+    ]
+  }
+}

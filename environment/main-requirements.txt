@@ -1,0 +1,12 @@
+# Direct runtime versions recorded by the frozen Stage4 run contract.
+# Install a CUDA-compatible PyTorch build for the target host rather than
+# blindly using the PyPI CPU wheel.
+torch==2.3.0
+torchvision==0.18.0
+numpy==2.4.6
+scipy==1.18.0
+opencv-python-headless==5.0.0.93
+PyYAML==6.0.1
+Pillow==10.3.0
+einops==0.8.2
+pyiqa==0.1.16

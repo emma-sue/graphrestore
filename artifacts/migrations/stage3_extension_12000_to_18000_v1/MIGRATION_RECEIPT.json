@@ -1,0 +1,1002 @@
+{
+  "backup": {
+    "best_checkpoint": {
+      "device": 2304,
+      "distinct_inode_from_live_at_creation": true,
+      "inode": 4304046465,
+      "mode": 292,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/best_ema.pth",
+      "sha256": "b26ebca987fae140bbaff8a7b530692f7a4e0113bdeea863547b6aaec8958b20",
+      "source_mode": 384
+    },
+    "last_checkpoint": {
+      "device": 2304,
+      "distinct_inode_from_live_at_creation": true,
+      "inode": 4303985787,
+      "mode": 292,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/last.pth",
+      "sha256": "39733371064c282e46e858aaf50df7b0d4a9fdf3c49c5bc8838798b4958e2438",
+      "source_mode": 384
+    },
+    "run_contract": {
+      "device": 2304,
+      "distinct_inode_from_live_at_creation": true,
+      "inode": 4303985786,
+      "mode": 292,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_12000_to_18000_v1/run_contract.json",
+      "sha256": "d98b7493b41a0ace9fcb228c50b3acbdf855f092bb2ddc9c9f479730cecf053f",
+      "source_mode": 384
+    }
+  },
+  "backup_read_only_after_publication": true,
+  "base_approval_and_22_bindings_unchanged": {
+    "approval_required_sha256": "33be4aba2c4229175ac33edef7a5914a48a249b8c733d86338c64a8662072825",
+    "approval_sha256": "7b351c0958aa681dc1f65114e801c58e3a5bc4bb7cc73c06507c0b647e51a08b",
+    "binding_count": 22,
+    "binding_sha256": {
+      "clean_train_manifest": "00247444a3b7304fe83a4783cae694181e6796253c6915d2491009def03df257",
+      "clean_val_manifest": "88276445c7cc1166ace77904276dbeb61f3a049572e3b23fd1aad2b5f831947d",
+      "config_resolved_paths": "de5523bf9b786f40bafa7860c3b3bc0e0067f3d539e827f91fb4517a490d5e8c",
+      "config_stage0": "1bfb0444e311d110c6929ce30fdcf888a73d0f10167ed27e3328492a08406283",
+      "config_stage1": "c673a769d06f5476f3c8cae05214c6d7217eee4e2c98ab7320a799c3a1cd5a4c",
+      "config_stage2": "0ec91a4327d238c0b4195b0ba89e9bd5f4c71e438c9ff311f1846de08b071ff8",
+      "config_stage3": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e",
+      "config_stage4": "ef1f53623d9171d1e5a6b052ee6ef9230137e1b8555dbc17924620870ea99d71",
+      "global_priority": "80504122f5ce8e8beedf630426bd8e15485efc9db0f9b3d0adf39ca6dd54b0d8",
+      "interaction_report": "6631942335487f05f27a4bde22c58918565507fd11bb9f51ea6c43163daf7a5c",
+      "interaction_summary_csv": "06ec62420273acbd85ddb65751279f884a97725830d2803923a66cfc4ac143ce",
+      "interaction_train_manifest": "d8f80d59fa46b9afe303693e30c353e6beb870503de7a8bc9fca7d59e1a7b32c",
+      "interaction_val_manifest": "359bbef307812f546dae0cc42675a1041649fda77338c674bbdadd72df1df3d2",
+      "pair_prior": "4116725bce4ecfaceaa1429183e86738ee7ec38835e25886cacd9aa3aec38d82",
+      "primary_all_manifest": "f4080efc2572ce2377646a8acabcbebe092e4a3feeabafc4200984b716c8e8eb",
+      "primary_train_manifest": "83da30d0b8445d5bb427c336b125214ee62f2a0ec3a5bab61ca7119703044071",
+      "primary_val_manifest": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b",
+      "relation_train": "b65de122964c963636c94b14fac7494c9c995c3f9c4022e405d4d6d026642c18",
+      "relation_val": "6c641406fc50e26a5e1af30b4d113a00439576341b5620022e5ab8514c189f30",
+      "skill_effect_profiles": "a1af32c5c285591a0eb18cd21c89a82a43f11b2fac19aefb0d6c10d1c3d0ef07",
+      "stage1_checkpoint": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa",
+      "stage2_decision": "434e209ac0db201ca7f1be045e3811547d8f3cc974ff3ef740c96c3689329a47"
+    },
+    "config_sha256": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e"
+  },
+  "base_step": 12000,
+  "both_checkpoints_bit_exact_outside_provenance": true,
+  "checkpoint_bit_exact_outside_provenance_count": 19,
+  "checkpoint_section_fingerprints": {
+    "best_checkpoint": {
+      "amp": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 1,
+            "builtins.dict": 1,
+            "builtins.str": 3
+          },
+          "sha256": "01cceaea8e5e494441c11df1838d4ef9ecbd5462feb5db427fd18e4cb8d76e96"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 1,
+            "builtins.dict": 1,
+            "builtins.str": 3
+          },
+          "sha256": "01cceaea8e5e494441c11df1838d4ef9ecbd5462feb5db427fd18e4cb8d76e96"
+        }
+      },
+      "ema": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.dict": 3,
+            "builtins.float": 2,
+            "builtins.int": 1,
+            "builtins.str": 1661,
+            "torch.Tensor": 1640
+          },
+          "sha256": "2970dab61b931298edb304c483fad3dd399dd390bf7368c4455fa5b2b2d4328e"
+        },
+        "old": {
+          "counts": {
+            "builtins.dict": 3,
+            "builtins.float": 2,
+            "builtins.int": 1,
+            "builtins.str": 1661,
+            "torch.Tensor": 1640
+          },
+          "sha256": "2970dab61b931298edb304c483fad3dd399dd390bf7368c4455fa5b2b2d4328e"
+        }
+      },
+      "executor_frozen": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "1f9483c780c8e5301842f90a3ac3a78734e5f5d935b6e5eddb5fc5a3b313f0af"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "1f9483c780c8e5301842f90a3ac3a78734e5f5d935b6e5eddb5fc5a3b313f0af"
+        }
+      },
+      "metrics": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.float": 8,
+            "builtins.int": 2,
+            "builtins.str": 10
+          },
+          "sha256": "a4c0fa40996622680662903695246a5797d6c659b916854fcc11df87a22bb5b6"
+        },
+        "old": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.float": 8,
+            "builtins.int": 2,
+            "builtins.str": 10
+          },
+          "sha256": "a4c0fa40996622680662903695246a5797d6c659b916854fcc11df87a22bb5b6"
+        }
+      },
+      "model": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.str": 1640,
+            "collections.OrderedDict": 1,
+            "torch.Tensor": 1640
+          },
+          "sha256": "a3723bf6c4e24ee54ec3d6aed3121007159c095e62fc56a6bc7db0f1732d423c"
+        },
+        "old": {
+          "counts": {
+            "builtins.str": 1640,
+            "collections.OrderedDict": 1,
+            "torch.Tensor": 1640
+          },
+          "sha256": "a3723bf6c4e24ee54ec3d6aed3121007159c095e62fc56a6bc7db0f1732d423c"
+        }
+      },
+      "model_role": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "e2498b2d6c2ed0d94897889e5da5ccc415b364abf44bea1cf21174c634e535d5"
+        },
+        "old": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "e2498b2d6c2ed0d94897889e5da5ccc415b364abf44bea1cf21174c634e535d5"
+        }
+      },
+      "optimizer": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.NoneType": 1,
+            "builtins.bool": 5,
+            "builtins.dict": 106,
+            "builtins.float": 6,
+            "builtins.int": 206,
+            "builtins.list": 2,
+            "builtins.str": 323,
+            "builtins.tuple": 1,
+            "torch.Tensor": 309
+          },
+          "sha256": "d10bdabf4f103a5f07fcf83fc5b1bd267101aaa39188aac48ff4de36a7604ba0"
+        },
+        "old": {
+          "counts": {
+            "builtins.NoneType": 1,
+            "builtins.bool": 5,
+            "builtins.dict": 106,
+            "builtins.float": 6,
+            "builtins.int": 206,
+            "builtins.list": 2,
+            "builtins.str": 323,
+            "builtins.tuple": 1,
+            "torch.Tensor": 309
+          },
+          "sha256": "d10bdabf4f103a5f07fcf83fc5b1bd267101aaa39188aac48ff4de36a7604ba0"
+        }
+      },
+      "optimizer_state_name_ledger": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.int": 103,
+            "builtins.str": 103
+          },
+          "sha256": "6f4003a9dac6f301c0c34048e44d34ae9d786abc68cd21e280886fdfb27ecf96"
+        },
+        "old": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.int": 103,
+            "builtins.str": 103
+          },
+          "sha256": "6f4003a9dac6f301c0c34048e44d34ae9d786abc68cd21e280886fdfb27ecf96"
+        }
+      },
+      "optimizer_transaction_active": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "b74c559aa2c406e2f36675a9a456102eb773b79f804ea7ee233bc9f34357f803"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "b74c559aa2c406e2f36675a9a456102eb773b79f804ea7ee233bc9f34357f803"
+        }
+      },
+      "pending_validation_step": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.NoneType": 1
+          },
+          "sha256": "4488824700fc4956ed59a7c614eb59f17d1f05427444339ad5319df3aee1aacc"
+        },
+        "old": {
+          "counts": {
+            "builtins.NoneType": 1
+          },
+          "sha256": "4488824700fc4956ed59a7c614eb59f17d1f05427444339ad5319df3aee1aacc"
+        }
+      },
+      "provenance": {
+        "bit_exact": false,
+        "new": {
+          "counts": {
+            "builtins.bool": 11,
+            "builtins.dict": 37,
+            "builtins.float": 11,
+            "builtins.int": 34,
+            "builtins.list": 4,
+            "builtins.str": 363
+          },
+          "sha256": "48c8c1ef4d47c91609292414cee594a57af9c6c83d66a923a5067cdae3dc8b25"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 11,
+            "builtins.dict": 36,
+            "builtins.float": 10,
+            "builtins.int": 25,
+            "builtins.list": 3,
+            "builtins.str": 347,
+            "torch.torch_version.TorchVersion": 1
+          },
+          "sha256": "fa2fc18b1f203bc9f1a9fe1a81c79390cea55025d084116f7bb3752d2e38f03b"
+        }
+      },
+      "resumable": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "b74c559aa2c406e2f36675a9a456102eb773b79f804ea7ee233bc9f34357f803"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "b74c559aa2c406e2f36675a9a456102eb773b79f804ea7ee233bc9f34357f803"
+        }
+      },
+      "rng_states": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.NoneType": 1,
+            "builtins.dict": 1,
+            "builtins.float": 1,
+            "builtins.int": 628,
+            "builtins.list": 1,
+            "builtins.str": 5,
+            "builtins.tuple": 3,
+            "numpy.ndarray": 1,
+            "torch.Tensor": 2
+          },
+          "sha256": "7f92bf1f00ba37df50604037854fee99570cb463e2c776796201f3feff90a73c"
+        },
+        "old": {
+          "counts": {
+            "builtins.NoneType": 1,
+            "builtins.dict": 1,
+            "builtins.float": 1,
+            "builtins.int": 628,
+            "builtins.list": 1,
+            "builtins.str": 5,
+            "builtins.tuple": 3,
+            "numpy.ndarray": 1,
+            "torch.Tensor": 2
+          },
+          "sha256": "7f92bf1f00ba37df50604037854fee99570cb463e2c776796201f3feff90a73c"
+        }
+      },
+      "sampler_state": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.int": 6,
+            "builtins.str": 8
+          },
+          "sha256": "abf6d035b916686520cc5a74b7d12989965d8fdf5bfcc5bcae887c30b6080617"
+        },
+        "old": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.int": 6,
+            "builtins.str": 8
+          },
+          "sha256": "abf6d035b916686520cc5a74b7d12989965d8fdf5bfcc5bcae887c30b6080617"
+        }
+      },
+      "scaler": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.NoneType": 1
+          },
+          "sha256": "4488824700fc4956ed59a7c614eb59f17d1f05427444339ad5319df3aee1aacc"
+        },
+        "old": {
+          "counts": {
+            "builtins.NoneType": 1
+          },
+          "sha256": "4488824700fc4956ed59a7c614eb59f17d1f05427444339ad5319df3aee1aacc"
+        }
+      },
+      "scheduler": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 2,
+            "builtins.dict": 1,
+            "builtins.float": 3,
+            "builtins.int": 4,
+            "builtins.list": 2,
+            "builtins.str": 9
+          },
+          "sha256": "5d57979d99c4c77f75590c8d67cd503bedbcef788b938e2162b9478ce94ddea9"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 2,
+            "builtins.dict": 1,
+            "builtins.float": 3,
+            "builtins.int": 4,
+            "builtins.list": 2,
+            "builtins.str": 9
+          },
+          "sha256": "5d57979d99c4c77f75590c8d67cd503bedbcef788b938e2162b9478ce94ddea9"
+        }
+      },
+      "schema_version": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "ca4507bef25e1a0ed462ef185d3815832882b5c209f98147314d8b5895a00097"
+        },
+        "old": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "ca4507bef25e1a0ed462ef185d3815832882b5c209f98147314d8b5895a00097"
+        }
+      },
+      "stage": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "74c4b12b21bca08991d1a8ac59b78543c9ff5064f92c8d2a12dd6799ec92af08"
+        },
+        "old": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "74c4b12b21bca08991d1a8ac59b78543c9ff5064f92c8d2a12dd6799ec92af08"
+        }
+      },
+      "step": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.int": 1
+          },
+          "sha256": "3b7a59990fae5c76d35f2b989cb86243602a621293c74923534493b285542b3f"
+        },
+        "old": {
+          "counts": {
+            "builtins.int": 1
+          },
+          "sha256": "3b7a59990fae5c76d35f2b989cb86243602a621293c74923534493b285542b3f"
+        }
+      },
+      "trainable_prefixes": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.list": 1,
+            "builtins.str": 1
+          },
+          "sha256": "f76dbf8446e00f9fff9c1210abd968d6ac064c49d5470099ec14f1d34f3e32ec"
+        },
+        "old": {
+          "counts": {
+            "builtins.list": 1,
+            "builtins.str": 1
+          },
+          "sha256": "f76dbf8446e00f9fff9c1210abd968d6ac064c49d5470099ec14f1d34f3e32ec"
+        }
+      }
+    },
+    "last_checkpoint": {
+      "amp": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 1,
+            "builtins.dict": 1,
+            "builtins.str": 3
+          },
+          "sha256": "01cceaea8e5e494441c11df1838d4ef9ecbd5462feb5db427fd18e4cb8d76e96"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 1,
+            "builtins.dict": 1,
+            "builtins.str": 3
+          },
+          "sha256": "01cceaea8e5e494441c11df1838d4ef9ecbd5462feb5db427fd18e4cb8d76e96"
+        }
+      },
+      "ema": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.dict": 3,
+            "builtins.float": 2,
+            "builtins.int": 1,
+            "builtins.str": 1661,
+            "torch.Tensor": 1640
+          },
+          "sha256": "2970dab61b931298edb304c483fad3dd399dd390bf7368c4455fa5b2b2d4328e"
+        },
+        "old": {
+          "counts": {
+            "builtins.dict": 3,
+            "builtins.float": 2,
+            "builtins.int": 1,
+            "builtins.str": 1661,
+            "torch.Tensor": 1640
+          },
+          "sha256": "2970dab61b931298edb304c483fad3dd399dd390bf7368c4455fa5b2b2d4328e"
+        }
+      },
+      "executor_frozen": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "1f9483c780c8e5301842f90a3ac3a78734e5f5d935b6e5eddb5fc5a3b313f0af"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "1f9483c780c8e5301842f90a3ac3a78734e5f5d935b6e5eddb5fc5a3b313f0af"
+        }
+      },
+      "metrics": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.float": 8,
+            "builtins.int": 2,
+            "builtins.str": 10
+          },
+          "sha256": "a4c0fa40996622680662903695246a5797d6c659b916854fcc11df87a22bb5b6"
+        },
+        "old": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.float": 8,
+            "builtins.int": 2,
+            "builtins.str": 10
+          },
+          "sha256": "a4c0fa40996622680662903695246a5797d6c659b916854fcc11df87a22bb5b6"
+        }
+      },
+      "model": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.str": 1640,
+            "collections.OrderedDict": 1,
+            "torch.Tensor": 1640
+          },
+          "sha256": "b885e55d1915950403d3f2891138032a508e2e48569b59617edfe3ee2ad92d02"
+        },
+        "old": {
+          "counts": {
+            "builtins.str": 1640,
+            "collections.OrderedDict": 1,
+            "torch.Tensor": 1640
+          },
+          "sha256": "b885e55d1915950403d3f2891138032a508e2e48569b59617edfe3ee2ad92d02"
+        }
+      },
+      "model_role": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "206a3bd0a908aa6a39a3c29c61c780c2ee254ed67f180d3aaee639ea433faa3c"
+        },
+        "old": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "206a3bd0a908aa6a39a3c29c61c780c2ee254ed67f180d3aaee639ea433faa3c"
+        }
+      },
+      "optimizer": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.NoneType": 1,
+            "builtins.bool": 5,
+            "builtins.dict": 106,
+            "builtins.float": 6,
+            "builtins.int": 206,
+            "builtins.list": 2,
+            "builtins.str": 323,
+            "builtins.tuple": 1,
+            "torch.Tensor": 309
+          },
+          "sha256": "d10bdabf4f103a5f07fcf83fc5b1bd267101aaa39188aac48ff4de36a7604ba0"
+        },
+        "old": {
+          "counts": {
+            "builtins.NoneType": 1,
+            "builtins.bool": 5,
+            "builtins.dict": 106,
+            "builtins.float": 6,
+            "builtins.int": 206,
+            "builtins.list": 2,
+            "builtins.str": 323,
+            "builtins.tuple": 1,
+            "torch.Tensor": 309
+          },
+          "sha256": "d10bdabf4f103a5f07fcf83fc5b1bd267101aaa39188aac48ff4de36a7604ba0"
+        }
+      },
+      "optimizer_state_name_ledger": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.int": 103,
+            "builtins.str": 103
+          },
+          "sha256": "6f4003a9dac6f301c0c34048e44d34ae9d786abc68cd21e280886fdfb27ecf96"
+        },
+        "old": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.int": 103,
+            "builtins.str": 103
+          },
+          "sha256": "6f4003a9dac6f301c0c34048e44d34ae9d786abc68cd21e280886fdfb27ecf96"
+        }
+      },
+      "optimizer_transaction_active": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "b74c559aa2c406e2f36675a9a456102eb773b79f804ea7ee233bc9f34357f803"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "b74c559aa2c406e2f36675a9a456102eb773b79f804ea7ee233bc9f34357f803"
+        }
+      },
+      "pending_validation_step": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.NoneType": 1
+          },
+          "sha256": "4488824700fc4956ed59a7c614eb59f17d1f05427444339ad5319df3aee1aacc"
+        },
+        "old": {
+          "counts": {
+            "builtins.NoneType": 1
+          },
+          "sha256": "4488824700fc4956ed59a7c614eb59f17d1f05427444339ad5319df3aee1aacc"
+        }
+      },
+      "provenance": {
+        "bit_exact": false,
+        "new": {
+          "counts": {
+            "builtins.bool": 11,
+            "builtins.dict": 37,
+            "builtins.float": 11,
+            "builtins.int": 34,
+            "builtins.list": 4,
+            "builtins.str": 363
+          },
+          "sha256": "48c8c1ef4d47c91609292414cee594a57af9c6c83d66a923a5067cdae3dc8b25"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 11,
+            "builtins.dict": 36,
+            "builtins.float": 10,
+            "builtins.int": 25,
+            "builtins.list": 3,
+            "builtins.str": 347,
+            "torch.torch_version.TorchVersion": 1
+          },
+          "sha256": "fa2fc18b1f203bc9f1a9fe1a81c79390cea55025d084116f7bb3752d2e38f03b"
+        }
+      },
+      "resumable": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "1f9483c780c8e5301842f90a3ac3a78734e5f5d935b6e5eddb5fc5a3b313f0af"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 1
+          },
+          "sha256": "1f9483c780c8e5301842f90a3ac3a78734e5f5d935b6e5eddb5fc5a3b313f0af"
+        }
+      },
+      "rng_states": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.NoneType": 1,
+            "builtins.dict": 1,
+            "builtins.float": 1,
+            "builtins.int": 628,
+            "builtins.list": 1,
+            "builtins.str": 5,
+            "builtins.tuple": 3,
+            "numpy.ndarray": 1,
+            "torch.Tensor": 2
+          },
+          "sha256": "7f92bf1f00ba37df50604037854fee99570cb463e2c776796201f3feff90a73c"
+        },
+        "old": {
+          "counts": {
+            "builtins.NoneType": 1,
+            "builtins.dict": 1,
+            "builtins.float": 1,
+            "builtins.int": 628,
+            "builtins.list": 1,
+            "builtins.str": 5,
+            "builtins.tuple": 3,
+            "numpy.ndarray": 1,
+            "torch.Tensor": 2
+          },
+          "sha256": "7f92bf1f00ba37df50604037854fee99570cb463e2c776796201f3feff90a73c"
+        }
+      },
+      "sampler_state": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.int": 6,
+            "builtins.str": 8
+          },
+          "sha256": "abf6d035b916686520cc5a74b7d12989965d8fdf5bfcc5bcae887c30b6080617"
+        },
+        "old": {
+          "counts": {
+            "builtins.dict": 1,
+            "builtins.int": 6,
+            "builtins.str": 8
+          },
+          "sha256": "abf6d035b916686520cc5a74b7d12989965d8fdf5bfcc5bcae887c30b6080617"
+        }
+      },
+      "scaler": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.NoneType": 1
+          },
+          "sha256": "4488824700fc4956ed59a7c614eb59f17d1f05427444339ad5319df3aee1aacc"
+        },
+        "old": {
+          "counts": {
+            "builtins.NoneType": 1
+          },
+          "sha256": "4488824700fc4956ed59a7c614eb59f17d1f05427444339ad5319df3aee1aacc"
+        }
+      },
+      "scheduler": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.bool": 2,
+            "builtins.dict": 1,
+            "builtins.float": 3,
+            "builtins.int": 4,
+            "builtins.list": 2,
+            "builtins.str": 9
+          },
+          "sha256": "5d57979d99c4c77f75590c8d67cd503bedbcef788b938e2162b9478ce94ddea9"
+        },
+        "old": {
+          "counts": {
+            "builtins.bool": 2,
+            "builtins.dict": 1,
+            "builtins.float": 3,
+            "builtins.int": 4,
+            "builtins.list": 2,
+            "builtins.str": 9
+          },
+          "sha256": "5d57979d99c4c77f75590c8d67cd503bedbcef788b938e2162b9478ce94ddea9"
+        }
+      },
+      "schema_version": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "ca4507bef25e1a0ed462ef185d3815832882b5c209f98147314d8b5895a00097"
+        },
+        "old": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "ca4507bef25e1a0ed462ef185d3815832882b5c209f98147314d8b5895a00097"
+        }
+      },
+      "stage": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "74c4b12b21bca08991d1a8ac59b78543c9ff5064f92c8d2a12dd6799ec92af08"
+        },
+        "old": {
+          "counts": {
+            "builtins.str": 1
+          },
+          "sha256": "74c4b12b21bca08991d1a8ac59b78543c9ff5064f92c8d2a12dd6799ec92af08"
+        }
+      },
+      "step": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.int": 1
+          },
+          "sha256": "3b7a59990fae5c76d35f2b989cb86243602a621293c74923534493b285542b3f"
+        },
+        "old": {
+          "counts": {
+            "builtins.int": 1
+          },
+          "sha256": "3b7a59990fae5c76d35f2b989cb86243602a621293c74923534493b285542b3f"
+        }
+      },
+      "trainable_prefixes": {
+        "bit_exact": true,
+        "new": {
+          "counts": {
+            "builtins.list": 1,
+            "builtins.str": 1
+          },
+          "sha256": "f76dbf8446e00f9fff9c1210abd968d6ac064c49d5470099ec14f1d34f3e32ec"
+        },
+        "old": {
+          "counts": {
+            "builtins.list": 1,
+            "builtins.str": 1
+          },
+          "sha256": "f76dbf8446e00f9fff9c1210abd968d6ac064c49d5470099ec14f1d34f3e32ec"
+        }
+      }
+    }
+  },
+  "checkpoint_top_level_count": 20,
+  "completed_utc": "2026-08-18T04:35:38Z",
+  "cpu_only": true,
+  "created_utc": "2026-08-18T04:35:33Z",
+  "cuda_visible_devices": "",
+  "execution_confirmation_token_sha256": "547c5c54596028a4bde9734bdd70fe25ff869ad4311074b2f0b0c299396e83e0",
+  "extension_approval_field_count": 20,
+  "extension_provenance_field_count": 10,
+  "lr_policy": "hold_original_cosine_floor_after_schedule_horizon",
+  "migration": "stage3_12000_to_18000_extension_authorization_and_provenance",
+  "migration_script_sha256": "5274bedc555d30150a647e013e98ae412832ac84504b2941c69be8383d0ade38",
+  "new": {
+    "best_checkpoint": "9114974f68f202119d4241077d0c46333315204959d58b7eabecaf68a3e32ff3",
+    "extension_approval": "43e010f9c66301415b8bd2d3ac7e48aa7653283671a2756dc744926a4a4724fd",
+    "last_checkpoint": "e15d544ac1e9459ce97b0ed3f0992eded61824f1cb144d44174b425d1d23b6b1",
+    "provenance_json_sha256": "22d3cbe314ee7df6813de329c9cd55ebe1d8868940f41dbc987595e5d61ac217",
+    "run_contract": "0f38784922de0670a2974f234de22b1c464495fd3c268d08128e29205ed26311"
+  },
+  "old": {
+    "best_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/best_ema.pth",
+      "sha256": "b26ebca987fae140bbaff8a7b530692f7a4e0113bdeea863547b6aaec8958b20"
+    },
+    "last_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/last.pth",
+      "sha256": "39733371064c282e46e858aaf50df7b0d4a9fdf3c49c5bc8838798b4958e2438"
+    },
+    "provenance_json_sha256": "89ac2dbb4118e99f3f5474ba516bf99e313a2a28bb1c0c74eeef3a6fed547370",
+    "run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/run_contract.json",
+      "sha256": "d98b7493b41a0ace9fcb228c50b3acbdf855f092bb2ddc9c9f479730cecf053f"
+    }
+  },
+  "orchestration_state": {
+    "current_stage": "FAILED",
+    "gpu": "released",
+    "last_exit_code": 1,
+    "next_command": "python scripts/orchestrate.py --resume_post_approval_pipeline",
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/orchestration/state.json",
+    "sha256": "876a3fffada00db1ad9c87891f94a23d751fb626005c9b7e5818a5a2e31b888d",
+    "status": "FAILED"
+  },
+  "prior_complete_migrations": {
+    "ema_device": {
+      "backup": {
+        "checkpoint": {
+          "device": 2304,
+          "inode": 6494203865,
+          "mode": 292,
+          "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_ema_device_pending2000_v1/last.pre_ema_device.39bc85036a372df040774bf93d3000d0a5e36853e0e07b4648d7a01953a30d16.pth",
+          "sha256": "39bc85036a372df040774bf93d3000d0a5e36853e0e07b4648d7a01953a30d16"
+        },
+        "run_contract": {
+          "device": 2304,
+          "inode": 6494203864,
+          "mode": 292,
+          "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_ema_device_pending2000_v1/run_contract.pre_ema_device.156a57b5f74659c45d2123e98c3e89c02b4611136e960d1134d0d88b092084b5.json",
+          "sha256": "156a57b5f74659c45d2123e98c3e89c02b4611136e960d1134d0d88b092084b5"
+        }
+      },
+      "migration": "stage3_pending_2000_ema_device_provenance_only",
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_ema_device_pending2000_v1/MIGRATION_RECEIPT.json",
+      "protected_unchanged": true,
+      "schema_version": "graphrestore-stage3-ema-device-migration-v1",
+      "sha256": "9848708c1a2dc91a99230a68ebf630c8574c64b6cbc8bad97700b5846efc21cb",
+      "status": "COMPLETE"
+    },
+    "guard_alignment": {
+      "backup": {
+        "checkpoint": {
+          "device": 2304,
+          "inode": 6493795583,
+          "mode": 292,
+          "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_guard_alignment_pending2000_v1/last.pre_guard_alignment.526b4a2d43695204c33fa99f88278a69512eb7d7213583680b21d0258a054921.pth",
+          "sha256": "526b4a2d43695204c33fa99f88278a69512eb7d7213583680b21d0258a054921"
+        },
+        "run_contract": {
+          "device": 2304,
+          "inode": 6493795556,
+          "mode": 292,
+          "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_guard_alignment_pending2000_v1/run_contract.pre_guard_alignment.18238a9e6fae059e7034b0228b8b0028181087a8a7a5c6899903c2a9a6188cbd.json",
+          "sha256": "18238a9e6fae059e7034b0228b8b0028181087a8a7a5c6899903c2a9a6188cbd"
+        }
+      },
+      "migration": "stage3_pending_2000_guard_alignment_provenance_only",
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_guard_alignment_pending2000_v1/MIGRATION_RECEIPT.json",
+      "protected_unchanged": true,
+      "schema_version": "graphrestore-stage3-guard-alignment-migration-v1",
+      "sha256": "449bd49b3e31a430eed1d4c6e217c4299084beb272d9845648ded95b7f8718e6",
+      "status": "COMPLETE"
+    }
+  },
+  "protected_artifacts_unchanged_after_publication": true,
+  "protected_hashes": {
+    "approval": "7b351c0958aa681dc1f65114e801c58e3a5bc4bb7cc73c06507c0b647e51a08b",
+    "approval_required": "33be4aba2c4229175ac33edef7a5914a48a249b8c733d86338c64a8662072825",
+    "config": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e",
+    "ema_receipt": "9848708c1a2dc91a99230a68ebf630c8574c64b6cbc8bad97700b5846efc21cb",
+    "guard_receipt": "449bd49b3e31a430eed1d4c6e217c4299084beb272d9845648ded95b7f8718e6",
+    "state": "876a3fffada00db1ad9c87891f94a23d751fb626005c9b7e5818a5a2e31b888d"
+  },
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "provenance_changes": {
+    "added_stage3_extension": {
+      "base_step": 12000,
+      "cycles": 3,
+      "lr_policy": "hold_original_cosine_floor_after_schedule_horizon",
+      "min_lr": 2e-06,
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_EXTENSION_APPROVED.json",
+      "schedule_horizon_steps": 12000,
+      "sha256": "43e010f9c66301415b8bd2d3ac7e48aa7653283671a2756dc744926a4a4724fd",
+      "target_step": 18000,
+      "validation_every_steps": 2000,
+      "validation_steps": [
+        14000,
+        16000,
+        18000
+      ]
+    },
+    "runtime_training_target_step": {
+      "new": 18000,
+      "old": null,
+      "old_present": false,
+      "path": "runtime.training_target_step"
+    },
+    "semantic_source_leaf_diffs": [
+      {
+        "new": "1e7db4c46f640d62501e91eb50862073f8c6473b9090018771b41fe1bdfc4b9d",
+        "old": "3d498fcea7cdc52480e6ff8e3e2d85596d2bde94ed289f14deeee66f9d9beabc",
+        "path": "semantic_source_sha256.scripts/train_stage3_planner.py"
+      },
+      {
+        "new": "8691c56fafafd6f5f2b37d53ab01009b092ca0395735a69ab71ab97f34a9b622",
+        "old": "7979ae0feedc1677a02fe2bd2ac76432185881a75b80122dc8bcd936b9cbff1f",
+        "path": "semantic_source_sha256.src/training/orchestration.py"
+      },
+      {
+        "new": "7c65d89f9778dd3f49250774fcfaa4f3f6209d62ac6e9f9f507991fe22427e0a",
+        "old": "908bcd7ff829aabba8376ec949156890983f51924aaa7e2313e013648d817b49",
+        "path": "semantic_source_sha256.src/training/stage3_engine.py"
+      },
+      {
+        "new": "518b10b49320fd24879febc3483d30f7a8b28e96037588102ddb65f89a958845",
+        "old": "e2fbfbc2ee580b90cb92c48e6b289d6bc6d3d4651c42d34295ce07fc664814b6",
+        "path": "semantic_source_sha256.src/training/stage4_engine.py"
+      }
+    ]
+  },
+  "run_contract_bit_exact_outside_provenance": true,
+  "schedule_horizon_steps": 12000,
+  "schema_version": "graphrestore-stage3-extension-provenance-migration-v1",
+  "semantic_source_changed_count": 4,
+  "semantic_source_count": 47,
+  "status": "COMPLETE",
+  "target_step": 18000,
+  "three_live_artifacts_share_exact_provenance": true,
+  "validation_steps": [
+    14000,
+    16000,
+    18000
+  ]
+}

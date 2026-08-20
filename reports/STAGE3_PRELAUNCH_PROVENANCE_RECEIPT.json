@@ -1,0 +1,83 @@
+{
+  "schema_version": "graphrestore-stage3-prelaunch-provenance-v1",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "created_utc": "2026-08-17T09:24:37Z",
+  "authorization": {
+    "path": "/root/.codex/attachments/7b0f29f4-9ad9-473b-be15-7d24a8984fa2/pasted-text.txt",
+    "sha256": "1ea138879abe07f08dfc01d5d8a8a7ab9c9a050f543c0f33b99241beb4a9bbbc",
+    "authorized_pipeline": [
+      "stage3",
+      "stage4"
+    ],
+    "formal_mio100_authorized": false,
+    "D-017": {
+      "accepted": true,
+      "guard_severity": "severity / 2",
+      "severity_domain": [
+        0,
+        1,
+        2
+      ],
+      "target_values": [
+        0.0,
+        0.5,
+        1.0
+      ],
+      "interpretation": "ordinal normalization of the official three-level severity index, where each level selects a locked joint parameter tuple",
+      "parameter_wise_minmax_claimed": false
+    }
+  },
+  "goal_document": {
+    "path": "/root/autodl-tmp/graphed/GUARDED_GRAPHRESTORE_FINAL_V7_1_AGENTICIR_CODEX_PROMPT.md",
+    "sha256": "08144e29c275d2f2a962e9139b1458eebe8ab0d50e4807d0a1e420ecf68ad702"
+  },
+  "frozen_scientific_anchors": {
+    "stage1_final_best_ema_sha256": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa",
+    "stage2_decision_sha256": "434e209ac0db201ca7f1be045e3811547d8f3cc974ff3ef740c96c3689329a47",
+    "stage3_approval_required_sha256": "33be4aba2c4229175ac33edef7a5914a48a249b8c733d86338c64a8662072825",
+    "stage3_config_sha256": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e",
+    "stage4_config_sha256": "ef1f53623d9171d1e5a6b052ee6ef9230137e1b8555dbc17924620870ea99d71",
+    "approval_bindings_checked": 22,
+    "approval_binding_mismatches": 0
+  },
+  "semantic_sources": {
+    "scripts/orchestrate.py": "05633259a3894e148b4826951a06e2969a15c586bdf4d835f4c21c274b89904a",
+    "scripts/train_stage3_planner.py": "3d498fcea7cdc52480e6ff8e3e2d85596d2bde94ed289f14deeee66f9d9beabc",
+    "scripts/train_stage4_e2e.py": "d181ac4f2e01a208bbd8bf1488ff52a5721c02d3d6d29c983e4b05e1322ca638",
+    "src/training/orchestration.py": "7979ae0feedc1677a02fe2bd2ac76432185881a75b80122dc8bcd936b9cbff1f",
+    "src/training/stage3_engine.py": "a8b4aad04f1bafa1e1721c2a3a4fbc70ca4e5c05b23db43fcfc50c01801980aa",
+    "src/training/stage4_engine.py": "03f8af0f0cd57bbaa56c2e2ab5163f8b52d81756e131c43794bceec111aeed34"
+  },
+  "semantic_source_aggregate_sha256": "bc1ebbd58e1d1a7e488606b35504ea73e6dc3a37919d3e57bf25a1bd55298ae6",
+  "hardening_tests": {
+    "tests/test_stage3_engine.py": {
+      "sha256": "b045d16bc23be0aad28a1bb1fb46ab86a9f565ba429b04ea00978ae58fa91b69",
+      "passed": 31
+    },
+    "tests/test_stage4_engine.py": {
+      "sha256": "1c4e0f0b16bc2e7a08137d4036dee186821b06aaef191a30a2f414860b299ba1",
+      "passed": 21
+    },
+    "tests/test_orchestration.py": {
+      "sha256": "2ea3a57fc98ef0320250dbfaba786888e118aef67813a071be7fa2702eda5f5f",
+      "passed": 58
+    },
+    "targeted_total_passed": 110,
+    "full_cpu_regression_passed": 259,
+    "full_cpu_regression_failed": 0,
+    "cuda_visible_devices": "",
+    "cuda_execution": false,
+    "ruff_check": "PASS",
+    "ruff_format_modified_files": "PASS",
+    "compileall": "PASS",
+    "git_diff_check": "PASS"
+  },
+  "hardening_source_aggregate_sha256": "86b53a2d99526c693920c1958a58645e4e8b8570770ceaa71790e3aa313cb702",
+  "scope": {
+    "scientific_configuration_changed": false,
+    "data_or_labels_changed": false,
+    "stage1_or_stage2_artifacts_changed": false,
+    "approval_bindings_changed": false,
+    "control_plane_and_correctness_hardening_only": true
+  }
+}

@@ -1,0 +1,106 @@
+{
+  "approved": false,
+  "bindings": {
+    "clean_train_manifest": {
+      "path": "/root/autodl-tmp/graph/training_data/manifests/clean_train.jsonl",
+      "sha256": "00247444a3b7304fe83a4783cae694181e6796253c6915d2491009def03df257"
+    },
+    "clean_val_manifest": {
+      "path": "/root/autodl-tmp/graph/training_data/manifests/clean_val.jsonl",
+      "sha256": "88276445c7cc1166ace77904276dbeb61f3a049572e3b23fd1aad2b5f831947d"
+    },
+    "config_resolved_paths": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/configs/resolved_paths.yaml",
+      "sha256": "de5523bf9b786f40bafa7860c3b3bc0e0067f3d539e827f91fb4517a490d5e8c"
+    },
+    "config_stage0": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage0_mio_stagea.yaml",
+      "sha256": "1bfb0444e311d110c6929ce30fdcf888a73d0f10167ed27e3328492a08406283"
+    },
+    "config_stage1": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage1_skill_bank.yaml",
+      "sha256": "c673a769d06f5476f3c8cae05214c6d7217eee4e2c98ab7320a799c3a1cd5a4c"
+    },
+    "config_stage2": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage2_interaction_distill.yaml",
+      "sha256": "0ec91a4327d238c0b4195b0ba89e9bd5f4c71e438c9ff311f1846de08b071ff8"
+    },
+    "config_stage3": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage3_planner.yaml",
+      "sha256": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e"
+    },
+    "config_stage4": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage4_graphrestore_e2e.yaml",
+      "sha256": "ef1f53623d9171d1e5a6b052ee6ef9230137e1b8555dbc17924620870ea99d71"
+    },
+    "global_priority": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/global_priority.json",
+      "sha256": "80504122f5ce8e8beedf630426bd8e15485efc9db0f9b3d0adf39ca6dd54b0d8"
+    },
+    "interaction_report": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/reports/INTERACTION_DISTILLATION.md",
+      "sha256": "6631942335487f05f27a4bde22c58918565507fd11bb9f51ea6c43163daf7a5c"
+    },
+    "interaction_summary_csv": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/stage2_interaction_summary.csv",
+      "sha256": "06ec62420273acbd85ddb65751279f884a97725830d2803923a66cfc4ac143ce"
+    },
+    "interaction_train_manifest": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/interaction_train_manifest.jsonl",
+      "sha256": "d8f80d59fa46b9afe303693e30c353e6beb870503de7a8bc9fca7d59e1a7b32c"
+    },
+    "interaction_val_manifest": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/interaction_val_manifest.jsonl",
+      "sha256": "359bbef307812f546dae0cc42675a1041649fda77338c674bbdadd72df1df3d2"
+    },
+    "pair_prior": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/pair_prior.json",
+      "sha256": "4116725bce4ecfaceaa1429183e86738ee7ec38835e25886cacd9aa3aec38d82"
+    },
+    "primary_all_manifest": {
+      "path": "/root/autodl-tmp/graph/training_data/manifests/primary_all.jsonl",
+      "sha256": "f4080efc2572ce2377646a8acabcbebe092e4a3feeabafc4200984b716c8e8eb"
+    },
+    "primary_train_manifest": {
+      "path": "/root/autodl-tmp/graph/training_data/manifests/primary_train.jsonl",
+      "sha256": "83da30d0b8445d5bb427c336b125214ee62f2a0ec3a5bab61ca7119703044071"
+    },
+    "primary_val_manifest": {
+      "path": "/root/autodl-tmp/graph/training_data/manifests/primary_val.jsonl",
+      "sha256": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b"
+    },
+    "relation_train": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/group_a_relations_train.jsonl",
+      "sha256": "b65de122964c963636c94b14fac7494c9c995c3f9c4022e405d4d6d026642c18"
+    },
+    "relation_val": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/group_a_relations_val.jsonl",
+      "sha256": "6c641406fc50e26a5e1af30b4d113a00439576341b5620022e5ab8514c189f30"
+    },
+    "skill_effect_profiles": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/skill_effect_profiles.json",
+      "sha256": "a1af32c5c285591a0eb18cd21c89a82a43f11b2fac19aefb0d6c10d1c3d0ef07"
+    },
+    "stage1_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage1/best_ema.pth",
+      "sha256": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa"
+    },
+    "stage2_decision": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/stage2_decision.json",
+      "sha256": "434e209ac0db201ca7f1be045e3811547d8f3cc974ff3ef740c96c3689329a47"
+    }
+  },
+  "created_utc": "2026-08-17T05:30:33Z",
+  "kind": "stage3_approval_required",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "resume_command": "python scripts/orchestrate.py --approve_stage3 --resume_from_stage3",
+  "schema_version": "graphrestore-stage3-approval-v1",
+  "stage2_decision": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/stage2_decision.json",
+    "sha256": "434e209ac0db201ca7f1be045e3811547d8f3cc974ff3ef740c96c3689329a47"
+  },
+  "warnings": [
+    "INFO_CONTEXT_DEPENDENT_RELATION",
+    "INFO_STABLE_PAIR_RULE"
+  ]
+}

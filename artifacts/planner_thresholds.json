@@ -1,0 +1,210 @@
+{
+  "baseline_threshold": 0.5,
+  "calibration_code": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/src/training/stage3_engine.py",
+    "sha256": "1d373d8d3e416e6431d52721c2cd2eef15541241a2d7c28af8a688181a972548"
+  },
+  "calibration_runs": 1,
+  "checkpoint_sha256": "9114974f68f202119d4241077d0c46333315204959d58b7eabecaf68a3e32ff3",
+  "created_utc": "2026-08-18T06:49:26Z",
+  "frozen": true,
+  "group_b_rows_read": 0,
+  "group_c_rows_read": 0,
+  "macro_f1_after": 0.9086336703517273,
+  "macro_f1_before": 0.8454899763976607,
+  "mio100_rows_read": 0,
+  "numerical_tolerance": 1e-15,
+  "per_skill_f1": {
+    "defocus_blur": 0.898989898989899,
+    "haze": 0.9093851132686084,
+    "jpeg_artifact": 1.0,
+    "low_light": 0.8287112561174551,
+    "low_resolution": 0.9883527454242929,
+    "motion_blur": 0.7071240105540897,
+    "noise": 0.9713322091062394,
+    "rain": 0.9651741293532339
+  },
+  "per_skill_metrics": {
+    "defocus_blur": {
+      "baseline": {
+        "f1": 0.898989898989899,
+        "precision": 0.9081632653061225,
+        "recall": 0.89,
+        "threshold": 0.5
+      },
+      "calibrated": {
+        "f1": 0.898989898989899,
+        "precision": 0.9081632653061225,
+        "recall": 0.89,
+        "threshold": 0.5
+      }
+    },
+    "haze": {
+      "baseline": {
+        "f1": 0.8709677419354839,
+        "precision": 0.9418604651162791,
+        "recall": 0.81,
+        "threshold": 0.5
+      },
+      "calibrated": {
+        "f1": 0.9093851132686084,
+        "precision": 0.8836477987421384,
+        "recall": 0.9366666666666666,
+        "threshold": 0.44
+      }
+    },
+    "jpeg_artifact": {
+      "baseline": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.5
+      },
+      "calibrated": {
+        "f1": 1.0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.5
+      }
+    },
+    "low_light": {
+      "baseline": {
+        "f1": 0.8161120840630472,
+        "precision": 0.8597785977859779,
+        "recall": 0.7766666666666666,
+        "threshold": 0.5
+      },
+      "calibrated": {
+        "f1": 0.8287112561174551,
+        "precision": 0.8115015974440895,
+        "recall": 0.8466666666666667,
+        "threshold": 0.48
+      }
+    },
+    "low_resolution": {
+      "baseline": {
+        "f1": 0.9051094890510949,
+        "precision": 1.0,
+        "recall": 0.8266666666666667,
+        "threshold": 0.5
+      },
+      "calibrated": {
+        "f1": 0.9883527454242929,
+        "precision": 0.9867109634551495,
+        "recall": 0.99,
+        "threshold": 0.42
+      }
+    },
+    "motion_blur": {
+      "baseline": {
+        "f1": 0.6837060702875399,
+        "precision": 0.656441717791411,
+        "recall": 0.7133333333333334,
+        "threshold": 0.5
+      },
+      "calibrated": {
+        "f1": 0.7071240105540897,
+        "precision": 0.5851528384279476,
+        "recall": 0.8933333333333333,
+        "threshold": 0.48
+      }
+    },
+    "noise": {
+      "baseline": {
+        "f1": 0.8933823529411765,
+        "precision": 0.9959016393442623,
+        "recall": 0.81,
+        "threshold": 0.5
+      },
+      "calibrated": {
+        "f1": 0.9713322091062394,
+        "precision": 0.9829351535836177,
+        "recall": 0.96,
+        "threshold": 0.42
+      }
+    },
+    "rain": {
+      "baseline": {
+        "f1": 0.6956521739130435,
+        "precision": 1.0,
+        "recall": 0.5333333333333333,
+        "threshold": 0.5
+      },
+      "calibrated": {
+        "f1": 0.9651741293532339,
+        "precision": 0.9603960396039604,
+        "recall": 0.97,
+        "threshold": 0.38
+      }
+    }
+  },
+  "primary_val_manifest_sha256": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "schema_version": "graphrestore-presence-thresholds-v1",
+  "search_grid": [
+    0.2,
+    0.22,
+    0.24,
+    0.26,
+    0.28,
+    0.3,
+    0.32,
+    0.34,
+    0.36,
+    0.38,
+    0.4,
+    0.42,
+    0.44,
+    0.46,
+    0.48,
+    0.5,
+    0.52,
+    0.54,
+    0.56,
+    0.58,
+    0.6,
+    0.62,
+    0.64,
+    0.66,
+    0.68,
+    0.7,
+    0.72,
+    0.74,
+    0.76,
+    0.78,
+    0.8
+  ],
+  "selected_stage3_checkpoint": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/best_ema.pth",
+    "sha256": "9114974f68f202119d4241077d0c46333315204959d58b7eabecaf68a3e32ff3"
+  },
+  "skills": [
+    "noise",
+    "motion_blur",
+    "defocus_blur",
+    "jpeg_artifact",
+    "rain",
+    "haze",
+    "low_light",
+    "low_resolution"
+  ],
+  "source": "primary_val_presence_f1_only",
+  "source_primary_val": {
+    "path": "/root/autodl-tmp/graph/training_data/manifests/primary_val.jsonl",
+    "sha256": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b"
+  },
+  "stage3_approval_sha256": "7b351c0958aa681dc1f65114e801c58e3a5bc4bb7cc73c06507c0b647e51a08b",
+  "stage3_extension_authorization_sha256": "43e010f9c66301415b8bd2d3ac7e48aa7653283671a2756dc744926a4a4724fd",
+  "stage3_finalization_authorization_sha256": "a4d3abb112aae01afeef5c87f3ffb65a26f3ff8cdff1cc8ad362db2323d9743e",
+  "thresholds": {
+    "defocus_blur": 0.5,
+    "haze": 0.44,
+    "jpeg_artifact": 0.5,
+    "low_light": 0.48,
+    "low_resolution": 0.42,
+    "motion_blur": 0.48,
+    "noise": 0.42,
+    "rain": 0.38
+  },
+  "tie_break": "nearest_0.50_then_higher_threshold"
+}

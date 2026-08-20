@@ -1,7 +1,7 @@
 # AgenticIR Official Metric Protocol and Parity
 
 - protocol: `graphrestore-v7.1-agenticir-metric-parity`
-- created_utc: `2026-08-14T21:20:26Z`
+- created_utc: `2026-08-15T03:12:58Z`
 - result: **PASS**
 - failures: `0`
 - warnings: `0`

@@ -1,0 +1,168 @@
+{
+  "created_utc": "2026-08-15T17:36:26Z",
+  "micro_batch_trials": [
+    {
+      "completed_steps": 10,
+      "error": null,
+      "images_per_second": 13.979876976848914,
+      "micro_batch": 8,
+      "passed": true,
+      "peak_reserved_bytes": 17137926144,
+      "peak_reserved_fraction": 0.6784047485011765
+    },
+    {
+      "completed_steps": 10,
+      "error": null,
+      "images_per_second": 13.344986083699048,
+      "micro_batch": 4,
+      "passed": true,
+      "peak_reserved_bytes": 9003073536,
+      "peak_reserved_fraction": 0.3563866355011687
+    },
+    {
+      "completed_steps": 10,
+      "error": null,
+      "images_per_second": 8.424563417989102,
+      "micro_batch": 2,
+      "passed": true,
+      "peak_reserved_bytes": 4877975552,
+      "peak_reserved_fraction": 0.19309464574323745
+    },
+    {
+      "completed_steps": 10,
+      "error": null,
+      "images_per_second": 4.659089762528954,
+      "micro_batch": 1,
+      "passed": true,
+      "peak_reserved_bytes": 2774532096,
+      "peak_reserved_fraction": 0.10982984364501426
+    }
+  ],
+  "provenance": {
+    "config_semantic_sha256": "ccd11de8886fed23c1d45f5ae831d695386a9b4e551170548177aea1d9941e88",
+    "config_sha256": "c673a769d06f5476f3c8cae05214c6d7217eee4e2c98ab7320a799c3a1cd5a4c",
+    "dependency_versions": {
+      "cuda_runtime": "12.1",
+      "cudnn": 8902,
+      "numpy_runtime": "2.4.6",
+      "opencv_runtime": "5.0.0",
+      "packages": {
+        "PyYAML": "6.0.1",
+        "basicsr": "not-installed",
+        "numpy": "2.4.6",
+        "opencv-python": "5.0.0.93",
+        "pyiqa": "0.1.16",
+        "torch": "2.3.0+cu121",
+        "torchvision": "0.18.0+cu121"
+      },
+      "python": "3.12.3",
+      "torch_runtime": "2.3.0+cu121"
+    },
+    "ema_policy": {
+      "buffer_update": "copy_current_value_bitwise",
+      "decay": 0.9999,
+      "frozen_parameter_update": "copy_current_value_bitwise",
+      "optimizer_step_indexing": "zero_based_internal_step",
+      "parameter_selector": "named_parameter_requires_grad_at_each_update",
+      "phase0_end_step_exclusive": 5000,
+      "phase1_start_step_inclusive": 5000,
+      "phase_transition": "dynamic_first_ema_without_shadow_reset",
+      "schema_version": "graphrestore-stage1-phase-aware-ema-v1",
+      "scope": "dynamic_trainable_named_parameters_ema_frozen_parameters_and_all_buffers_bitwise_copy",
+      "trainable_parameter_update": "standard_fp32_exponential_moving_average"
+    },
+    "manifests": {
+      "primary_train": {
+        "path": "/root/autodl-tmp/graph/training_data/manifests/primary_train.jsonl",
+        "sha256": "83da30d0b8445d5bb427c336b125214ee62f2a0ec3a5bab61ca7119703044071"
+      },
+      "primary_val": {
+        "path": "/root/autodl-tmp/graph/training_data/manifests/primary_val.jsonl",
+        "sha256": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b"
+      }
+    },
+    "parent_checkpoint": {
+      "allowed_new_prefixes": [
+        "decoder.skill_bank."
+      ],
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage0/best_ema.pth",
+      "sha256": "52a8744582e39e4f1aa052cc84924ad486289c0b97fc30c89fc6489e69dfac8a",
+      "source": "stage0_best_ema_shadow"
+    },
+    "protocol_id": "graphrestore-v7.1-agenticir-locked",
+    "repositories": {
+      "agenticir_commit": "9640a291480dee3ba8f2974125d4ee9e3440f3d6",
+      "mioir_commit": "4d5f6ca0235cf2c307319673242d5722ee35d73f"
+    },
+    "resolved_paths_sha256": "de5523bf9b786f40bafa7860c3b3bc0e0067f3d539e827f91fb4517a490d5e8c",
+    "runtime": {
+      "accumulation_steps": 1,
+      "amp_dtype": "bf16",
+      "crop_size": 192,
+      "effective_batch_size": 8,
+      "max_steps": 30000,
+      "micro_batch": 8,
+      "tf32": true
+    },
+    "schema_version": "graphrestore-stage1-runtime-v1",
+    "semantic_source_sha256": {
+      "scripts/train_stage1_skills.py": "30949c0cb5787f9465a0ace6cfb5cdc37d2333a5f1497c94303693a98c24f12c",
+      "src/__init__.py": "457b63d50d01f3c33d60220d67dfa8c4717085a136db419c6a584b3408e44669",
+      "src/data/__init__.py": "ef568ed92708ff8ce9693b058c282ddd62203442b8dcfcfd5bf817eaf30afea7",
+      "src/data/agenticir_degradations.py": "7a7d160aa6ca228b031bb00e65f8f31c61d734ef8a572881e95e0ee42ba89e54",
+      "src/data/episode_dataset.py": "867519c6c5f22f5b0926b3af47d5938a8f1ebe6ca336dcedbb74f5d29bae24cb",
+      "src/data/manifests.py": "7319d67dc34f15ddb7f2e607fc3d8c0f0010c693756ae3f198c4acf89953e710",
+      "src/data/samplers.py": "4e79abc547bd413d8fd4787a5c499892d75b46de7396e80a0f8f3da52d9b3ea4",
+      "src/data/scale_canonicalizer.py": "3e66a83c4bd09679741a38d7fae0b0876dbe8c1357d4108193ebfc8e58c8fe8f",
+      "src/data/subset_targets.py": "7521871e29bb58b71b7f6abf9a8e69b1b52208befce239b8976c9f71e5f68405",
+      "src/losses/__init__.py": "e2c87fe8637f928278ceef6f2f94ff81c596474eace3444f89c0b4e10d6c611e",
+      "src/losses/cycle_consistency.py": "c4c45e5ac01e07ca5d68cf8f8fa4d8b90a50a5c4e969f626231a21ca700f4bf7",
+      "src/losses/guard_losses.py": "34ece30ee865defe580ae4e0a2795e143df4da2f6f06cde6c42ddd2cd80b7a51",
+      "src/losses/planner_losses.py": "a2a0fa419272a840846ba00411e05dd12ad39bbf62b140459398fc3523a6492e",
+      "src/losses/restoration.py": "c8a6a5bf0ffd96032dfbdc272d53ed6a516479714275c5271b9b24e15cde7294",
+      "src/metrics/__init__.py": "24fd1a749ea4dac6603c70c2636c69af96c366d3cc0d56d2c2c5594ecea442ae",
+      "src/metrics/agenticir_official.py": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+      "src/net/__init__.py": "f255aab130fe8a2f63a695dedb08e2fcfe712abf538fb529c45a441ee34d1eab",
+      "src/net/cooperative_executor.py": "10d6d3ceb69bb7e517df4a2d2b970d62f4ce15097a99943c2af35a1b192c07fd",
+      "src/net/graph_compiler.py": "49529ab6e04cbd63dd392b0795da8bf06ee9d64b43b151b64cf303d4dfe14d65",
+      "src/net/graphrestore.py": "2bdb139b94a82818e6a16dde45e2d2fee066a03cd4eca447715d310d1fecc6d8",
+      "src/net/latent_skill_bank.py": "161878c2c38db929eb8c6f00e5a5a7829ab1544da2cb946341a6508bbaf3d71f",
+      "src/net/mio_stagea.py": "6d00daae0b4f1f6a66ee2a6fe72f8077443df2623f86c391c7e0001af5b131e9",
+      "src/net/program_planner.py": "c395c41b5b85dec8e178d3a4bf9216ad5acf28b56c5a4abcb12db4ba3ab829a7",
+      "src/net/restormer_blocks.py": "0fd43c1dbf2ccec239e3ee5eded1c643ace3e68d90dda82b1f184e626eab501d",
+      "src/net/skill_adapter.py": "93e1b79e07832219cb3f37d3f6d453e8c8ffc86f2f507ebea4d49e65d416dfd3",
+      "src/net/trace_pyramid.py": "f8c55d10bba8bc10829a73bc1ae2bb87b89b4d62d99d2bd0e2b798dc2f4ee62f",
+      "src/training/__init__.py": "eab12a7cec3421440b882b27532ba321503e47b780eb42b1b605d930f99a930b",
+      "src/training/checkpointing.py": "063e31657922ad2006f45a6e31677aa9953b2b95d38dbaf6207bcc20bb47f072",
+      "src/training/ema.py": "7c11d3857f194a406fc6bdd6b2d2b96adc4f1e8bfe1cc8f1acf0ecb3154234d4",
+      "src/training/optimization.py": "7d7b4486822697e96c17ce24e86377023444c512d5c6328547612619022494e7",
+      "src/training/orchestration.py": "597333101407451f83aaede9e6c23be9f222209de007b78a05ce4684f42b0584",
+      "src/training/provenance.py": "d49f2de6d65e52bf4bddb4a0049ed88058879d7e877069cc61ed5e8508735020",
+      "src/training/relation_supervision.py": "82c94341cb0a009f15e9e91c5b96dce3b36ef45ee11731505c757d1f40b68699",
+      "src/training/runtime.py": "47e550c55e5684150fc6cffee90d1874a8ca2afd0d2652345462261a644c3dfe",
+      "src/training/selection.py": "8a6c75e19913168dd876bf9af9c0d7702599b4e59131426d0136315712310166",
+      "src/training/stage0_engine.py": "9357c67de16c2fc3eaa79c0b9687e77d841cec22c0bbb605835b47ec7759182a",
+      "src/training/stage1_engine.py": "ab76a61422532d0deac8d7c01da69dae9f1d8154a277a4c0c26658b936c36f6c",
+      "src/training/stage2_distillation.py": "4cd37e4a1e5725e9b948c758eab893ff9a95f1c23357a2cdea3215df93d1b06c",
+      "src/training/stage3_engine.py": "a305435a45767df55b6676db8bd1768e111d664a318976439f0813e652ee171d",
+      "src/training/stage4_engine.py": "7079296d2ab27a09982303c6d609cbba1694966a515474d3b21eeb707b9b669f",
+      "src/utils/__init__.py": "f665f064cf3c517389fe1cea13dd6632ba6a3bf17bedde46d60bff743289524c",
+      "src/utils/audit.py": "ba50200e5a88afd3ed97ef3ce82a3f4003bd90cd90f0f83ac2269e9e1acc772a",
+      "src/utils/git.py": "1fe4fd00a7f3d8db39cdbbd0233a424da5c81dd9a345b3a5e3e62b6a92197a8b",
+      "src/utils/hashing.py": "173749dc7552576f047c08fc8fdccbec252cec3cef3c1e78d9a43784d90d9980",
+      "src/utils/io.py": "321384d77f0d85ffae0da2d8b63ff03afe2afafc51a320d50543aab8afaad61f",
+      "src/utils/paths.py": "c739fa180d6857972bd193500825076d782d00f28ef26beefd94493a86fef337"
+    }
+  },
+  "schema_version": "graphrestore-stage1-runtime-v1",
+  "stage0_backbone_load": {
+    "loaded_count": 495,
+    "missing_count": 1040,
+    "missing_prefixes": [
+      "decoder.skill_bank."
+    ],
+    "shape_mismatches": [],
+    "source_tensor_count": 495,
+    "unexpected_keys": []
+  }
+}

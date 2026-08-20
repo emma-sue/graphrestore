@@ -1,0 +1,150 @@
+{
+  "created_utc": "2026-08-19T20:30:35Z",
+  "dataset": "primary_val_single_and_group_a_only",
+  "diagnostics": {
+    "clean_misuse": {
+      "psnr": 72.71375131607056,
+      "residual_norm": 0.005106305903325392,
+      "ssim": 0.9987804524885551
+    },
+    "dropped_edge_rate": 0.0,
+    "guard_high_frac_haze": 0.0,
+    "guard_high_frac_rain": 0.0,
+    "guard_mae_haze": 0.11423014322916666,
+    "guard_mae_rain": 0.07283528645833333,
+    "guard_spearman_haze": 0.6197974340395531,
+    "guard_spearman_rain": 0.6364054862008692,
+    "guard_std_haze": 0.019610392252604168,
+    "guard_std_rain": 0.026988525390625,
+    "mean_program_levels": 1.235625,
+    "parallel_precision": 0.726775956284153,
+    "parallel_recall": 0.8382352941176471,
+    "per_skill_f1": {
+      "defocus_blur": 0.9655172413793104,
+      "haze": 0.8731563421828908,
+      "jpeg_artifact": 1.0,
+      "low_light": 0.7956698240866035,
+      "low_resolution": 0.99009900990099,
+      "motion_blur": 0.7909604519774012,
+      "noise": 0.9373040752351098,
+      "rain": 0.9447077409162717
+    },
+    "planner_macro_f1": 0.9121768357098222,
+    "post_cycle_rate": 0.0,
+    "pre_cycle_rate": 0.0,
+    "reentry_request_rate": 0.006380208333333333,
+    "relation_accuracy": 0.6625850340136055,
+    "relation_n_nonambiguous": 735,
+    "skipped_guard_images_haze": 0,
+    "skipped_guard_images_rain": 0,
+    "unexpected_skill_activation_rate": 5.208333333333334e-05,
+    "valid_guard_images_haze": 300,
+    "valid_guard_images_rain": 300,
+    "wrong_skill_identity": {
+      "psnr": 61.90638446807861,
+      "residual_norm": 0.0021046229404362293,
+      "ssim": 0.9994035983440996
+    }
+  },
+  "group_a_combinations": {
+    "dark+noise": {
+      "count": 100,
+      "psnr": 26.041867084503174,
+      "ssim": 0.8532037726525759
+    },
+    "defocus blur+haze": {
+      "count": 100,
+      "psnr": 22.524741172790527,
+      "ssim": 0.8116276641670891
+    },
+    "defocus blur+jpeg compression artifact": {
+      "count": 100,
+      "psnr": 25.520821704864503,
+      "ssim": 0.730082926983279
+    },
+    "motion blur+dark": {
+      "count": 100,
+      "psnr": 20.777283439636232,
+      "ssim": 0.6821913479430125
+    },
+    "motion blur+low resolution": {
+      "count": 100,
+      "psnr": 22.169592332839965,
+      "ssim": 0.6558932113366756
+    },
+    "noise+jpeg compression artifact": {
+      "count": 100,
+      "psnr": 28.87152235031128,
+      "ssim": 0.8516933460539766
+    },
+    "rain+haze": {
+      "count": 100,
+      "psnr": 24.57477427482605,
+      "ssim": 0.9169604465574359
+    },
+    "rain+low resolution": {
+      "count": 100,
+      "psnr": 25.894257373809815,
+      "ssim": 0.7454308921574011
+    }
+  },
+  "group_a_equal_combination_mean": {
+    "combination_count": 8,
+    "count": 800,
+    "psnr": 24.546857466697695,
+    "ssim": 0.7808854509814307
+  },
+  "image_count": 1600,
+  "output_quantization": "clamp_round_uint8",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "relation_validation_source": "interaction_val_only",
+  "schema_version": "graphrestore-stage4-validation-v1",
+  "single_equal_task_mean": {
+    "count": 800,
+    "psnr": 27.020805177688597,
+    "ssim": 0.8685765341305163,
+    "task_count": 8
+  },
+  "single_tasks": {
+    "dark": {
+      "count": 100,
+      "psnr": 27.7619091796875,
+      "ssim": 0.9584777898128357
+    },
+    "defocus blur": {
+      "count": 100,
+      "psnr": 27.33380033493042,
+      "ssim": 0.8309348808107277
+    },
+    "haze": {
+      "count": 100,
+      "psnr": 25.219907035827635,
+      "ssim": 0.9584611996206857
+    },
+    "jpeg compression artifact": {
+      "count": 100,
+      "psnr": 30.41741552352905,
+      "ssim": 0.8985121135672223
+    },
+    "low resolution": {
+      "count": 100,
+      "psnr": 27.00559404373169,
+      "ssim": 0.7953209576593906
+    },
+    "motion blur": {
+      "count": 100,
+      "psnr": 20.784935760498048,
+      "ssim": 0.6942722333330126
+    },
+    "noise": {
+      "count": 100,
+      "psnr": 25.638048629760743,
+      "ssim": 0.866174708353589
+    },
+    "rain": {
+      "count": 100,
+      "psnr": 32.0048309135437,
+      "ssim": 0.946458389886667
+    }
+  }
+}

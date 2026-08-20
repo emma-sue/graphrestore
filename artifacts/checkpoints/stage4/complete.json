@@ -1,0 +1,62 @@
+{
+  "SSIM_RETENTION_RISK": true,
+  "best_ema_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/best_ema.pth",
+  "best_ema_sha256": "6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd",
+  "best_score": {
+    "group_a_psnr": 24.546857466697695,
+    "group_a_ssim": 0.7808854509814307,
+    "single_psnr": 27.020805177688597,
+    "single_ssim": 0.8685765341305163,
+    "step": 40000
+  },
+  "calibration_history": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/stage4_calibration_history.csv",
+  "calibration_history_sha256": "174441dfa44a8f548853f9d558b9b05ccbb455a8f3d3bb563dd08b4c744e8ac0",
+  "calibration_history_steps": [
+    4000,
+    8000,
+    12000,
+    16000,
+    20000,
+    24000,
+    28000,
+    32000,
+    36000,
+    40000
+  ],
+  "completed_utc": "2026-08-20T08:00:40Z",
+  "diagnostics_json": "/root/autodl-tmp/aaa/graphrestore/reports/GUARD_AND_MISUSE_DIAGNOSTICS.json",
+  "diagnostics_json_sha256": "a37abc90beaa949942fa0372d9192de5a2731566e648b2baf80793d4a69ac5c8",
+  "diagnostics_report": "/root/autodl-tmp/aaa/graphrestore/reports/GUARD_AND_MISUSE_DIAGNOSTICS.md",
+  "diagnostics_report_sha256": "a51fe28394ef3db2ea2f58e934e63083aacf4639b53aef4035e766d08df4f35e",
+  "diagnostics_selected_best_ema_sha256": "6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd",
+  "formal_mio100_started": false,
+  "frozen_stage3_calibration_history": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/calibration_history.csv",
+    "sha256": "b282987c3f77034f76788a412e91823cd4570ce8c6c10cd93030ee181612e034"
+  },
+  "latest_score": {
+    "group_a_psnr": 24.546857466697695,
+    "group_a_ssim": 0.7808854509814307,
+    "single_psnr": 27.020805177688597,
+    "single_ssim": 0.8685765341305163,
+    "step": 40000
+  },
+  "maximum_train_peak_reserved_bytes": 2501902336,
+  "maximum_train_peak_reserved_fraction": 0.09903779551663039,
+  "maximum_validation_peak_reserved_bytes": 13373538304,
+  "maximum_validation_peak_reserved_fraction": 0.5293914685746455,
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "report": "/root/autodl-tmp/aaa/graphrestore/reports/STAGE4_E2E.md",
+  "report_sha256": "bf6817dd5352d576fc9f01444305abdc1f16dae0f88fe0a56f85db9bb80cb145",
+  "schema_version": "graphrestore-stage4-runtime-v1",
+  "selected_delta_group_a_psnr_vs_stage0": -0.26286390542983895,
+  "selected_delta_group_a_ssim_vs_stage0": -0.0050240375932583126,
+  "selected_group_a_psnr": 24.546857466697695,
+  "selected_group_a_ssim": 0.7808854509814307,
+  "stage0_group_a_psnr_anchor": 24.809721372127534,
+  "stage0_group_a_ssim_anchor": 0.785909488574689,
+  "step": 40000,
+  "validation": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/validation_latest.json",
+  "validation_sha256": "176fef051e1f1d4fe12260c1df12583cab3927a46fc8906cc672da56eb0fd6ca",
+  "waiting_for": "new_user_authorization_for_formal_mio100"
+}

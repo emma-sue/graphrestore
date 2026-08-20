@@ -1,0 +1,169 @@
+{
+  "ambiguous_excluded": 493,
+  "created_utc": "2026-08-17T05:30:30Z",
+  "pair_prior": {
+    "defocus_blur+haze": {
+      "i_before_j": 0.26582278481012656,
+      "j_before_i": 0.17088607594936708,
+      "parallel": 0.5632911392405063
+    },
+    "defocus_blur+jpeg_artifact": {
+      "i_before_j": 0.2150313152400835,
+      "j_before_i": 0.07306889352818371,
+      "parallel": 0.7118997912317327
+    },
+    "motion_blur+low_light": {
+      "i_before_j": 0.12318840579710146,
+      "j_before_i": 0.4528985507246377,
+      "parallel": 0.42391304347826086
+    },
+    "motion_blur+low_resolution": {
+      "i_before_j": 0.03768115942028986,
+      "j_before_i": 0.04927536231884058,
+      "parallel": 0.9130434782608695
+    },
+    "noise+jpeg_artifact": {
+      "i_before_j": 0.42685370741482964,
+      "j_before_i": 0.13026052104208416,
+      "parallel": 0.44288577154308617
+    },
+    "noise+low_light": {
+      "i_before_j": 0.2134387351778656,
+      "j_before_i": 0.549407114624506,
+      "parallel": 0.23715415019762845
+    },
+    "rain+haze": {
+      "i_before_j": 0.04296875,
+      "j_before_i": 0.41796875,
+      "parallel": 0.5390625
+    },
+    "rain+low_resolution": {
+      "i_before_j": 0.310546875,
+      "j_before_i": 0.0,
+      "parallel": 0.689453125
+    }
+  },
+  "pairs": {
+    "defocus_blur+haze": {
+      "ambiguous_in_prior": 0,
+      "counts": {
+        "i_before_j": 126,
+        "j_before_i": 81,
+        "parallel": 267
+      },
+      "n_nonambiguous": 474,
+      "probabilities": {
+        "i_before_j": 0.26582278481012656,
+        "j_before_i": 0.17088607594936708,
+        "parallel": 0.5632911392405063
+      }
+    },
+    "defocus_blur+jpeg_artifact": {
+      "ambiguous_in_prior": 0,
+      "counts": {
+        "i_before_j": 103,
+        "j_before_i": 35,
+        "parallel": 341
+      },
+      "n_nonambiguous": 479,
+      "probabilities": {
+        "i_before_j": 0.2150313152400835,
+        "j_before_i": 0.07306889352818371,
+        "parallel": 0.7118997912317327
+      }
+    },
+    "motion_blur+low_light": {
+      "ambiguous_in_prior": 0,
+      "counts": {
+        "i_before_j": 34,
+        "j_before_i": 125,
+        "parallel": 117
+      },
+      "n_nonambiguous": 276,
+      "probabilities": {
+        "i_before_j": 0.12318840579710146,
+        "j_before_i": 0.4528985507246377,
+        "parallel": 0.42391304347826086
+      }
+    },
+    "motion_blur+low_resolution": {
+      "ambiguous_in_prior": 0,
+      "counts": {
+        "i_before_j": 13,
+        "j_before_i": 17,
+        "parallel": 315
+      },
+      "n_nonambiguous": 345,
+      "probabilities": {
+        "i_before_j": 0.03768115942028986,
+        "j_before_i": 0.04927536231884058,
+        "parallel": 0.9130434782608695
+      }
+    },
+    "noise+jpeg_artifact": {
+      "ambiguous_in_prior": 0,
+      "counts": {
+        "i_before_j": 213,
+        "j_before_i": 65,
+        "parallel": 221
+      },
+      "n_nonambiguous": 499,
+      "probabilities": {
+        "i_before_j": 0.42685370741482964,
+        "j_before_i": 0.13026052104208416,
+        "parallel": 0.44288577154308617
+      }
+    },
+    "noise+low_light": {
+      "ambiguous_in_prior": 0,
+      "counts": {
+        "i_before_j": 108,
+        "j_before_i": 278,
+        "parallel": 120
+      },
+      "n_nonambiguous": 506,
+      "probabilities": {
+        "i_before_j": 0.2134387351778656,
+        "j_before_i": 0.549407114624506,
+        "parallel": 0.23715415019762845
+      }
+    },
+    "rain+haze": {
+      "ambiguous_in_prior": 0,
+      "counts": {
+        "i_before_j": 22,
+        "j_before_i": 214,
+        "parallel": 276
+      },
+      "n_nonambiguous": 512,
+      "probabilities": {
+        "i_before_j": 0.04296875,
+        "j_before_i": 0.41796875,
+        "parallel": 0.5390625
+      }
+    },
+    "rain+low_resolution": {
+      "ambiguous_in_prior": 0,
+      "counts": {
+        "i_before_j": 159,
+        "j_before_i": 0,
+        "parallel": 353
+      },
+      "n_nonambiguous": 512,
+      "probabilities": {
+        "i_before_j": 0.310546875,
+        "j_before_i": 0.0,
+        "parallel": 0.689453125
+      }
+    }
+  },
+  "relation_classes": [
+    "i_before_j",
+    "j_before_i",
+    "parallel"
+  ],
+  "relation_train_sha256": "b65de122964c963636c94b14fac7494c9c995c3f9c4022e405d4d6d026642c18",
+  "schema_version": "graphrestore-stage2-v1",
+  "source": "interaction_train_nonambiguous_only",
+  "stage1_checkpoint_sha256": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa"
+}

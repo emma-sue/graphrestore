@@ -1,0 +1,134 @@
+{
+  "best_checkpoint": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage0/best_ema.pth",
+  "completed_step": 60000,
+  "created_utc": "2026-08-15T15:27:07Z",
+  "finite": true,
+  "images_per_second": 15.768820675233231,
+  "integration": false,
+  "last_checkpoint": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage0/last.pth",
+  "maximum_train_peak_reserved_bytes": 11324620800,
+  "maximum_train_peak_reserved_fraction": 0.448285076102099,
+  "maximum_validation_peak_reserved_bytes": 11769217024,
+  "maximum_validation_peak_reserved_fraction": 0.46588441612684806,
+  "peak_reserved_bytes": 11769217024,
+  "peak_reserved_fraction": 0.46588441612684806,
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "runtime": {
+    "accumulation_steps": 2,
+    "crop_size": 192,
+    "effective_batch": 8,
+    "gradient_checkpointing": false,
+    "integration": false,
+    "micro_batch": 4,
+    "schedule_max_steps": 60000,
+    "target_step": 60000,
+    "torch_compile": false
+  },
+  "schema_version": "graphrestore-stage0-run-v1",
+  "target_step": 60000,
+  "validation": {
+    "group_a_psnr": 24.809721372127534,
+    "group_a_ssim": 0.785909488574689,
+    "image_count": 1600,
+    "single_psnr": 28.25244591593742,
+    "single_ssim": 0.8767248622367062,
+    "task_means": {
+      "dark": {
+        "count": 100,
+        "group": "single",
+        "psnr": 31.108340702056886,
+        "ssim": 0.9677439019205739
+      },
+      "dark+noise": {
+        "count": 100,
+        "group": "A",
+        "psnr": 26.39252668380737,
+        "ssim": 0.8554769517658185
+      },
+      "defocus blur": {
+        "count": 100,
+        "group": "single",
+        "psnr": 27.984756088256837,
+        "ssim": 0.8472158079935397
+      },
+      "defocus blur+haze": {
+        "count": 100,
+        "group": "A",
+        "psnr": 22.859806327819825,
+        "ssim": 0.8146945751557411
+      },
+      "defocus blur+jpeg compression artifact": {
+        "count": 100,
+        "group": "A",
+        "psnr": 25.490791873931883,
+        "ssim": 0.7309397397982451
+      },
+      "haze": {
+        "count": 100,
+        "group": "single",
+        "psnr": 26.619634590148927,
+        "ssim": 0.9672928565642047
+      },
+      "jpeg compression artifact": {
+        "count": 100,
+        "group": "single",
+        "psnr": 30.43846227645874,
+        "ssim": 0.9010727400372616
+      },
+      "low resolution": {
+        "count": 100,
+        "group": "single",
+        "psnr": 26.955332660675047,
+        "ssim": 0.7956729858226409
+      },
+      "motion blur": {
+        "count": 100,
+        "group": "single",
+        "psnr": 21.22914361000061,
+        "ssim": 0.6961031031254287
+      },
+      "motion blur+dark": {
+        "count": 100,
+        "group": "A",
+        "psnr": 21.282445459365846,
+        "ssim": 0.6882094506653874
+      },
+      "motion blur+low resolution": {
+        "count": 100,
+        "group": "A",
+        "psnr": 22.16922112464905,
+        "ssim": 0.6570048860360883
+      },
+      "noise": {
+        "count": 100,
+        "group": "single",
+        "psnr": 27.544275856018068,
+        "ssim": 0.8747207054265441
+      },
+      "noise+jpeg compression artifact": {
+        "count": 100,
+        "group": "A",
+        "psnr": 28.91250358581543,
+        "ssim": 0.8553737323454174
+      },
+      "rain": {
+        "count": 100,
+        "group": "single",
+        "psnr": 34.139621543884275,
+        "ssim": 0.9639767970034562
+      },
+      "rain+haze": {
+        "count": 100,
+        "group": "A",
+        "psnr": 25.465123291015626,
+        "ssim": 0.9381514470096088
+      },
+      "rain+low resolution": {
+        "count": 100,
+        "group": "A",
+        "psnr": 25.905352630615234,
+        "ssim": 0.7474251258212056
+      }
+    }
+  }
+}

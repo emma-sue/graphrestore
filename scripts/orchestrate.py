@@ -69,6 +69,42 @@ def build_parser() -> argparse.ArgumentParser:
         help="resume only at Stage3 (must accompany --approve_stage3)",
     )
     parser.add_argument(
+        "--resume_post_approval_pipeline",
+        action="store_true",
+        help=(
+            "resume an already-approved FAILED or proven-stale Stage3/Stage4 "
+            "pipeline without rewriting STAGE3_APPROVED.json"
+        ),
+    )
+    parser.add_argument(
+        "--stage3_extension_authorization",
+        type=Path,
+        metavar="PATH",
+        help=(
+            "exact canonical STAGE3_EXTENSION_APPROVED.json; valid only as a "
+            "modifier of --resume_post_approval_pipeline"
+        ),
+    )
+    parser.add_argument(
+        "--stage3_finalization_authorization",
+        type=Path,
+        metavar="PATH",
+        help=(
+            "exact canonical STAGE3_EXTENSION_REVOKED.json; valid only as a "
+            "modifier of --resume_post_approval_pipeline and routes Stage3 "
+            "through the zero-training finalizer"
+        ),
+    )
+    parser.add_argument(
+        "--stage4_extension_authorization",
+        type=Path,
+        metavar="PATH",
+        help=(
+            "exact canonical activated STAGE4_EXTENSION_GATE_RECEIPT.json; "
+            "valid only as a modifier of --resume_post_approval_pipeline"
+        ),
+    )
+    parser.add_argument(
         "--show_state",
         action="store_true",
         help="print durable orchestration state without changing it",
@@ -111,6 +147,7 @@ def main(
             arguments.run_main_pipeline,
             arguments.resume_main_pipeline,
             approval_action,
+            arguments.resume_post_approval_pipeline,
             arguments.show_state,
             arguments.print_plan,
             arguments.print_tmux_command,
@@ -118,6 +155,36 @@ def main(
     )
     if action_count != 1:
         parser.error("select exactly one orchestration action")
+    if (
+        arguments.stage3_extension_authorization is not None
+        and not arguments.resume_post_approval_pipeline
+    ):
+        parser.error(
+            "--stage3_extension_authorization requires --resume_post_approval_pipeline"
+        )
+    if (
+        arguments.stage3_finalization_authorization is not None
+        and not arguments.resume_post_approval_pipeline
+    ):
+        parser.error(
+            "--stage3_finalization_authorization requires "
+            "--resume_post_approval_pipeline"
+        )
+    if (
+        arguments.stage4_extension_authorization is not None
+        and not arguments.resume_post_approval_pipeline
+    ):
+        parser.error(
+            "--stage4_extension_authorization requires --resume_post_approval_pipeline"
+        )
+    if (
+        arguments.stage3_extension_authorization is not None
+        and arguments.stage3_finalization_authorization is not None
+    ):
+        parser.error(
+            "--stage3_extension_authorization and "
+            "--stage3_finalization_authorization are mutually exclusive"
+        )
 
     root = Path(project_root or arguments.project_root or PROJECT_ROOT).resolve()
     orchestrator = GraphRestoreOrchestrator(root, runner=runner)
@@ -136,6 +203,20 @@ def main(
                 orchestrator.approve_and_resume_stage3(
                     approve_stage3=arguments.approve_stage3,
                     resume_from_stage3=arguments.resume_from_stage3,
+                )
+            )
+        elif arguments.resume_post_approval_pipeline:
+            _print_state(
+                orchestrator.resume_post_approval_pipeline(
+                    stage3_extension_authorization=(
+                        arguments.stage3_extension_authorization
+                    ),
+                    stage3_finalization_authorization=(
+                        arguments.stage3_finalization_authorization
+                    ),
+                    stage4_extension_authorization=(
+                        arguments.stage4_extension_authorization
+                    ),
                 )
             )
         elif arguments.show_state:

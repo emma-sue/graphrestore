@@ -1,0 +1,178 @@
+{
+  "assignment": "manifest_index_mod_shard_count",
+  "authorization": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/FORMAL_MIO100_APPROVED.json",
+    "sha256": "38647a598503ff0c1776e618a559c6d25d1a8b552fbf1bace765b08ddad9b474"
+  },
+  "authorization_bindings": {
+    "agenticir_compare_methods": {
+      "path": "/root/autodl-tmp/graph/upstream/AgenticIR/eval/compare_methods.py",
+      "sha256": "a246b8656744649ed5adfd5f482491f89006ef7bec1ce9923b5971a1da3d856a"
+    },
+    "agenticir_compute_scores": {
+      "path": "/root/autodl-tmp/graph/upstream/AgenticIR/eval/compute_scores.py",
+      "sha256": "ce1a35f9f110a67c4581885f631dae6c283e438bcaf2749199fb9d19fa440548"
+    },
+    "agenticir_scorer": {
+      "path": "/root/autodl-tmp/graph/upstream/AgenticIR/utils/scorer.py",
+      "sha256": "b6eee989575ee17d2cbf9e38fbab0a996b54a5260ae205246c718c08facab830"
+    },
+    "canonicalizer_source": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/src/data/scale_canonicalizer.py",
+      "sha256": "3e66a83c4bd09679741a38d7fae0b0876dbe8c1357d4108193ebfc8e58c8fe8f"
+    },
+    "evaluator_cli": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/scripts/eval_mio100.py",
+      "sha256": "f681decee8bdf3e2e01f362a40a1eb5d6e74d6cc629fae43de99b9e8ffdee5d5"
+    },
+    "evaluator_module": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/src/evaluation/mio100.py",
+      "sha256": "f0c64d636821e43e639e1bbbb125db9ee718750a030938032d3d107470a42d50"
+    },
+    "formal_authorization_protocol": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/reports/FORMAL_MIO100_AUTHORIZATION_PROTOCOL.md",
+      "sha256": "3bb7bea0e26709d284b3efc817f6f79ce0114eb413b7aa9463d49a9528475eb7"
+    },
+    "formal_data_inventory": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/formal_data_inventory.json",
+      "sha256": "489d9c216589bb73f4b99ec8301abd57d77b7d418489cef02c162bc135aa91ae"
+    },
+    "formal_manifest": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/manifests/mio100_test_1440_agenticir_online_canonical.jsonl",
+      "sha256": "83fb90dfa121681123f55e73df32eb6c1bc37e685c0e27ae07ad7e59a687a7f5"
+    },
+    "global_priority": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/global_priority.json",
+      "sha256": "80504122f5ce8e8beedf630426bd8e15485efc9db0f9b3d0adf39ca6dd54b0d8"
+    },
+    "manifest_inventory": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/manifests/agenticir_online_canonical_inventory.json",
+      "sha256": "6b2de8086be20f541db8207a7f4f4569c62123c96beeb509e98948e5ec6bcf71"
+    },
+    "metric_parity_summary": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/metric_parity_summary.json",
+      "sha256": "554f34cb53639d2faa484bc2f2d2273c657f863edbe8258bcbfc1985abd6c35c"
+    },
+    "metric_protocol": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/reports/METRIC_PROTOCOL.md",
+      "sha256": "f1ff77a47e5fa73528b4ef774bb5c009734d22ad9feeed0ff85b2bb7868f5f10"
+    },
+    "metric_weight_inventory": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/cache/weights_lock.json",
+      "sha256": "796e39eddc51c28e57b9c40b393f99fd73bd14fde2bab138987c2ddcde746e7d"
+    },
+    "mioir_matlab_functions": {
+      "path": "/root/autodl-tmp/graph/upstream/MiOIR/basicsr/utils/matlab_functions.py",
+      "sha256": "29a3a3d209ce15724202bfb01415e5d4e574e7b853090551a7938c7b78ec4975"
+    },
+    "pair_prior": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/pair_prior.json",
+      "sha256": "4116725bce4ecfaceaa1429183e86738ee7ec38835e25886cacd9aa3aec38d82"
+    },
+    "stage4_calibration_history": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/stage4_calibration_history.csv",
+      "sha256": "174441dfa44a8f548853f9d558b9b05ccbb455a8f3d3bb563dd08b4c744e8ac0"
+    },
+    "stage4_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/best_ema.pth",
+      "sha256": "6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd"
+    },
+    "stage4_complete": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/complete.json",
+      "sha256": "1f72c75051d423937c9cf8deb44c327edc1aa9003ffbf8da4e3470c9ebfec690"
+    },
+    "stage4_config": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage4_graphrestore_e2e.yaml",
+      "sha256": "ef1f53623d9171d1e5a6b052ee6ef9230137e1b8555dbc17924620870ea99d71"
+    },
+    "stage4_diagnostics_json": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/reports/GUARD_AND_MISUSE_DIAGNOSTICS.json",
+      "sha256": "a37abc90beaa949942fa0372d9192de5a2731566e648b2baf80793d4a69ac5c8"
+    },
+    "stage4_diagnostics_report": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/reports/GUARD_AND_MISUSE_DIAGNOSTICS.md",
+      "sha256": "a51fe28394ef3db2ea2f58e934e63083aacf4639b53aef4035e766d08df4f35e"
+    },
+    "stage4_report": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/reports/STAGE4_E2E.md",
+      "sha256": "bf6817dd5352d576fc9f01444305abdc1f16dae0f88fe0a56f85db9bb80cb145"
+    },
+    "stage4_run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/run_contract.json",
+      "sha256": "e478af05af9163e7e09ed1a524b617b944151e81d84dcea1c8709d00454daf2e"
+    },
+    "stage4_validation": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/validation_latest.json",
+      "sha256": "176fef051e1f1d4fe12260c1df12583cab3927a46fc8906cc672da56eb0fd6ca"
+    },
+    "table1_scorer_cli": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/scripts/score_agenticir_table1.py",
+      "sha256": "a0578350a55b1740e6ad9a1096062096ca634f9e459bb44852eaaf75a60b5d34"
+    },
+    "table1_scorer_module": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/src/evaluation/agenticir_table1.py",
+      "sha256": "22c8f48607b631ab9ddf2e0565012be2be5f52674eae18e2b2f09ad02faa8d73"
+    },
+    "thresholds": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/planner_thresholds.json",
+      "sha256": "1030a9708cb802e8ec993de12fb926ea4e48360b35251ddc642548dfd2aa260e"
+    }
+  },
+  "checkpoint_sha256": "6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd",
+  "combination_counts": {
+    "dark+defocus blur+jpeg compression artifact": 100,
+    "dark+noise": 80,
+    "defocus blur+haze": 80,
+    "defocus blur+jpeg compression artifact": 80,
+    "defocus blur+low resolution": 100,
+    "haze+motion blur+low resolution": 100,
+    "haze+noise": 100,
+    "motion blur+dark": 80,
+    "motion blur+defocus blur+noise": 100,
+    "motion blur+jpeg compression artifact": 100,
+    "motion blur+low resolution": 80,
+    "noise+jpeg compression artifact": 80,
+    "rain+dark": 100,
+    "rain+haze": 80,
+    "rain+low resolution": 80,
+    "rain+noise+low resolution": 100
+  },
+  "config_sha256": "ef1f53623d9171d1e5a6b052ee6ef9230137e1b8555dbc17924620870ea99d71",
+  "created_utc": "2026-08-20T08:42:42Z",
+  "formal_data_inventory": {
+    "files_digest": "e38d71c6d760b39371b7a3a1712a1c118dcce33e619373e1f6c0238ee6dc8f57",
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/formal_data_inventory.json",
+    "rows_digest": "033733a935f6c413e0cd6d39f89aef3ae2d816cc78c1734be02a4fde9dd23254",
+    "sha256": "489d9c216589bb73f4b99ec8301abd57d77b7d418489cef02c162bc135aa91ae"
+  },
+  "groups": {
+    "A": 640,
+    "B": 400,
+    "C": 400
+  },
+  "inference": {
+    "amp_dtype": "bf16",
+    "autonomous_graphrestore": true,
+    "max_rounds": 3,
+    "model_soup": false,
+    "task_label_routing": false,
+    "tf32": true,
+    "tta": false
+  },
+  "manifest_row_count": 1440,
+  "manifest_sha256": "83fb90dfa121681123f55e73df32eb6c1bc37e685c0e27ae07ad7e59a687a7f5",
+  "method_name": "graphrestore_v7_1_stage4_step040000",
+  "output_protocol": {
+    "crop": "top_left_to_gt_shape",
+    "encoding": "lossless_png",
+    "layout": "methods/<method>/d2|d3/<combination>/<gt_basename>",
+    "overwrite": false,
+    "quantization": "clamp_round_uint8",
+    "score_source": "png_readback"
+  },
+  "output_root": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "schema_version": "graphrestore-formal-mio100-run-contract-v1",
+  "shard_count": 1,
+  "vram_maximum_peak_reserved_fraction": 0.9
+}

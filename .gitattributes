@@ -1,0 +1,9 @@
+*.pth filter=lfs diff=lfs merge=lfs -text
+*.ckpt filter=lfs diff=lfs merge=lfs -text
+
+# Preserve byte-exact experiment evidence and manifests. Some frozen CSV files
+# use CRLF; treating them as binary avoids newline normalization and false
+# whitespace warnings without altering their provenance-bound bytes.
+artifacts/metrics/*.csv -diff -merge -text
+artifacts/formal_mio100/**/*.csv -diff -merge -text
+*.jsonl -diff -merge -text

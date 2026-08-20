@@ -1,0 +1,25 @@
+# Stage4 Full Guarded GraphRestore
+
+- Protocol: `graphrestore-v7.1-agenticir-locked`
+- Validation step: 40000
+- Data: frozen primary_val singles + Group A only; MiO100 B/C were not read
+- Runtime: compile-once DAG, Kmax_test=3, no skill re-entry
+- Selected EMA: `/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/best_ema.pth`
+- Selected EMA SHA256: `6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd`
+- Frozen Stage3 calibration history: `/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/calibration_history.csv`
+- Frozen Stage3 calibration history SHA256: `b282987c3f77034f76788a412e91823cd4570ce8c6c10cd93030ee181612e034`
+- Stage4 calibration history sidecar: `/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/stage4_calibration_history.csv`
+- Stage4 calibration history SHA256: `174441dfa44a8f548853f9d558b9b05ccbb455a8f3d3bb563dd08b4c744e8ac0`
+- Selected Single PSNR/SSIM: 27.020805 / 0.86857653
+- Selected Group-A PSNR/SSIM: 24.546857 / 0.78088545
+- Current Single PSNR/SSIM: 27.020805 / 0.86857653
+- Current Group-A PSNR/SSIM: 24.546857 / 0.78088545
+- Stage0 Group-A PSNR anchor: 24.809721372127534
+- Stage0 Group-A SSIM anchor: 0.785909488574689
+- Selected Group-A PSNR delta vs Stage0: -0.26286390542983895
+- Selected Group-A SSIM delta vs Stage0: -0.0050240375932583126
+- SSIM_RETENTION_RISK: true
+- SSIM retention interpretation: The selected Group-A SSIM is below the frozen Stage0 anchor; this risk is not offset by any average PSNR gain.
+- Planner macro-F1: 0.912177
+- Non-ambiguous relation accuracy: 0.662585
+- Re-entry request rate (diagnostic only): 0.00638021

@@ -1,0 +1,110 @@
+{
+  "abandoned_last_checkpoint_role": "abandoned_unselected_extension_state",
+  "best_checkpoint": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/best_ema.pth",
+  "best_checkpoint_sha256": "9114974f68f202119d4241077d0c46333315204959d58b7eabecaf68a3e32ff3",
+  "best_score": {
+    "group_a_psnr": 22.027225449085236,
+    "group_a_ssim": 0.7118815276710013,
+    "single_psnr": 25.405095913410186,
+    "single_ssim": 0.8309895028086407,
+    "step": 12000
+  },
+  "bindings": {
+    "abandoned_last_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/abandoned_last_step14000_pending14000.pth",
+      "sha256": "c5455bea98322a23923c9d7173ead50abb818d8ca37e2498fcea4faf9283cc67"
+    },
+    "approval_required": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_APPROVAL_REQUIRED.json",
+      "sha256": "33be4aba2c4229175ac33edef7a5914a48a249b8c733d86338c64a8662072825"
+    },
+    "best_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/best_ema.pth",
+      "sha256": "9114974f68f202119d4241077d0c46333315204959d58b7eabecaf68a3e32ff3"
+    },
+    "calibration_history": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/calibration_history.csv",
+      "sha256": "b282987c3f77034f76788a412e91823cd4570ce8c6c10cd93030ee181612e034"
+    },
+    "finalization_authorization": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_EXTENSION_REVOKED.json",
+      "sha256": "a4d3abb112aae01afeef5c87f3ffb65a26f3ff8cdff1cc8ad362db2323d9743e"
+    },
+    "global_priority": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/global_priority.json",
+      "sha256": "80504122f5ce8e8beedf630426bd8e15485efc9db0f9b3d0adf39ca6dd54b0d8"
+    },
+    "historical_extension_authorization": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_EXTENSION_APPROVED.json",
+      "sha256": "43e010f9c66301415b8bd2d3ac7e48aa7653283671a2756dc744926a4a4724fd"
+    },
+    "pair_prior": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/pair_prior.json",
+      "sha256": "4116725bce4ecfaceaa1429183e86738ee7ec38835e25886cacd9aa3aec38d82"
+    },
+    "primary_val_manifest": {
+      "path": "/root/autodl-tmp/graph/training_data/manifests/primary_val.jsonl",
+      "sha256": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b"
+    },
+    "relation_val": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/interaction_labels/group_a_relations_val.jsonl",
+      "sha256": "6c641406fc50e26a5e1af30b4d113a00439576341b5620022e5ab8514c189f30"
+    },
+    "report": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/reports/STAGE3_PLANNER_GUARD.md",
+      "sha256": "c6a260ca524c5b254ebcf59c507b4785f936350ce7c71f03601e8321b5ec5116"
+    },
+    "run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/migrations/stage3_extension_revoked_after_14000_v1/run_contract.json",
+      "sha256": "0f38784922de0670a2974f234de22b1c464495fd3c268d08128e29205ed26311"
+    },
+    "selected_validation": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/selected_validation.json",
+      "sha256": "85355a5d6b183e688170c846b121fece3735b44bdef9a5b000ce546478c17bec"
+    },
+    "selected_validation_calibrated": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage3/selected_validation_calibrated.json",
+      "sha256": "52dd68fa62f07840f3b59e16253ed3945b2a3453ec083137b3fc12afe253486c"
+    },
+    "stage1_checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage1/best_ema.pth",
+      "sha256": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa"
+    },
+    "stage3_approval": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/STAGE3_APPROVED.json",
+      "sha256": "7b351c0958aa681dc1f65114e801c58e3a5bc4bb7cc73c06507c0b647e51a08b"
+    },
+    "stage3_config": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage3_planner.yaml",
+      "sha256": "9ccf41bb3ce6ee859ec553c7b805250020445a8947019e0158aa7f6f693fa01e"
+    },
+    "thresholds": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/planner_thresholds.json",
+      "sha256": "1030a9708cb802e8ec993de12fb926ea4e48360b35251ddc642548dfd2aa260e"
+    }
+  },
+  "calibration_peak_reserved_bytes": 12400459776,
+  "calibration_peak_reserved_fraction": 0.4908721583317984,
+  "checkpoint_writes": 0,
+  "checkpoint_written": false,
+  "completed_utc": "2026-08-18T08:43:30Z",
+  "diagnostic_peak_reserved_bytes": 12400459776,
+  "diagnostic_peak_reserved_fraction": 0.4908721583317984,
+  "group_b_rows_read": 0,
+  "group_c_rows_read": 0,
+  "kind": "stage3_finalize_only",
+  "mio100_rows_read": 0,
+  "optimizer_created": false,
+  "optimizer_steps_executed": 0,
+  "post_calibration_diagnostic_runs": 1,
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "sampler_steps_advanced": 0,
+  "scheduler_created": false,
+  "schema_version": "graphrestore-stage3-runtime-v1",
+  "stage4_parent_role": "only_stage3_parent",
+  "step": 12000,
+  "threshold_calibration_runs": 1,
+  "thresholds": "/root/autodl-tmp/aaa/graphrestore/artifacts/planner_thresholds.json",
+  "thresholds_sha256": "1030a9708cb802e8ec993de12fb926ea4e48360b35251ddc642548dfd2aa260e",
+  "train_loader_created": false
+}

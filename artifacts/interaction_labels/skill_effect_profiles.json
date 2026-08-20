@@ -1,0 +1,1542 @@
+{
+  "amp_dtype": "bf16",
+  "created_utc": "2026-08-17T04:06:25Z",
+  "effect_fields": [
+    "delta_psnr",
+    "delta_ssim",
+    "output_residual_norm",
+    "source_severity_change",
+    "non_target_structure_error_change"
+  ],
+  "effect_vector_dim": 40,
+  "effect_vectors": {
+    "defocus_blur": [
+      -3.2253651320934296,
+      -0.2512301450482591,
+      0.23022340214811265,
+      -0.03273988651926629,
+      0.015516904823016375,
+      -2.0579855740070343,
+      -0.06874418486494702,
+      0.045317488755244995,
+      -0.008408316731220111,
+      0.0038186428500921465,
+      2.52953839302063,
+      0.11902222052874963,
+      0.03299199667526409,
+      0.008259395166533068,
+      -0.006434099723264808,
+      -5.199957251548767,
+      -0.10127630328421566,
+      0.06164429456111975,
+      -0.01381796355417464,
+      0.009619120428396855,
+      4.909980148077011,
+      0.12290402703746002,
+      0.08665257040411234,
+      0.053803250659257174,
+      -0.008604358445154503,
+      -0.4301748648285866,
+      -0.029572141624995364,
+      0.015556414327875245,
+      -0.004069878545124084,
+      0.001404033180733677,
+      7.270868420600891,
+      0.1434304280943839,
+      0.10273129533743486,
+      0.08438523882068694,
+      -0.002329448969248915,
+      -2.045326918363571,
+      0.005356939804356158,
+      0.06830963751417585,
+      -0.00866099421546096,
+      -0.00025579523207852617
+    ],
+    "haze": [
+      -8.652051568031311,
+      -0.24825276863587567,
+      0.27422866597771645,
+      -0.14871365518774837,
+      0.002698544107261114,
+      -12.558110982179642,
+      -0.4227152356379891,
+      0.28777276491746306,
+      -0.13106970128137618,
+      0.00552093553415034,
+      -14.324431464076042,
+      -0.4268524649522756,
+      0.28949895570985973,
+      -0.14521381829399616,
+      0.004453555295185652,
+      -18.04642252624035,
+      -0.473362547950544,
+      0.2718992524314672,
+      -0.21578815951943398,
+      0.010551296592893777,
+      -10.575454488396645,
+      -0.43483239698298193,
+      0.3038963384460658,
+      -0.09854162088595331,
+      0.019869316733093,
+      13.646864727139473,
+      0.11624168594176479,
+      0.15288187435362488,
+      0.11188435574877076,
+      -0.0069028944617457455,
+      -6.22070949524641,
+      -0.439485827445887,
+      0.18902516330126673,
+      -0.11828832188621163,
+      0.012277211637410801,
+      -15.392907068133354,
+      -0.46445102450053843,
+      0.2950396500527859,
+      -0.23220721015240997,
+      0.0053650599329557735
+    ],
+    "jpeg_artifact": [
+      6.661279574036598,
+      0.2617547313143672,
+      0.1308196528116241,
+      0.04592621780466288,
+      -0.01636572881398024,
+      -0.1463407278060913,
+      -0.012190577114467768,
+      0.008032647689105943,
+      -0.0010971414449159056,
+      0.0003120664114248939,
+      0.247199147939682,
+      0.012209455214599091,
+      0.007282766924618045,
+      -0.00010472335270605981,
+      -0.0005078049653093331,
+      1.1771422326564789,
+      0.022490835310449257,
+      0.015821007695194567,
+      0.003420646200538613,
+      -0.0012479341676225886,
+      2.5534575283527374,
+      0.09055453226048732,
+      0.044776608963729814,
+      0.03033187403343618,
+      -0.005301208017044701,
+      6.620247915387154,
+      0.0482366802340861,
+      0.14899791916832328,
+      0.08019256344414316,
+      -0.005016583467295277,
+      3.524101972579956,
+      0.08650201346794187,
+      0.06982811962370761,
+      0.05301574250916019,
+      -0.002693917220312869,
+      0.27369794249534607,
+      0.0138906579567596,
+      0.012036835454637185,
+      -5.886073631700128e-05,
+      -0.001047882811690215
+    ],
+    "low_light": [
+      -14.766558051109314,
+      -0.13366589632771547,
+      0.5453607165254653,
+      -0.40537637402303517,
+      0.009134705949691124,
+      -17.35672999918461,
+      -0.34229383741275027,
+      0.5071747964248061,
+      -0.26294700987637043,
+      0.011984971912170295,
+      -19.25745840370655,
+      -0.3175577075637836,
+      0.5121405911631882,
+      -0.288319009821862,
+      0.009539914448396303,
+      -23.549189865589142,
+      -0.45171761799461985,
+      0.5087786968797445,
+      -0.4357661888934672,
+      0.020342965617601294,
+      -16.085802033543587,
+      -0.2839803590295897,
+      0.49926468869671226,
+      -0.4271629557479173,
+      0.016675612903782167,
+      -12.626675605773926,
+      -0.47213130324365843,
+      0.4516006982885301,
+      -0.3722276953049004,
+      0.023485247118514962,
+      14.044158861041069,
+      0.19814835469238892,
+      0.15939556353259832,
+      0.1297087447019294,
+      -0.0028219744435773464,
+      -20.483013421297073,
+      -0.3659556728441454,
+      0.5317203002050519,
+      -0.4598493268713355,
+      0.011672637185256463
+    ],
+    "low_resolution": [
+      0.8035190552473068,
+      -0.03761592482617522,
+      0.18302169733215123,
+      0.009136583568761125,
+      -0.006161861238069832,
+      -0.2540309727191925,
+      -0.007185291777296771,
+      0.008830554703308735,
+      -0.0006137252785265446,
+      7.646225276403129e-05,
+      1.6599183082580566,
+      0.06465685069783293,
+      0.020425567723577842,
+      0.002231631617178209,
+      -0.003817154822172597,
+      0.17035794258117676,
+      0.010123961791776475,
+      0.02381782305019442,
+      0.0012989379756618291,
+      0.0002777312583930325,
+      -0.021369606256484985,
+      0.002452707018652493,
+      0.00802589706654544,
+      -0.0010843939380720258,
+      0.0007228278846014291,
+      6.523932442069054,
+      0.08096672010068716,
+      0.09768098656786606,
+      0.074608426715713,
+      -0.004040203277327237,
+      2.65237495303154,
+      0.07256749640716335,
+      0.055370883168507135,
+      0.04366305662551895,
+      -0.0016262480021396186,
+      1.1524730324745178,
+      0.04962290570597097,
+      0.025301599627709948,
+      0.0037276758812367916,
+      -0.003639448645117227
+    ],
+    "motion_blur": [
+      -0.3331003934144974,
+      -0.06748041784472708,
+      0.20232805330306292,
+      -0.006342134089209139,
+      -0.0023517794179497287,
+      -0.005139410495758057,
+      0.0001477162326694939,
+      0.0010167182417717413,
+      -9.066723578143865e-05,
+      -4.1854626033455133e-05,
+      -0.0029968321323394775,
+      -0.0011105873934022068,
+      0.0019914673939638305,
+      -8.336760220117867e-05,
+      -5.465943104354665e-05,
+      0.6333320736885071,
+      0.008117483044644842,
+      0.01858825545059517,
+      0.0017628015339141712,
+      -0.0006221569710760377,
+      0.5723781883716583,
+      0.013574655818802801,
+      0.046025045830901945,
+      0.009509888128377497,
+      -0.00031479955941904336,
+      1.016135349869728,
+      0.023050976820069548,
+      0.023267702863449813,
+      0.01865946949692443,
+      -0.0013754748779319925,
+      -0.07406127452850342,
+      -0.0010287266111043995,
+      0.0029130169095878955,
+      -0.0011743337381631136,
+      3.736141661647707e-05,
+      0.027557075023651123,
+      0.0009855601430632487,
+      0.0023850443994888337,
+      -2.630084054544568e-06,
+      -0.00010203418787568808
+    ],
+    "noise": [
+      9.412921026349068,
+      0.36106564154466136,
+      0.10200053019070765,
+      0.056569324602605775,
+      -0.01813403428241145,
+      -0.293233186006546,
+      -0.013677354136311281,
+      0.013776321306067985,
+      -0.0025393737305421382,
+      0.0003221065126126632,
+      0.17710885405540466,
+      0.01813111186089563,
+      0.014309381440398283,
+      -0.0014935513318050653,
+      -0.0008924424982978962,
+      0.5058543980121613,
+      0.00667626586436627,
+      0.02358606446068734,
+      0.0012716446653939784,
+      -0.0003954139356210362,
+      0.7770426571369171,
+      0.04173935526321006,
+      0.023414697367115878,
+      0.007648004335351288,
+      -0.0019498363544698805,
+      3.5825015753507614,
+      0.011502177173542887,
+      0.1611676281245309,
+      0.05657462152885273,
+      -0.004203620279440656,
+      0.6199604421854019,
+      0.012469000510944215,
+      0.015280986597645096,
+      0.009424062329344451,
+      0.001112756608563359,
+      0.25219762325286865,
+      0.015238132166061643,
+      0.012555925219203345,
+      -0.00021633051801472902,
+      -0.0011535586381796747
+    ],
+    "rain": [
+      -10.984529286623001,
+      -0.31105781523509785,
+      0.3663787234108895,
+      -0.20480842934921384,
+      0.0020742909400723875,
+      -12.406734928488731,
+      -0.37389493290101555,
+      0.280624799663201,
+      -0.1225225527305156,
+      0.004638353522750549,
+      -13.923148304224014,
+      -0.3200459371675307,
+      0.2706680183764547,
+      -0.12431632820516825,
+      0.003097253429586999,
+      -19.515324994921684,
+      -0.6121995670658392,
+      0.3217846741899848,
+      -0.24692493898328394,
+      0.013755757274338976,
+      10.871782690286636,
+      0.21763519299903197,
+      0.08289408963173628,
+      0.08463193813804537,
+      -0.013643799218698405,
+      -5.958118051290512,
+      -0.46075183790815144,
+      0.33685247832909226,
+      -0.07971565576735884,
+      0.013631665202410659,
+      -7.87932376563549,
+      -0.5967810500537076,
+      0.24524704774376005,
+      -0.1444641788257286,
+      0.01713639213994611,
+      -14.940977200865746,
+      -0.37858822677927195,
+      0.2764548398554325,
+      -0.20547224604524672,
+      0.0045719044137513265
+    ]
+  },
+  "forced_skills": [
+    "noise",
+    "motion_blur",
+    "defocus_blur",
+    "jpeg_artifact",
+    "rain",
+    "haze",
+    "low_light",
+    "low_resolution"
+  ],
+  "group_b_or_c_rows_generated": 0,
+  "guard_policy": {
+    "absent_counterfactual": "full_support_unit_guard_plus_forced_presence_override",
+    "absent_zero_guard_used": false,
+    "present_source": "continuous_ground_truth_guard",
+    "rationale": "an absent zero guard would create a false identity effect"
+  },
+  "inference_mode": true,
+  "kind": "single_degradation_skill_effect_profiles",
+  "matrix": {
+    "defocus_blur": {
+      "defocus_blur": {
+        "mean": {
+          "delta_psnr": 2.52953839302063,
+          "delta_ssim": 0.11902222052874963,
+          "non_target_structure_error_change": -0.006434099723264808,
+          "output_residual_norm": 0.03299199667526409,
+          "source_severity_change": 0.008259395166533068
+        },
+        "median": {
+          "delta_psnr": 3.3409862518310547,
+          "delta_ssim": 0.10245633583913494,
+          "non_target_structure_error_change": -0.004809664096683264,
+          "output_residual_norm": 0.032920511439442635,
+          "source_severity_change": 0.006888198666274548
+        },
+        "n": 64
+      },
+      "haze": {
+        "mean": {
+          "delta_psnr": -14.324431464076042,
+          "delta_ssim": -0.4268524649522756,
+          "non_target_structure_error_change": 0.004453555295185652,
+          "output_residual_norm": 0.28949895570985973,
+          "source_severity_change": -0.14521381829399616
+        },
+        "median": {
+          "delta_psnr": -14.410313129425049,
+          "delta_ssim": -0.42059688776826587,
+          "non_target_structure_error_change": 0.00407529529184103,
+          "output_residual_norm": 0.2917889505624771,
+          "source_severity_change": -0.18206477165222168
+        },
+        "n": 64
+      },
+      "jpeg_artifact": {
+        "mean": {
+          "delta_psnr": 0.247199147939682,
+          "delta_ssim": 0.012209455214599091,
+          "non_target_structure_error_change": -0.0005078049653093331,
+          "output_residual_norm": 0.007282766924618045,
+          "source_severity_change": -0.00010472335270605981
+        },
+        "median": {
+          "delta_psnr": 0.14635181427001953,
+          "delta_ssim": 0.010358318557400104,
+          "non_target_structure_error_change": -0.0003618914633989334,
+          "output_residual_norm": 0.006537292851135135,
+          "source_severity_change": 0.0
+        },
+        "n": 64
+      },
+      "low_light": {
+        "mean": {
+          "delta_psnr": -19.25745840370655,
+          "delta_ssim": -0.3175577075637836,
+          "non_target_structure_error_change": 0.009539914448396303,
+          "output_residual_norm": 0.5121405911631882,
+          "source_severity_change": -0.288319009821862
+        },
+        "median": {
+          "delta_psnr": -18.58514976501465,
+          "delta_ssim": -0.3085685582324343,
+          "non_target_structure_error_change": 0.009046782273799181,
+          "output_residual_norm": 0.5179673433303833,
+          "source_severity_change": -0.37497131526470184
+        },
+        "n": 64
+      },
+      "low_resolution": {
+        "mean": {
+          "delta_psnr": 1.6599183082580566,
+          "delta_ssim": 0.06465685069783293,
+          "non_target_structure_error_change": -0.003817154822172597,
+          "output_residual_norm": 0.020425567723577842,
+          "source_severity_change": 0.002231631617178209
+        },
+        "median": {
+          "delta_psnr": 2.069070816040039,
+          "delta_ssim": 0.04042513007839821,
+          "non_target_structure_error_change": -0.0023401977960020304,
+          "output_residual_norm": 0.017377623356878757,
+          "source_severity_change": 0.0003523770719766617
+        },
+        "n": 64
+      },
+      "motion_blur": {
+        "mean": {
+          "delta_psnr": -0.0029968321323394775,
+          "delta_ssim": -0.0011105873934022068,
+          "non_target_structure_error_change": -5.465943104354665e-05,
+          "output_residual_norm": 0.0019914673939638305,
+          "source_severity_change": -8.336760220117867e-05
+        },
+        "median": {
+          "delta_psnr": 0.001865386962890625,
+          "delta_ssim": -0.0008458500749638498,
+          "non_target_structure_error_change": -4.902016371488571e-05,
+          "output_residual_norm": 0.0019681171979755163,
+          "source_severity_change": -1.531839370727539e-05
+        },
+        "n": 64
+      },
+      "noise": {
+        "mean": {
+          "delta_psnr": 0.17710885405540466,
+          "delta_ssim": 0.01813111186089563,
+          "non_target_structure_error_change": -0.0008924424982978962,
+          "output_residual_norm": 0.014309381440398283,
+          "source_severity_change": -0.0014935513318050653
+        },
+        "median": {
+          "delta_psnr": 0.18042659759521484,
+          "delta_ssim": 0.015540611173378405,
+          "non_target_structure_error_change": -0.0005902259144932032,
+          "output_residual_norm": 0.014343137387186289,
+          "source_severity_change": -0.0006229458376765251
+        },
+        "n": 64
+      },
+      "rain": {
+        "mean": {
+          "delta_psnr": -13.923148304224014,
+          "delta_ssim": -0.3200459371675307,
+          "non_target_structure_error_change": 0.003097253429586999,
+          "output_residual_norm": 0.2706680183764547,
+          "source_severity_change": -0.12431632820516825
+        },
+        "median": {
+          "delta_psnr": -13.644847869873047,
+          "delta_ssim": -0.31318525725079105,
+          "non_target_structure_error_change": 0.0028822077438235283,
+          "output_residual_norm": 0.2778196185827255,
+          "source_severity_change": -0.1742742508649826
+        },
+        "n": 64
+      }
+    },
+    "haze": {
+      "defocus_blur": {
+        "mean": {
+          "delta_psnr": -0.4301748648285866,
+          "delta_ssim": -0.029572141624995364,
+          "non_target_structure_error_change": 0.001404033180733677,
+          "output_residual_norm": 0.015556414327875245,
+          "source_severity_change": -0.004069878545124084
+        },
+        "median": {
+          "delta_psnr": -0.13598251342773438,
+          "delta_ssim": -0.006658635406222302,
+          "non_target_structure_error_change": 0.00011920742690563202,
+          "output_residual_norm": 0.01151582831516862,
+          "source_severity_change": -0.00239761546254158
+        },
+        "n": 64
+      },
+      "haze": {
+        "mean": {
+          "delta_psnr": 13.646864727139473,
+          "delta_ssim": 0.11624168594176479,
+          "non_target_structure_error_change": -0.0069028944617457455,
+          "output_residual_norm": 0.15288187435362488,
+          "source_severity_change": 0.11188435574877076
+        },
+        "median": {
+          "delta_psnr": 14.512801170349121,
+          "delta_ssim": 0.10331613618315005,
+          "non_target_structure_error_change": -0.005727806128561497,
+          "output_residual_norm": 0.14153828471899033,
+          "source_severity_change": 0.10371517017483711
+        },
+        "n": 64
+      },
+      "jpeg_artifact": {
+        "mean": {
+          "delta_psnr": 6.620247915387154,
+          "delta_ssim": 0.0482366802340861,
+          "non_target_structure_error_change": -0.005016583467295277,
+          "output_residual_norm": 0.14899791916832328,
+          "source_severity_change": 0.08019256344414316
+        },
+        "median": {
+          "delta_psnr": 7.26118803024292,
+          "delta_ssim": 0.047828713891601426,
+          "non_target_structure_error_change": -0.0032680907752364874,
+          "output_residual_norm": 0.14808468520641327,
+          "source_severity_change": 0.07220205292105675
+        },
+        "n": 64
+      },
+      "low_light": {
+        "mean": {
+          "delta_psnr": -12.626675605773926,
+          "delta_ssim": -0.47213130324365843,
+          "non_target_structure_error_change": 0.023485247118514962,
+          "output_residual_norm": 0.4516006982885301,
+          "source_severity_change": -0.3722276953049004
+        },
+        "median": {
+          "delta_psnr": -12.94576120376587,
+          "delta_ssim": -0.48594246585460227,
+          "non_target_structure_error_change": 0.020326307974755764,
+          "output_residual_norm": 0.464217945933342,
+          "source_severity_change": -0.35518375039100647
+        },
+        "n": 64
+      },
+      "low_resolution": {
+        "mean": {
+          "delta_psnr": 6.523932442069054,
+          "delta_ssim": 0.08096672010068716,
+          "non_target_structure_error_change": -0.004040203277327237,
+          "output_residual_norm": 0.09768098656786606,
+          "source_severity_change": 0.074608426715713
+        },
+        "median": {
+          "delta_psnr": 6.565620422363281,
+          "delta_ssim": 0.0653024438914977,
+          "non_target_structure_error_change": -0.0034504252253100276,
+          "output_residual_norm": 0.08710391446948051,
+          "source_severity_change": 0.0673975981771946
+        },
+        "n": 64
+      },
+      "motion_blur": {
+        "mean": {
+          "delta_psnr": 1.016135349869728,
+          "delta_ssim": 0.023050976820069548,
+          "non_target_structure_error_change": -0.0013754748779319925,
+          "output_residual_norm": 0.023267702863449813,
+          "source_severity_change": 0.01865946949692443
+        },
+        "median": {
+          "delta_psnr": 0.27033138275146484,
+          "delta_ssim": 0.004830177744613584,
+          "non_target_structure_error_change": -0.00047456100583076477,
+          "output_residual_norm": 0.004469114821404219,
+          "source_severity_change": 0.00318257138133049
+        },
+        "n": 64
+      },
+      "noise": {
+        "mean": {
+          "delta_psnr": 3.5825015753507614,
+          "delta_ssim": 0.011502177173542887,
+          "non_target_structure_error_change": -0.004203620279440656,
+          "output_residual_norm": 0.1611676281245309,
+          "source_severity_change": 0.05657462152885273
+        },
+        "median": {
+          "delta_psnr": 3.6478347778320312,
+          "delta_ssim": 0.016810060856096265,
+          "non_target_structure_error_change": -0.0026136692613363266,
+          "output_residual_norm": 0.16568877547979355,
+          "source_severity_change": 0.04655253328382969
+        },
+        "n": 64
+      },
+      "rain": {
+        "mean": {
+          "delta_psnr": -5.958118051290512,
+          "delta_ssim": -0.46075183790815144,
+          "non_target_structure_error_change": 0.013631665202410659,
+          "output_residual_norm": 0.33685247832909226,
+          "source_severity_change": -0.07971565576735884
+        },
+        "median": {
+          "delta_psnr": -5.588744640350342,
+          "delta_ssim": -0.42401891395015,
+          "non_target_structure_error_change": 0.011061275377869606,
+          "output_residual_norm": 0.33141182363033295,
+          "source_severity_change": -0.09546877071261406
+        },
+        "n": 64
+      }
+    },
+    "jpeg_artifact": {
+      "defocus_blur": {
+        "mean": {
+          "delta_psnr": -5.199957251548767,
+          "delta_ssim": -0.10127630328421566,
+          "non_target_structure_error_change": 0.009619120428396855,
+          "output_residual_norm": 0.06164429456111975,
+          "source_severity_change": -0.01381796355417464
+        },
+        "median": {
+          "delta_psnr": -4.853039741516113,
+          "delta_ssim": -0.07938645535079203,
+          "non_target_structure_error_change": 0.007365329889580607,
+          "output_residual_norm": 0.05968588963150978,
+          "source_severity_change": -0.01063590869307518
+        },
+        "n": 64
+      },
+      "haze": {
+        "mean": {
+          "delta_psnr": -18.04642252624035,
+          "delta_ssim": -0.473362547950544,
+          "non_target_structure_error_change": 0.010551296592893777,
+          "output_residual_norm": 0.2718992524314672,
+          "source_severity_change": -0.21578815951943398
+        },
+        "median": {
+          "delta_psnr": -18.329421997070312,
+          "delta_ssim": -0.45817188620288957,
+          "non_target_structure_error_change": 0.009463019669055939,
+          "output_residual_norm": 0.2798203229904175,
+          "source_severity_change": -0.22187013179063797
+        },
+        "n": 64
+      },
+      "jpeg_artifact": {
+        "mean": {
+          "delta_psnr": 1.1771422326564789,
+          "delta_ssim": 0.022490835310449257,
+          "non_target_structure_error_change": -0.0012479341676225886,
+          "output_residual_norm": 0.015821007695194567,
+          "source_severity_change": 0.003420646200538613
+        },
+        "median": {
+          "delta_psnr": 1.1391162872314453,
+          "delta_ssim": 0.021171522383850394,
+          "non_target_structure_error_change": -0.0011283811181783676,
+          "output_residual_norm": 0.016132885590195656,
+          "source_severity_change": 0.0033306218683719635
+        },
+        "n": 64
+      },
+      "low_light": {
+        "mean": {
+          "delta_psnr": -23.549189865589142,
+          "delta_ssim": -0.45171761799461985,
+          "non_target_structure_error_change": 0.020342965617601294,
+          "output_residual_norm": 0.5087786968797445,
+          "source_severity_change": -0.4357661888934672
+        },
+        "median": {
+          "delta_psnr": -23.631253242492676,
+          "delta_ssim": -0.4580982360570501,
+          "non_target_structure_error_change": 0.018214506097137928,
+          "output_residual_norm": 0.5000757873058319,
+          "source_severity_change": -0.4227438122034073
+        },
+        "n": 64
+      },
+      "low_resolution": {
+        "mean": {
+          "delta_psnr": 0.17035794258117676,
+          "delta_ssim": 0.010123961791776475,
+          "non_target_structure_error_change": 0.0002777312583930325,
+          "output_residual_norm": 0.02381782305019442,
+          "source_severity_change": 0.0012989379756618291
+        },
+        "median": {
+          "delta_psnr": 0.35586071014404297,
+          "delta_ssim": 0.009614370326087307,
+          "non_target_structure_error_change": 7.087062112987041e-05,
+          "output_residual_norm": 0.02324291132390499,
+          "source_severity_change": 0.0014605075120925903
+        },
+        "n": 64
+      },
+      "motion_blur": {
+        "mean": {
+          "delta_psnr": 0.6333320736885071,
+          "delta_ssim": 0.008117483044644842,
+          "non_target_structure_error_change": -0.0006221569710760377,
+          "output_residual_norm": 0.01858825545059517,
+          "source_severity_change": 0.0017628015339141712
+        },
+        "median": {
+          "delta_psnr": 0.6801414489746094,
+          "delta_ssim": 0.00984415859510901,
+          "non_target_structure_error_change": -0.0006184768863022327,
+          "output_residual_norm": 0.015461815521121025,
+          "source_severity_change": 0.0017293915152549744
+        },
+        "n": 64
+      },
+      "noise": {
+        "mean": {
+          "delta_psnr": 0.5058543980121613,
+          "delta_ssim": 0.00667626586436627,
+          "non_target_structure_error_change": -0.0003954139356210362,
+          "output_residual_norm": 0.02358606446068734,
+          "source_severity_change": 0.0012716446653939784
+        },
+        "median": {
+          "delta_psnr": 0.5559463500976562,
+          "delta_ssim": 0.008808024262093705,
+          "non_target_structure_error_change": -0.0006471091182902455,
+          "output_residual_norm": 0.021511929109692574,
+          "source_severity_change": 0.0009703384712338448
+        },
+        "n": 64
+      },
+      "rain": {
+        "mean": {
+          "delta_psnr": -19.515324994921684,
+          "delta_ssim": -0.6121995670658392,
+          "non_target_structure_error_change": 0.013755757274338976,
+          "output_residual_norm": 0.3217846741899848,
+          "source_severity_change": -0.24692493898328394
+        },
+        "median": {
+          "delta_psnr": -19.698150634765625,
+          "delta_ssim": -0.6131635632900045,
+          "non_target_structure_error_change": 0.012139332480728626,
+          "output_residual_norm": 0.32527782022953033,
+          "source_severity_change": -0.2534070611000061
+        },
+        "n": 64
+      }
+    },
+    "low_light": {
+      "defocus_blur": {
+        "mean": {
+          "delta_psnr": 7.270868420600891,
+          "delta_ssim": 0.1434304280943839,
+          "non_target_structure_error_change": -0.002329448969248915,
+          "output_residual_norm": 0.10273129533743486,
+          "source_severity_change": 0.08438523882068694
+        },
+        "median": {
+          "delta_psnr": 6.656332969665527,
+          "delta_ssim": 0.13606799641758793,
+          "non_target_structure_error_change": -0.0015462309820577502,
+          "output_residual_norm": 0.09326522052288055,
+          "source_severity_change": 0.07440359890460968
+        },
+        "n": 64
+      },
+      "haze": {
+        "mean": {
+          "delta_psnr": -6.22070949524641,
+          "delta_ssim": -0.439485827445887,
+          "non_target_structure_error_change": 0.012277211637410801,
+          "output_residual_norm": 0.18902516330126673,
+          "source_severity_change": -0.11828832188621163
+        },
+        "median": {
+          "delta_psnr": -6.519093036651611,
+          "delta_ssim": -0.46586742728921093,
+          "non_target_structure_error_change": 0.014884183648973703,
+          "output_residual_norm": 0.18001054972410202,
+          "source_severity_change": -0.11657480895519257
+        },
+        "n": 64
+      },
+      "jpeg_artifact": {
+        "mean": {
+          "delta_psnr": 3.524101972579956,
+          "delta_ssim": 0.08650201346794187,
+          "non_target_structure_error_change": -0.002693917220312869,
+          "output_residual_norm": 0.06982811962370761,
+          "source_severity_change": 0.05301574250916019
+        },
+        "median": {
+          "delta_psnr": 2.4549169540405273,
+          "delta_ssim": 0.06856512049532831,
+          "non_target_structure_error_change": -0.000595772173255682,
+          "output_residual_norm": 0.03748738579452038,
+          "source_severity_change": 0.027522873133420944
+        },
+        "n": 64
+      },
+      "low_light": {
+        "mean": {
+          "delta_psnr": 14.044158861041069,
+          "delta_ssim": 0.19814835469238892,
+          "non_target_structure_error_change": -0.0028219744435773464,
+          "output_residual_norm": 0.15939556353259832,
+          "source_severity_change": 0.1297087447019294
+        },
+        "median": {
+          "delta_psnr": 14.187517166137695,
+          "delta_ssim": 0.1849631861804915,
+          "non_target_structure_error_change": -0.0001360722817480564,
+          "output_residual_norm": 0.13227782398462296,
+          "source_severity_change": 0.10643767938017845
+        },
+        "n": 64
+      },
+      "low_resolution": {
+        "mean": {
+          "delta_psnr": 2.65237495303154,
+          "delta_ssim": 0.07256749640716335,
+          "non_target_structure_error_change": -0.0016262480021396186,
+          "output_residual_norm": 0.055370883168507135,
+          "source_severity_change": 0.04366305662551895
+        },
+        "median": {
+          "delta_psnr": 1.1387438774108887,
+          "delta_ssim": 0.03262567756059381,
+          "non_target_structure_error_change": -7.00394157320261e-05,
+          "output_residual_norm": 0.016400872729718685,
+          "source_severity_change": 0.011756371706724167
+        },
+        "n": 64
+      },
+      "motion_blur": {
+        "mean": {
+          "delta_psnr": -0.07406127452850342,
+          "delta_ssim": -0.0010287266111043995,
+          "non_target_structure_error_change": 3.736141661647707e-05,
+          "output_residual_norm": 0.0029130169095878955,
+          "source_severity_change": -0.0011743337381631136
+        },
+        "median": {
+          "delta_psnr": -0.07652664184570312,
+          "delta_ssim": -0.0013035161136134565,
+          "non_target_structure_error_change": 7.06725986674428e-05,
+          "output_residual_norm": 0.0028219824889674783,
+          "source_severity_change": -0.001202017068862915
+        },
+        "n": 64
+      },
+      "noise": {
+        "mean": {
+          "delta_psnr": 0.6199604421854019,
+          "delta_ssim": 0.012469000510944215,
+          "non_target_structure_error_change": 0.001112756608563359,
+          "output_residual_norm": 0.015280986597645096,
+          "source_severity_change": 0.009424062329344451
+        },
+        "median": {
+          "delta_psnr": 0.6378726959228516,
+          "delta_ssim": 0.012879706373576716,
+          "non_target_structure_error_change": 0.0006880881264805794,
+          "output_residual_norm": 0.014990291092544794,
+          "source_severity_change": 0.009681422263383865
+        },
+        "n": 64
+      },
+      "rain": {
+        "mean": {
+          "delta_psnr": -7.87932376563549,
+          "delta_ssim": -0.5967810500537076,
+          "non_target_structure_error_change": 0.01713639213994611,
+          "output_residual_norm": 0.24524704774376005,
+          "source_severity_change": -0.1444641788257286
+        },
+        "median": {
+          "delta_psnr": -8.336134433746338,
+          "delta_ssim": -0.5976046604362933,
+          "non_target_structure_error_change": 0.014343067072331905,
+          "output_residual_norm": 0.24363313615322113,
+          "source_severity_change": -0.14776144921779633
+        },
+        "n": 64
+      }
+    },
+    "low_resolution": {
+      "defocus_blur": {
+        "mean": {
+          "delta_psnr": -2.045326918363571,
+          "delta_ssim": 0.005356939804356158,
+          "non_target_structure_error_change": -0.00025579523207852617,
+          "output_residual_norm": 0.06830963751417585,
+          "source_severity_change": -0.00866099421546096
+        },
+        "median": {
+          "delta_psnr": -1.8949861526489258,
+          "delta_ssim": 0.007299947217373537,
+          "non_target_structure_error_change": -0.00016002636402845383,
+          "output_residual_norm": 0.0662248469889164,
+          "source_severity_change": -0.00799453817307949
+        },
+        "n": 64
+      },
+      "haze": {
+        "mean": {
+          "delta_psnr": -15.392907068133354,
+          "delta_ssim": -0.46445102450053843,
+          "non_target_structure_error_change": 0.0053650599329557735,
+          "output_residual_norm": 0.2950396500527859,
+          "source_severity_change": -0.23220721015240997
+        },
+        "median": {
+          "delta_psnr": -15.095293998718262,
+          "delta_ssim": -0.43982418670497003,
+          "non_target_structure_error_change": 0.00540585583075881,
+          "output_residual_norm": 0.3016344755887985,
+          "source_severity_change": -0.2374287247657776
+        },
+        "n": 64
+      },
+      "jpeg_artifact": {
+        "mean": {
+          "delta_psnr": 0.27369794249534607,
+          "delta_ssim": 0.0138906579567596,
+          "non_target_structure_error_change": -0.001047882811690215,
+          "output_residual_norm": 0.012036835454637185,
+          "source_severity_change": -5.886073631700128e-05
+        },
+        "median": {
+          "delta_psnr": 0.26605987548828125,
+          "delta_ssim": 0.013113713798861337,
+          "non_target_structure_error_change": -0.000910452101379633,
+          "output_residual_norm": 0.011793783400207758,
+          "source_severity_change": -0.00013977661728858948
+        },
+        "n": 64
+      },
+      "low_light": {
+        "mean": {
+          "delta_psnr": -20.483013421297073,
+          "delta_ssim": -0.3659556728441454,
+          "non_target_structure_error_change": 0.011672637185256463,
+          "output_residual_norm": 0.5317203002050519,
+          "source_severity_change": -0.4598493268713355
+        },
+        "median": {
+          "delta_psnr": -19.586297035217285,
+          "delta_ssim": -0.34819491870370284,
+          "non_target_structure_error_change": 0.011099020950496197,
+          "output_residual_norm": 0.5301594734191895,
+          "source_severity_change": -0.4490269124507904
+        },
+        "n": 64
+      },
+      "low_resolution": {
+        "mean": {
+          "delta_psnr": 1.1524730324745178,
+          "delta_ssim": 0.04962290570597097,
+          "non_target_structure_error_change": -0.003639448645117227,
+          "output_residual_norm": 0.025301599627709948,
+          "source_severity_change": 0.0037276758812367916
+        },
+        "median": {
+          "delta_psnr": 1.0711631774902344,
+          "delta_ssim": 0.04686177747420933,
+          "non_target_structure_error_change": -0.0033222544007003307,
+          "output_residual_norm": 0.023875726386904716,
+          "source_severity_change": 0.00344789307564497
+        },
+        "n": 64
+      },
+      "motion_blur": {
+        "mean": {
+          "delta_psnr": 0.027557075023651123,
+          "delta_ssim": 0.0009855601430632487,
+          "non_target_structure_error_change": -0.00010203418787568808,
+          "output_residual_norm": 0.0023850443994888337,
+          "source_severity_change": -2.630084054544568e-06
+        },
+        "median": {
+          "delta_psnr": 0.026636123657226562,
+          "delta_ssim": 0.0011532993692802695,
+          "non_target_structure_error_change": -8.872989565134048e-05,
+          "output_residual_norm": 0.0023903843248263,
+          "source_severity_change": -1.9749626517295837e-05
+        },
+        "n": 64
+      },
+      "noise": {
+        "mean": {
+          "delta_psnr": 0.25219762325286865,
+          "delta_ssim": 0.015238132166061643,
+          "non_target_structure_error_change": -0.0011535586381796747,
+          "output_residual_norm": 0.012555925219203345,
+          "source_severity_change": -0.00021633051801472902
+        },
+        "median": {
+          "delta_psnr": 0.2616720199584961,
+          "delta_ssim": 0.014557824207170833,
+          "non_target_structure_error_change": -0.0010078810155391693,
+          "output_residual_norm": 0.012607129756361246,
+          "source_severity_change": -0.0003304900601506233
+        },
+        "n": 64
+      },
+      "rain": {
+        "mean": {
+          "delta_psnr": -14.940977200865746,
+          "delta_ssim": -0.37858822677927195,
+          "non_target_structure_error_change": 0.0045719044137513265,
+          "output_residual_norm": 0.2764548398554325,
+          "source_severity_change": -0.20547224604524672
+        },
+        "median": {
+          "delta_psnr": -14.529523372650146,
+          "delta_ssim": -0.3707054066162936,
+          "non_target_structure_error_change": 0.004339718259871006,
+          "output_residual_norm": 0.2791513651609421,
+          "source_severity_change": -0.21344363689422607
+        },
+        "n": 64
+      }
+    },
+    "motion_blur": {
+      "defocus_blur": {
+        "mean": {
+          "delta_psnr": -2.0579855740070343,
+          "delta_ssim": -0.06874418486494702,
+          "non_target_structure_error_change": 0.0038186428500921465,
+          "output_residual_norm": 0.045317488755244995,
+          "source_severity_change": -0.008408316731220111
+        },
+        "median": {
+          "delta_psnr": -1.2154760360717773,
+          "delta_ssim": -0.035727143895906865,
+          "non_target_structure_error_change": 0.0005445587448775768,
+          "output_residual_norm": 0.036990970373153687,
+          "source_severity_change": -0.0027213208377361298
+        },
+        "n": 64
+      },
+      "haze": {
+        "mean": {
+          "delta_psnr": -12.558110982179642,
+          "delta_ssim": -0.4227152356379891,
+          "non_target_structure_error_change": 0.00552093553415034,
+          "output_residual_norm": 0.28777276491746306,
+          "source_severity_change": -0.13106970128137618
+        },
+        "median": {
+          "delta_psnr": -12.361985683441162,
+          "delta_ssim": -0.3962743965489851,
+          "non_target_structure_error_change": 0.00554269552230835,
+          "output_residual_norm": 0.29657427966594696,
+          "source_severity_change": -0.16269970685243607
+        },
+        "n": 64
+      },
+      "jpeg_artifact": {
+        "mean": {
+          "delta_psnr": -0.1463407278060913,
+          "delta_ssim": -0.012190577114467768,
+          "non_target_structure_error_change": 0.0003120664114248939,
+          "output_residual_norm": 0.008032647689105943,
+          "source_severity_change": -0.0010971414449159056
+        },
+        "median": {
+          "delta_psnr": -0.107421875,
+          "delta_ssim": -0.012042447691956865,
+          "non_target_structure_error_change": 0.0002750479616224766,
+          "output_residual_norm": 0.006502859992906451,
+          "source_severity_change": -0.0004334058612585068
+        },
+        "n": 64
+      },
+      "low_light": {
+        "mean": {
+          "delta_psnr": -17.35672999918461,
+          "delta_ssim": -0.34229383741275027,
+          "non_target_structure_error_change": 0.011984971912170295,
+          "output_residual_norm": 0.5071747964248061,
+          "source_severity_change": -0.26294700987637043
+        },
+        "median": {
+          "delta_psnr": -17.212267875671387,
+          "delta_ssim": -0.3233985056321374,
+          "non_target_structure_error_change": 0.011026590131223202,
+          "output_residual_norm": 0.5087378323078156,
+          "source_severity_change": -0.36195191740989685
+        },
+        "n": 64
+      },
+      "low_resolution": {
+        "mean": {
+          "delta_psnr": -0.2540309727191925,
+          "delta_ssim": -0.007185291777296771,
+          "non_target_structure_error_change": 7.646225276403129e-05,
+          "output_residual_norm": 0.008830554703308735,
+          "source_severity_change": -0.0006137252785265446
+        },
+        "median": {
+          "delta_psnr": -0.07521247863769531,
+          "delta_ssim": -0.0045550881186590675,
+          "non_target_structure_error_change": 3.63178551197052e-05,
+          "output_residual_norm": 0.005454778205603361,
+          "source_severity_change": -0.00018092431128025055
+        },
+        "n": 64
+      },
+      "motion_blur": {
+        "mean": {
+          "delta_psnr": -0.005139410495758057,
+          "delta_ssim": 0.0001477162326694939,
+          "non_target_structure_error_change": -4.1854626033455133e-05,
+          "output_residual_norm": 0.0010167182417717413,
+          "source_severity_change": -9.066723578143865e-05
+        },
+        "median": {
+          "delta_psnr": -0.0007944107055664062,
+          "delta_ssim": 0.0,
+          "non_target_structure_error_change": -1.680990681052208e-05,
+          "output_residual_norm": 0.0009561484330333769,
+          "source_severity_change": -5.209632217884064e-05
+        },
+        "n": 64
+      },
+      "noise": {
+        "mean": {
+          "delta_psnr": -0.293233186006546,
+          "delta_ssim": -0.013677354136311281,
+          "non_target_structure_error_change": 0.0003221065126126632,
+          "output_residual_norm": 0.013776321306067985,
+          "source_severity_change": -0.0025393737305421382
+        },
+        "median": {
+          "delta_psnr": -0.23667526245117188,
+          "delta_ssim": -0.013018705465417502,
+          "non_target_structure_error_change": 0.0002898862585425377,
+          "output_residual_norm": 0.012813765089958906,
+          "source_severity_change": -0.0017179492861032486
+        },
+        "n": 64
+      },
+      "rain": {
+        "mean": {
+          "delta_psnr": -12.406734928488731,
+          "delta_ssim": -0.37389493290101555,
+          "non_target_structure_error_change": 0.004638353522750549,
+          "output_residual_norm": 0.280624799663201,
+          "source_severity_change": -0.1225225527305156
+        },
+        "median": {
+          "delta_psnr": -12.567854881286621,
+          "delta_ssim": -0.36704371822568094,
+          "non_target_structure_error_change": 0.0044400012120604515,
+          "output_residual_norm": 0.2826511710882187,
+          "source_severity_change": -0.1777021810412407
+        },
+        "n": 64
+      }
+    },
+    "noise": {
+      "defocus_blur": {
+        "mean": {
+          "delta_psnr": -3.2253651320934296,
+          "delta_ssim": -0.2512301450482591,
+          "non_target_structure_error_change": 0.015516904823016375,
+          "output_residual_norm": 0.23022340214811265,
+          "source_severity_change": -0.03273988651926629
+        },
+        "median": {
+          "delta_psnr": -3.282160758972168,
+          "delta_ssim": -0.22937869394403235,
+          "non_target_structure_error_change": 0.015920650213956833,
+          "output_residual_norm": 0.242512509226799,
+          "source_severity_change": -0.03147844225168228
+        },
+        "n": 64
+      },
+      "haze": {
+        "mean": {
+          "delta_psnr": -8.652051568031311,
+          "delta_ssim": -0.24825276863587567,
+          "non_target_structure_error_change": 0.002698544107261114,
+          "output_residual_norm": 0.27422866597771645,
+          "source_severity_change": -0.14871365518774837
+        },
+        "median": {
+          "delta_psnr": -8.444668292999268,
+          "delta_ssim": -0.19670750591882838,
+          "non_target_structure_error_change": 0.0024229884147644043,
+          "output_residual_norm": 0.26978710293769836,
+          "source_severity_change": -0.14322654902935028
+        },
+        "n": 64
+      },
+      "jpeg_artifact": {
+        "mean": {
+          "delta_psnr": 6.661279574036598,
+          "delta_ssim": 0.2617547313143672,
+          "non_target_structure_error_change": -0.01636572881398024,
+          "output_residual_norm": 0.1308196528116241,
+          "source_severity_change": 0.04592621780466288
+        },
+        "median": {
+          "delta_psnr": 6.934710502624512,
+          "delta_ssim": 0.27244351860657046,
+          "non_target_structure_error_change": -0.01525838254019618,
+          "output_residual_norm": 0.1369127705693245,
+          "source_severity_change": 0.043945543467998505
+        },
+        "n": 64
+      },
+      "low_light": {
+        "mean": {
+          "delta_psnr": -14.766558051109314,
+          "delta_ssim": -0.13366589632771547,
+          "non_target_structure_error_change": 0.009134705949691124,
+          "output_residual_norm": 0.5453607165254653,
+          "source_severity_change": -0.40537637402303517
+        },
+        "median": {
+          "delta_psnr": -14.362364768981934,
+          "delta_ssim": -0.09567907290336727,
+          "non_target_structure_error_change": 0.004657214507460594,
+          "output_residual_norm": 0.5571733713150024,
+          "source_severity_change": -0.4040403217077255
+        },
+        "n": 64
+      },
+      "low_resolution": {
+        "mean": {
+          "delta_psnr": 0.8035190552473068,
+          "delta_ssim": -0.03761592482617522,
+          "non_target_structure_error_change": -0.006161861238069832,
+          "output_residual_norm": 0.18302169733215123,
+          "source_severity_change": 0.009136583568761125
+        },
+        "median": {
+          "delta_psnr": 0.6667642593383789,
+          "delta_ssim": -0.03836802824700225,
+          "non_target_structure_error_change": -0.0038493406027555466,
+          "output_residual_norm": 0.19372980296611786,
+          "source_severity_change": 0.004685539752244949
+        },
+        "n": 64
+      },
+      "motion_blur": {
+        "mean": {
+          "delta_psnr": -0.3331003934144974,
+          "delta_ssim": -0.06748041784472708,
+          "non_target_structure_error_change": -0.0023517794179497287,
+          "output_residual_norm": 0.20232805330306292,
+          "source_severity_change": -0.006342134089209139
+        },
+        "median": {
+          "delta_psnr": -0.263458251953125,
+          "delta_ssim": -0.05600563476275275,
+          "non_target_structure_error_change": -0.002212805673480034,
+          "output_residual_norm": 0.21200065314769745,
+          "source_severity_change": -0.005641477182507515
+        },
+        "n": 64
+      },
+      "noise": {
+        "mean": {
+          "delta_psnr": 9.412921026349068,
+          "delta_ssim": 0.36106564154466136,
+          "non_target_structure_error_change": -0.01813403428241145,
+          "output_residual_norm": 0.10200053019070765,
+          "source_severity_change": 0.056569324602605775
+        },
+        "median": {
+          "delta_psnr": 10.27227783203125,
+          "delta_ssim": 0.3817391990829056,
+          "non_target_structure_error_change": -0.016839513555169106,
+          "output_residual_norm": 0.11014044657349586,
+          "source_severity_change": 0.05765756033360958
+        },
+        "n": 64
+      },
+      "rain": {
+        "mean": {
+          "delta_psnr": -10.984529286623001,
+          "delta_ssim": -0.31105781523509785,
+          "non_target_structure_error_change": 0.0020742909400723875,
+          "output_residual_norm": 0.3663787234108895,
+          "source_severity_change": -0.20480842934921384
+        },
+        "median": {
+          "delta_psnr": -10.854336261749268,
+          "delta_ssim": -0.2822438701318377,
+          "non_target_structure_error_change": 0.0008728941902518272,
+          "output_residual_norm": 0.3697545975446701,
+          "source_severity_change": -0.2030717432498932
+        },
+        "n": 64
+      }
+    },
+    "rain": {
+      "defocus_blur": {
+        "mean": {
+          "delta_psnr": 4.909980148077011,
+          "delta_ssim": 0.12290402703746002,
+          "non_target_structure_error_change": -0.008604358445154503,
+          "output_residual_norm": 0.08665257040411234,
+          "source_severity_change": 0.053803250659257174
+        },
+        "median": {
+          "delta_psnr": 4.894299507141113,
+          "delta_ssim": 0.11752280011236493,
+          "non_target_structure_error_change": -0.008225062396377325,
+          "output_residual_norm": 0.08707081526517868,
+          "source_severity_change": 0.05452193506062031
+        },
+        "n": 64
+      },
+      "haze": {
+        "mean": {
+          "delta_psnr": -10.575454488396645,
+          "delta_ssim": -0.43483239698298193,
+          "non_target_structure_error_change": 0.019869316733093,
+          "output_residual_norm": 0.3038963384460658,
+          "source_severity_change": -0.09854162088595331
+        },
+        "median": {
+          "delta_psnr": -10.738767623901367,
+          "delta_ssim": -0.4277166593642624,
+          "non_target_structure_error_change": 0.020738868042826653,
+          "output_residual_norm": 0.3019394129514694,
+          "source_severity_change": -0.10066496953368187
+        },
+        "n": 64
+      },
+      "jpeg_artifact": {
+        "mean": {
+          "delta_psnr": 2.5534575283527374,
+          "delta_ssim": 0.09055453226048732,
+          "non_target_structure_error_change": -0.005301208017044701,
+          "output_residual_norm": 0.044776608963729814,
+          "source_severity_change": 0.03033187403343618
+        },
+        "median": {
+          "delta_psnr": 2.320479393005371,
+          "delta_ssim": 0.0765747529298606,
+          "non_target_structure_error_change": -0.005065473262220621,
+          "output_residual_norm": 0.04505772702395916,
+          "source_severity_change": 0.030316822230815887
+        },
+        "n": 64
+      },
+      "low_light": {
+        "mean": {
+          "delta_psnr": -16.085802033543587,
+          "delta_ssim": -0.2839803590295897,
+          "non_target_structure_error_change": 0.016675612903782167,
+          "output_residual_norm": 0.49926468869671226,
+          "source_severity_change": -0.4271629557479173
+        },
+        "median": {
+          "delta_psnr": -16.003867149353027,
+          "delta_ssim": -0.29035958794031613,
+          "non_target_structure_error_change": 0.012668699026107788,
+          "output_residual_norm": 0.5019649267196655,
+          "source_severity_change": -0.42663612961769104
+        },
+        "n": 64
+      },
+      "low_resolution": {
+        "mean": {
+          "delta_psnr": -0.021369606256484985,
+          "delta_ssim": 0.002452707018652493,
+          "non_target_structure_error_change": 0.0007228278846014291,
+          "output_residual_norm": 0.00802589706654544,
+          "source_severity_change": -0.0010843939380720258
+        },
+        "median": {
+          "delta_psnr": -0.014721870422363281,
+          "delta_ssim": 0.0031557085680240515,
+          "non_target_structure_error_change": 0.0005897628143429756,
+          "output_residual_norm": 0.007005328545346856,
+          "source_severity_change": -0.0010327398777008057
+        },
+        "n": 64
+      },
+      "motion_blur": {
+        "mean": {
+          "delta_psnr": 0.5723781883716583,
+          "delta_ssim": 0.013574655818802801,
+          "non_target_structure_error_change": -0.00031479955941904336,
+          "output_residual_norm": 0.046025045830901945,
+          "source_severity_change": 0.009509888128377497
+        },
+        "median": {
+          "delta_psnr": 0.46150875091552734,
+          "delta_ssim": 0.009006110511650567,
+          "non_target_structure_error_change": -0.0002785753458738327,
+          "output_residual_norm": 0.034152762964367867,
+          "source_severity_change": 0.0075036995112895966
+        },
+        "n": 64
+      },
+      "noise": {
+        "mean": {
+          "delta_psnr": 0.7770426571369171,
+          "delta_ssim": 0.04173935526321006,
+          "non_target_structure_error_change": -0.0019498363544698805,
+          "output_residual_norm": 0.023414697367115878,
+          "source_severity_change": 0.007648004335351288
+        },
+        "median": {
+          "delta_psnr": 0.6092433929443359,
+          "delta_ssim": 0.02020123828759046,
+          "non_target_structure_error_change": -0.0012813308276236057,
+          "output_residual_norm": 0.020636457949876785,
+          "source_severity_change": 0.007675394415855408
+        },
+        "n": 64
+      },
+      "rain": {
+        "mean": {
+          "delta_psnr": 10.871782690286636,
+          "delta_ssim": 0.21763519299903197,
+          "non_target_structure_error_change": -0.013643799218698405,
+          "output_residual_norm": 0.08289408963173628,
+          "source_severity_change": 0.08463193813804537
+        },
+        "median": {
+          "delta_psnr": 10.99262523651123,
+          "delta_ssim": 0.2238090553366135,
+          "non_target_structure_error_change": -0.014072967693209648,
+          "output_residual_norm": 0.08396852388978004,
+          "source_severity_change": 0.08718826621770859
+        },
+        "n": 64
+      }
+    }
+  },
+  "mio100_rows_read": 0,
+  "optimizer_created": false,
+  "record_count": 4096,
+  "schema_version": "graphrestore-stage2-v1",
+  "selection_manifest_sha256": "f9f38a8d56004763cbe8c8062085b608080de9c8b6ca15069f2f33da8880bbf1",
+  "selection_seed": 2027,
+  "sign_conventions": {
+    "delta_psnr": "after_minus_before_higher_is_better",
+    "delta_ssim": "after_minus_before_higher_is_better",
+    "non_target_structure_error_change": "sobel_error_after_minus_before_lower_is_better",
+    "output_residual_norm": "rms_clamped_output_minus_input",
+    "source_severity_change": "guard_weighted_rgb_error_before_minus_after_higher_is_better"
+  },
+  "source_primary_val_manifest_sha256": "af89bb22896a3744eab5e4b6414f5ee1b19770ce11e372e27b798afd9583a21b",
+  "source_skills": [
+    "noise",
+    "motion_blur",
+    "defocus_blur",
+    "jpeg_artifact",
+    "rain",
+    "haze",
+    "low_light",
+    "low_resolution"
+  ],
+  "stage1_checkpoint_sha256": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa",
+  "vector_layout": [
+    "source=noise/delta_psnr",
+    "source=noise/delta_ssim",
+    "source=noise/output_residual_norm",
+    "source=noise/source_severity_change",
+    "source=noise/non_target_structure_error_change",
+    "source=motion_blur/delta_psnr",
+    "source=motion_blur/delta_ssim",
+    "source=motion_blur/output_residual_norm",
+    "source=motion_blur/source_severity_change",
+    "source=motion_blur/non_target_structure_error_change",
+    "source=defocus_blur/delta_psnr",
+    "source=defocus_blur/delta_ssim",
+    "source=defocus_blur/output_residual_norm",
+    "source=defocus_blur/source_severity_change",
+    "source=defocus_blur/non_target_structure_error_change",
+    "source=jpeg_artifact/delta_psnr",
+    "source=jpeg_artifact/delta_ssim",
+    "source=jpeg_artifact/output_residual_norm",
+    "source=jpeg_artifact/source_severity_change",
+    "source=jpeg_artifact/non_target_structure_error_change",
+    "source=rain/delta_psnr",
+    "source=rain/delta_ssim",
+    "source=rain/output_residual_norm",
+    "source=rain/source_severity_change",
+    "source=rain/non_target_structure_error_change",
+    "source=haze/delta_psnr",
+    "source=haze/delta_ssim",
+    "source=haze/output_residual_norm",
+    "source=haze/source_severity_change",
+    "source=haze/non_target_structure_error_change",
+    "source=low_light/delta_psnr",
+    "source=low_light/delta_ssim",
+    "source=low_light/output_residual_norm",
+    "source=low_light/source_severity_change",
+    "source=low_light/non_target_structure_error_change",
+    "source=low_resolution/delta_psnr",
+    "source=low_resolution/delta_ssim",
+    "source=low_resolution/output_residual_norm",
+    "source=low_resolution/source_severity_change",
+    "source=low_resolution/non_target_structure_error_change"
+  ]
+}

@@ -1,0 +1,140 @@
+{
+  "ab_design": {
+    "crop_size": 192,
+    "effective_batch": 8,
+    "micro_batch": 8,
+    "steady_state_excludes_step": 0,
+    "steps": 20
+  },
+  "code_sha256": {
+    "src/data/agenticir_degradations.py": "7a7d160aa6ca228b031bb00e65f8f31c61d734ef8a572881e95e0ee42ba89e54",
+    "src/data/episode_dataset.py": "867519c6c5f22f5b0926b3af47d5938a8f1ebe6ca336dcedbb74f5d29bae24cb",
+    "src/data/manifests.py": "7319d67dc34f15ddb7f2e607fc3d8c0f0010c693756ae3f198c4acf89953e710",
+    "src/data/samplers.py": "4e79abc547bd413d8fd4787a5c499892d75b46de7396e80a0f8f3da52d9b3ea4",
+    "src/data/scale_canonicalizer.py": "3e66a83c4bd09679741a38d7fae0b0876dbe8c1357d4108193ebfc8e58c8fe8f",
+    "src/data/subset_targets.py": "7521871e29bb58b71b7f6abf9a8e69b1b52208befce239b8976c9f71e5f68405",
+    "src/losses/restoration.py": "c8a6a5bf0ffd96032dfbdc272d53ed6a516479714275c5271b9b24e15cde7294",
+    "src/metrics/agenticir_official.py": "1bc92d924c2825233d989b48add4d4e8af749747368273a3d2d5615546152219",
+    "src/net/mio_stagea.py": "6d00daae0b4f1f6a66ee2a6fe72f8077443df2623f86c391c7e0001af5b131e9",
+    "src/net/restormer_blocks.py": "0fd43c1dbf2ccec239e3ee5eded1c643ace3e68d90dda82b1f184e626eab501d",
+    "src/training/checkpointing.py": "063e31657922ad2006f45a6e31677aa9953b2b95d38dbaf6207bcc20bb47f072",
+    "src/training/ema.py": "7c11d3857f194a406fc6bdd6b2d2b96adc4f1e8bfe1cc8f1acf0ecb3154234d4",
+    "src/training/optimization.py": "7d7b4486822697e96c17ce24e86377023444c512d5c6328547612619022494e7",
+    "src/training/runtime.py": "47e550c55e5684150fc6cffee90d1874a8ca2afd0d2652345462261a644c3dfe",
+    "src/training/stage0_engine.py": "9357c67de16c2fc3eaa79c0b9687e77d841cec22c0bbb605835b47ec7759182a"
+  },
+  "compiled": {
+    "error": "RuntimeError: Dynamo is not supported on Python 3.12+",
+    "finite": false,
+    "mode": "compiled",
+    "steps": 0
+  },
+  "compiled_error": "RuntimeError: Dynamo is not supported on Python 3.12+",
+  "completed": true,
+  "config": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage0_mio_stagea.yaml",
+    "sha256": "1bfb0444e311d110c6929ce30fdcf888a73d0f10167ed27e3328492a08406283"
+  },
+  "created_utc": "2026-08-15T03:15:51Z",
+  "data": {
+    "crop_size": 192,
+    "primary_train_manifest": {
+      "path": "/root/autodl-tmp/graph/training_data/manifests/primary_train.jsonl",
+      "sha256": "83da30d0b8445d5bb427c336b125214ee62f2a0ec3a5bab61ca7119703044071"
+    },
+    "sample_ids": [
+      "single-s07_defocus_blur-train-0385",
+      "A-a01_rainplushaze-train-0274",
+      "A-a02_motion_blurpluslow_resolution-train-0198",
+      "A-a04_defocus_blurplusjpeg_compression_artifact-train-0850",
+      "single-s06_noise-train-0560",
+      "A-a01_rainplushaze-train-0755",
+      "single-s07_defocus_blur-train-0094",
+      "A-a06_rainpluslow_resolution-train-0465"
+    ]
+  },
+  "decision": "disable: compilation failed; eager remains the safe default",
+  "eager": {
+    "compile_options": null,
+    "durations_seconds": [
+      1.340927205979824,
+      0.3275049403309822,
+      0.28609417378902435,
+      0.2843151390552521,
+      0.28403346985578537,
+      0.2823280841112137,
+      0.2834327667951584,
+      0.2826357036828995,
+      0.2825607359409332,
+      0.2831999957561493,
+      0.28379010409116745,
+      0.282604455947876,
+      0.2821408212184906,
+      0.29596470296382904,
+      0.2867911010980606,
+      0.28835834562778473,
+      0.28312642127275467,
+      0.28575683385133743,
+      0.285881944000721,
+      0.28414519131183624
+    ],
+    "effective_batch": 8,
+    "finite": true,
+    "losses": [
+      0.06891747564077377,
+      0.06890485435724258,
+      0.06889830529689789,
+      0.06888085603713989,
+      0.068860724568367,
+      0.06883034110069275,
+      0.06879616528749466,
+      0.06875678151845932,
+      0.06872214376926422,
+      0.06867391616106033,
+      0.06862171739339828,
+      0.06856781244277954,
+      0.06850451231002808,
+      0.06843383610248566,
+      0.06836093217134476,
+      0.06828843057155609,
+      0.06820539385080338,
+      0.06812255829572678,
+      0.06802310049533844,
+      0.06793392449617386
+    ],
+    "micro_batch": 8,
+    "mode": "eager",
+    "parent_loaded_tensors": 495,
+    "peak_reserved_bytes": 15223226368,
+    "steady_state_excludes_step": 0,
+    "steady_state_images_per_second": 27.86605628963148,
+    "steps": 20
+  },
+  "hardware": {
+    "cuda": "12.1",
+    "gpu": "NVIDIA GeForce RTX 4090",
+    "torch": "2.3.0+cu121",
+    "total_memory_bytes": 25262096384
+  },
+  "numerical": null,
+  "numerical_pass": false,
+  "parent_checkpoint": {
+    "path": "/root/autodl-tmp/aaa/PromptIR_实验归档汇总_20260813/06_ProVIR修理检查继续修理/provir_完整工作区/artifacts/checkpoints/stage_a/final_backbone.ckpt",
+    "sha256": "66e056ff3537ea99416aeb119173e90fbcafc9e9f809db169ef7381cc93f77b8"
+  },
+  "profile_script_sha256": "c46a73e9812836dc6aa72fc546b96f5923a3c3677df2e08986055c175b32cc1a",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "recommend_torch_compile": false,
+  "safe_default": "eager",
+  "schema_version": "graphrestore-stage0-compile-ab-v1",
+  "steady_state_throughput_ratio": 0.0,
+  "tolerances": {
+    "loss_max_abs": 1e-05,
+    "loss_mean_abs": 2e-06,
+    "minimum_throughput_ratio": 1.05,
+    "output_max_abs": 0.002,
+    "output_mean_abs": 1e-05,
+    "parameter_max_abs": 5e-05,
+    "parameter_mean_abs": 1e-07
+  }
+}

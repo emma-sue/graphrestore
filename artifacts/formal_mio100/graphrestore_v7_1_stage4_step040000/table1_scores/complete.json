@@ -1,0 +1,577 @@
+{
+  "all_values_finite": true,
+  "created_utc": "2026-08-20T10:31:50Z",
+  "evaluator_psnr_ssim_crosscheck": {
+    "all_six_scorer_metrics_finite": true,
+    "canonical_metric_source": "immutable pinned-AgenticIR pyiqa-0.1.10 CUDA score shards",
+    "evaluator_metric_role": "CPU fast-parity diagnostic only",
+    "identity_fields": [
+      "sample_id",
+      "group",
+      "combination",
+      "prediction_png",
+      "prediction_sha256",
+      "target_png",
+      "target_sha256"
+    ],
+    "identity_passed": true,
+    "image_count": 1440,
+    "metric_parity_artifact_role": "CPU-to-CPU finite preflight sample; observed maxima are not cross-device tolerances",
+    "mode": "exact_per_image_identity_with_numeric_drift_diagnostic",
+    "numeric_drift": {
+      "psnr": {
+        "count": 1440,
+        "cpu_preflight_observed_max": 0.0,
+        "exceeds_cpu_preflight_observed_max_count": 434,
+        "maximum_absolute_difference": 3.814697265625e-06,
+        "maximum_absolute_sample_id": "test/A/rain + haze/014",
+        "maximum_signed_difference": 3.814697265625e-06,
+        "mean_absolute_difference": 6.231996748182509e-07,
+        "mean_signed_difference": 3.616015116373698e-07,
+        "median_absolute_difference": 0.0,
+        "minimum_signed_difference": -3.814697265625e-06,
+        "negative_difference_count": 97,
+        "positive_difference_count": 337,
+        "q90_absolute_difference": 1.9073486328125e-06,
+        "q95_absolute_difference": 1.9073486328125e-06,
+        "q99_absolute_difference": 3.814697265625e-06,
+        "zero_difference_count": 1006
+      },
+      "ssim": {
+        "count": 1440,
+        "cpu_preflight_observed_max": 3.8790801337729164e-07,
+        "exceeds_cpu_preflight_observed_max_count": 580,
+        "maximum_absolute_difference": 1.934401321468382e-05,
+        "maximum_absolute_sample_id": "test/A/dark + noise/035",
+        "maximum_signed_difference": 1.934401321468382e-05,
+        "mean_absolute_difference": 5.483271971358042e-07,
+        "mean_signed_difference": 1.7013741530991067e-07,
+        "median_absolute_difference": 2.8148432085206565e-07,
+        "minimum_signed_difference": -1.3099840743602265e-05,
+        "negative_difference_count": 629,
+        "positive_difference_count": 811,
+        "q90_absolute_difference": 1.212981630316357e-06,
+        "q95_absolute_difference": 1.7834215060325005e-06,
+        "q99_absolute_difference": 4.245448696774678e-06,
+        "zero_difference_count": 0
+      }
+    },
+    "numeric_gate_applied": false,
+    "numeric_parity_claim": false,
+    "per_image_numeric_comparison_is_diagnostic": true,
+    "prediction_digest": "e922e274f42d40a93673252336950595f1bb552e83d0abf75992e40424ffce6e",
+    "recovery_approval": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/AGENTICIR_TABLE1_BACKEND_RECOVERY_APPROVED.json",
+      "sha256": "e6b73613dce9772a17d2963608ce67b42485ef7a2eec4cc09b42a4a42fdaae7c"
+    },
+    "status": "IDENTITY_EXACT_OFFICIAL_SCORER_AUTHORITATIVE",
+    "table_display_diagnostic": {
+      "all_equal": true,
+      "combination_count": 16,
+      "format_spec": ".4",
+      "group_count": 3,
+      "meaning": "four significant digits, as frozen by AgenticIR compare_methods.py",
+      "mismatch_count": 0,
+      "rows": [
+        {
+          "equal": true,
+          "evaluator_cpu_display": "25.21",
+          "evaluator_cpu_value": 25.20911878347397,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "rain+haze",
+          "official_cuda_display": "25.21",
+          "official_cuda_value": 25.209119284152983
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.8974",
+          "evaluator_cpu_value": 0.8974481296948624,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "rain+haze",
+          "official_cuda_display": "0.8974",
+          "official_cuda_value": 0.8974482161226165
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "21.74",
+          "evaluator_cpu_value": 21.735155832767486,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "motion blur+low resolution",
+          "official_cuda_display": "21.74",
+          "official_cuda_value": 21.735155963897704
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.614",
+          "evaluator_cpu_value": 0.6139959146284342,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "motion blur+low resolution",
+          "official_cuda_display": "0.614",
+          "official_cuda_value": 0.6139960445096359
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "26.33",
+          "evaluator_cpu_value": 26.33369607925415,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "dark+noise",
+          "official_cuda_display": "26.33",
+          "official_cuda_value": 26.333696556091308
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.852",
+          "evaluator_cpu_value": 0.8520174716044918,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "dark+noise",
+          "official_cuda_display": "0.852",
+          "official_cuda_value": 0.8520178880369613
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "25.19",
+          "evaluator_cpu_value": 25.187470173835756,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "defocus blur+jpeg compression artifact",
+          "official_cuda_display": "25.19",
+          "official_cuda_value": 25.18747082948685
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.7139",
+          "evaluator_cpu_value": 0.7139193642925925,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "defocus blur+jpeg compression artifact",
+          "official_cuda_display": "0.7139",
+          "official_cuda_value": 0.7139195243224958
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "28.3",
+          "evaluator_cpu_value": 28.302772569656373,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "noise+jpeg compression artifact",
+          "official_cuda_display": "28.3",
+          "official_cuda_value": 28.302772974967958
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.844",
+          "evaluator_cpu_value": 0.8439630269315932,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "noise+jpeg compression artifact",
+          "official_cuda_display": "0.844",
+          "official_cuda_value": 0.8439632293902225
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "25.34",
+          "evaluator_cpu_value": 25.341243386268616,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "rain+low resolution",
+          "official_cuda_display": "25.34",
+          "official_cuda_value": 25.341243720054628
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.7346",
+          "evaluator_cpu_value": 0.7345679868621634,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "rain+low resolution",
+          "official_cuda_display": "0.7346",
+          "official_cuda_value": 0.7345682355783825
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "20.49",
+          "evaluator_cpu_value": 20.49496042728424,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "motion blur+dark",
+          "official_cuda_display": "20.49",
+          "official_cuda_value": 20.494960761070253
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.6454",
+          "evaluator_cpu_value": 0.6454416920812314,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "motion blur+dark",
+          "official_cuda_display": "0.6454",
+          "official_cuda_value": 0.6454417031714343
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "22.39",
+          "evaluator_cpu_value": 22.38914797306061,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "defocus blur+haze",
+          "official_cuda_display": "22.39",
+          "official_cuda_value": 22.389148354530334
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.7781",
+          "evaluator_cpu_value": 0.7780569097041856,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "defocus blur+haze",
+          "official_cuda_display": "0.7781",
+          "official_cuda_value": 0.7780570378131436
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "21.75",
+          "evaluator_cpu_value": 21.752933549880982,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "motion blur+jpeg compression artifact",
+          "official_cuda_display": "21.75",
+          "official_cuda_value": 21.752933893203735
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.645",
+          "evaluator_cpu_value": 0.6449678488701296,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "motion blur+jpeg compression artifact",
+          "official_cuda_display": "0.645",
+          "official_cuda_value": 0.6449680319853911
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "14.21",
+          "evaluator_cpu_value": 14.206177039146423,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "haze+noise",
+          "official_cuda_display": "14.21",
+          "official_cuda_value": 14.206177296638488
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.6452",
+          "evaluator_cpu_value": 0.6451947515084581,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "haze+noise",
+          "official_cuda_display": "0.6452",
+          "official_cuda_value": 0.6451948729298188
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "24.71",
+          "evaluator_cpu_value": 24.71186194419861,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "defocus blur+low resolution",
+          "official_cuda_display": "24.71",
+          "official_cuda_value": 24.711862545013428
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.6777",
+          "evaluator_cpu_value": 0.6777125339808259,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "defocus blur+low resolution",
+          "official_cuda_display": "0.6777",
+          "official_cuda_value": 0.6777128173953184
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "18.62",
+          "evaluator_cpu_value": 18.620868854522705,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "rain+dark",
+          "official_cuda_display": "18.62",
+          "official_cuda_value": 18.620869188308717
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.7036",
+          "evaluator_cpu_value": 0.7036183292838727,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "rain+dark",
+          "official_cuda_display": "0.7036",
+          "official_cuda_value": 0.7036182884812726
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "15.5",
+          "evaluator_cpu_value": 15.49556788444519,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "haze+motion blur+low resolution",
+          "official_cuda_display": "15.5",
+          "official_cuda_value": 15.495568103790283
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.516",
+          "evaluator_cpu_value": 0.515950551468158,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "haze+motion blur+low resolution",
+          "official_cuda_display": "0.516",
+          "official_cuda_value": 0.5159507079070051
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "23.52",
+          "evaluator_cpu_value": 23.515649452209473,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "rain+noise+low resolution",
+          "official_cuda_display": "23.52",
+          "official_cuda_value": 23.515649909973146
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.6524",
+          "evaluator_cpu_value": 0.652398547282245,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "rain+noise+low resolution",
+          "official_cuda_display": "0.6524",
+          "official_cuda_value": 0.652398902433345
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "15.7",
+          "evaluator_cpu_value": 15.699723777770997,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "dark+defocus blur+jpeg compression artifact",
+          "official_cuda_display": "15.7",
+          "official_cuda_value": 15.69972393989563
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.5225",
+          "evaluator_cpu_value": 0.5225380034960818,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "dark+defocus blur+jpeg compression artifact",
+          "official_cuda_display": "0.5225",
+          "official_cuda_value": 0.5225382054706338
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "19.39",
+          "evaluator_cpu_value": 19.388004655838014,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "psnr",
+          "name": "motion blur+defocus blur+noise",
+          "official_cuda_display": "19.39",
+          "official_cuda_value": 19.38800491333008
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.5345",
+          "evaluator_cpu_value": 0.5344638419577975,
+          "format_spec": ".4",
+          "level": "combination",
+          "metric": "ssim",
+          "name": "motion blur+defocus blur+noise",
+          "official_cuda_display": "0.5345",
+          "official_cuda_value": 0.534463924707294
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "24.37",
+          "evaluator_cpu_value": 24.37419565320015,
+          "format_spec": ".4",
+          "level": "group",
+          "metric": "psnr",
+          "name": "A",
+          "official_cuda_display": "24.37",
+          "official_cuda_value": 24.374196055531502
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.7599",
+          "evaluator_cpu_value": 0.7599263119749443,
+          "format_spec": ".4",
+          "level": "group",
+          "metric": "ssim",
+          "name": "A",
+          "official_cuda_display": "0.7599",
+          "official_cuda_value": 0.7599264848681115
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "19.82",
+          "evaluator_cpu_value": 19.82296034693718,
+          "format_spec": ".4",
+          "level": "group",
+          "metric": "psnr",
+          "name": "B",
+          "official_cuda_display": "19.82",
+          "official_cuda_value": 19.822960730791092
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.6679",
+          "evaluator_cpu_value": 0.6678733659108216,
+          "format_spec": ".4",
+          "level": "group",
+          "metric": "ssim",
+          "name": "B",
+          "official_cuda_display": "0.6679",
+          "official_cuda_value": 0.6678735026979502
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "18.52",
+          "evaluator_cpu_value": 18.524736442565917,
+          "format_spec": ".4",
+          "level": "group",
+          "metric": "psnr",
+          "name": "C",
+          "official_cuda_display": "18.52",
+          "official_cuda_value": 18.524736716747285
+        },
+        {
+          "equal": true,
+          "evaluator_cpu_display": "0.5563",
+          "evaluator_cpu_value": 0.5563377360510706,
+          "format_spec": ".4",
+          "level": "group",
+          "metric": "ssim",
+          "name": "C",
+          "official_cuda_display": "0.5563",
+          "official_cuda_value": 0.5563379351295694
+        }
+      ],
+      "scientific_acceptance_gate": false,
+      "source": {
+        "device": 2304,
+        "inode": 2448622768,
+        "mode": 420,
+        "path": "/root/autodl-tmp/graph/upstream/AgenticIR/eval/compare_methods.py",
+        "sha256": "a246b8656744649ed5adfd5f482491f89006ef7bec1ce9923b5971a1da3d856a",
+        "size": 12974
+      }
+    },
+    "tolerance_changed": false
+  },
+  "formal_evidence": {
+    "authorization": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/FORMAL_MIO100_APPROVED.json",
+      "sha256": "38647a598503ff0c1776e618a559c6d25d1a8b552fbf1bace765b08ddad9b474"
+    },
+    "checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/best_ema.pth",
+      "sha256": "6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd"
+    },
+    "evaluator_complete": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/complete.json",
+      "sha256": "19efefd629a03bbbf85005dc728b93d8f6d8edd04bbfcb8bd8b8c19ae958e000"
+    },
+    "formal_data_inventory": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/formal_data_inventory.json",
+      "sha256": "489d9c216589bb73f4b99ec8301abd57d77b7d418489cef02c162bc135aa91ae"
+    },
+    "manifest": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/manifests/mio100_test_1440_agenticir_online_canonical.jsonl",
+      "sha256": "83fb90dfa121681123f55e73df32eb6c1bc37e685c0e27ae07ad7e59a687a7f5"
+    },
+    "metric_parity_summary": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/metric_parity_summary.json",
+      "sha256": "554f34cb53639d2faa484bc2f2d2273c657f863edbe8258bcbfc1985abd6c35c"
+    },
+    "per_image": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/per_image.csv",
+      "sha256": "83b1f1caeb3c72e4d0bac5125935721e78cb69ff7c7f158f6d185e9a3262d745"
+    },
+    "predictions_digest": "e922e274f42d40a93673252336950595f1bb552e83d0abf75992e40424ffce6e",
+    "run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/run_contract.json",
+      "sha256": "cae873ae874102d31e1433df253be4c4caac753481ad25d04f1c7981eea78296"
+    },
+    "summary": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/summary.json",
+      "sha256": "e3b4b3d8bde7c0dfc3860f3d240883e0bde2847f853cf8b79d6468ff5b101b18"
+    },
+    "table1_input": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/table1_input.jsonl",
+      "sha256": "a7bf90ee91251be68a6420799b8b343b61d4c0fad4ac4372cd928511ca6ffe07"
+    }
+  },
+  "image_count": 1440,
+  "input_lock": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/table1_scores/input_lock.json",
+    "sha256": "a4f84f17ece8e556f8ac4d085847db241314e282e3458465184eb2e803444f75"
+  },
+  "maximum_peak_reserved_fraction": 0.1500094689845357,
+  "no_selective_rerun": true,
+  "per_image": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/table1_scores/per_image.csv",
+    "sha256": "f8bcbd463eb7113ccf632b5e03f0a34951650a8b0e66e1e63edabbfdd781a6d5"
+  },
+  "run_contract": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/table1_scores/run_contract.json",
+    "sha256": "d26068b057dfac14acd7c1bc634a34bf335c145161555cf4c50eb13eb04bc84f"
+  },
+  "schema_version": "graphrestore.agenticir_table1_complete.v1",
+  "shard_count": 144,
+  "status": "COMPLETE",
+  "summary": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/table1_scores/summary.json",
+    "sha256": "68301ea9f0ef52f062a8fdaa763865c3fb0374ee49f65ec9d99cdd9cf5ac7be8"
+  },
+  "vram_ceiling": 0.9,
+  "weights_lock": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/cache/weights_lock.json",
+    "sha256": "796e39eddc51c28e57b9c40b393f99fd73bd14fde2bab138987c2ddcde746e7d"
+  }
+}

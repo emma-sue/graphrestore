@@ -1,0 +1,232 @@
+{
+  "checkpoint_presence_threshold": 0.5,
+  "created_utc": "2026-08-18T01:09:16Z",
+  "graph": {
+    "dropped_edge_rate": 0.0,
+    "dropped_edges": 0,
+    "mean_program_levels": 1.1675,
+    "post_compiler_cycle_rate": 0.0,
+    "pre_compiler_cycle_rate": 0.0,
+    "proposed_edges": 268,
+    "reentry_request_rate": 0.011175053533190578,
+    "sample_count": 1600,
+    "unexpected_skill_activation_rate": 0.0
+  },
+  "guard": {
+    "guard_high_frac_haze": 0.0,
+    "guard_high_frac_rain": 0.0,
+    "guard_mae_haze": 0.1132151785120368,
+    "guard_mae_rain": 0.08042263679206371,
+    "guard_spearman_haze": 0.5503512939512155,
+    "guard_spearman_rain": 0.5344729256675067,
+    "guard_std_haze": 0.03781731561447183,
+    "guard_std_rain": 0.032155154201512534,
+    "present_guard_images_haze": 300,
+    "present_guard_images_rain": 300,
+    "skipped_guard_images_haze": 0,
+    "skipped_guard_images_rain": 0,
+    "valid_guard_images_haze": 300,
+    "valid_guard_images_rain": 300
+  },
+  "planner": {
+    "macro_f1": 0.8454899763976607,
+    "per_skill": {
+      "defocus_blur": {
+        "f1": 0.898989898989899,
+        "false_negative": 33,
+        "false_positive": 27,
+        "precision": 0.9081632653061225,
+        "recall": 0.89,
+        "threshold": 0.5,
+        "true_positive": 267
+      },
+      "haze": {
+        "f1": 0.8709677419354839,
+        "false_negative": 57,
+        "false_positive": 15,
+        "precision": 0.9418604651162791,
+        "recall": 0.81,
+        "threshold": 0.5,
+        "true_positive": 243
+      },
+      "jpeg_artifact": {
+        "f1": 1.0,
+        "false_negative": 0,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 1.0,
+        "threshold": 0.5,
+        "true_positive": 300
+      },
+      "low_light": {
+        "f1": 0.8161120840630472,
+        "false_negative": 67,
+        "false_positive": 38,
+        "precision": 0.8597785977859779,
+        "recall": 0.7766666666666666,
+        "threshold": 0.5,
+        "true_positive": 233
+      },
+      "low_resolution": {
+        "f1": 0.9051094890510949,
+        "false_negative": 52,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.8266666666666667,
+        "threshold": 0.5,
+        "true_positive": 248
+      },
+      "motion_blur": {
+        "f1": 0.6837060702875399,
+        "false_negative": 86,
+        "false_positive": 112,
+        "precision": 0.656441717791411,
+        "recall": 0.7133333333333334,
+        "threshold": 0.5,
+        "true_positive": 214
+      },
+      "noise": {
+        "f1": 0.8933823529411765,
+        "false_negative": 57,
+        "false_positive": 1,
+        "precision": 0.9959016393442623,
+        "recall": 0.81,
+        "threshold": 0.5,
+        "true_positive": 243
+      },
+      "rain": {
+        "f1": 0.6956521739130435,
+        "false_negative": 140,
+        "false_positive": 0,
+        "precision": 1.0,
+        "recall": 0.5333333333333333,
+        "threshold": 0.5,
+        "true_positive": 160
+      }
+    },
+    "sample_count": 1600
+  },
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "relation": {
+    "ambiguous_fraction": 0.08125,
+    "ambiguous_in_majority_label_share": 0,
+    "ambiguous_in_pair_prior": 0,
+    "ambiguous_in_parallel_fraction_nonambiguous": 0,
+    "ambiguous_in_relation_metrics": 0,
+    "n_ambiguous": 65,
+    "n_non_ambiguous": 735,
+    "n_total": 800,
+    "parallel_fraction_nonambiguous": 0.6476190476190476,
+    "parallel_precision_non_ambiguous": 0.7425531914893617,
+    "parallel_predicted_non_ambiguous": 470,
+    "parallel_recall_non_ambiguous": 0.7331932773109243,
+    "parallel_target_non_ambiguous": 476,
+    "parallel_true_positive_non_ambiguous": 349,
+    "relation_accuracy_non_ambiguous": 0.6231292517006802,
+    "relation_correct_non_ambiguous": 458
+  },
+  "restoration": {
+    "group_a": {
+      "count": 800,
+      "per_task": {
+        "defocus_blur+haze": {
+          "count": 100,
+          "psnr": 20.693126373291015,
+          "ssim": 0.7344076863619451
+        },
+        "defocus_blur+jpeg_artifact": {
+          "count": 100,
+          "psnr": 25.241858558654783,
+          "ssim": 0.7158374289823715
+        },
+        "low_light+noise": {
+          "count": 100,
+          "psnr": 19.45675657272339,
+          "ssim": 0.7558049516883416
+        },
+        "motion_blur+low_light": {
+          "count": 100,
+          "psnr": 16.788995780944823,
+          "ssim": 0.6076996826544094
+        },
+        "motion_blur+low_resolution": {
+          "count": 100,
+          "psnr": 22.185369663238525,
+          "ssim": 0.651132981461577
+        },
+        "noise+jpeg_artifact": {
+          "count": 100,
+          "psnr": 27.888072566986082,
+          "ssim": 0.7858147108460853
+        },
+        "rain+haze": {
+          "count": 100,
+          "psnr": 22.0406414604187,
+          "ssim": 0.8258108270657861
+        },
+        "rain+low_resolution": {
+          "count": 100,
+          "psnr": 21.922982616424562,
+          "ssim": 0.618543952307494
+        }
+      },
+      "psnr": 22.027225449085236,
+      "ssim": 0.7118815276710013,
+      "task_count": 8
+    },
+    "single": {
+      "count": 800,
+      "per_task": {
+        "defocus_blur": {
+          "count": 100,
+          "psnr": 25.737745771408083,
+          "ssim": 0.741752646735879
+        },
+        "haze": {
+          "count": 100,
+          "psnr": 22.726479988098145,
+          "ssim": 0.9435797935227415
+        },
+        "jpeg_artifact": {
+          "count": 100,
+          "psnr": 30.435976448059083,
+          "ssim": 0.9016528365647882
+        },
+        "low_light": {
+          "count": 100,
+          "psnr": 19.294450273513792,
+          "ssim": 0.8486990545976962
+        },
+        "low_resolution": {
+          "count": 100,
+          "psnr": 26.66348096847534,
+          "ssim": 0.7794836777210418
+        },
+        "motion_blur": {
+          "count": 100,
+          "psnr": 22.685402584075927,
+          "ssim": 0.71935486250554
+        },
+        "noise": {
+          "count": 100,
+          "psnr": 28.066655235290526,
+          "ssim": 0.8635811508041109
+        },
+        "rain": {
+          "count": 100,
+          "psnr": 27.630576038360594,
+          "ssim": 0.8498120000173276
+        }
+      },
+      "psnr": 25.405095913410186,
+      "ssim": 0.8309895028086407,
+      "task_count": 8
+    }
+  },
+  "schema_version": "graphrestore-stage3-runtime-v1",
+  "sources": {
+    "mio100_rows_read": 0,
+    "relation": "interaction_val",
+    "restoration_presence_guard": "primary_val"
+  }
+}

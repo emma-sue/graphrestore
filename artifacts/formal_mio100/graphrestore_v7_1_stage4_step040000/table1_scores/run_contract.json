@@ -1,0 +1,154 @@
+{
+  "agenticir_commit": "9640a291480dee3ba8f2974125d4ee9e3440f3d6",
+  "agenticir_sources": {
+    "official_compare_methods": {
+      "device": 2304,
+      "inode": 2448622768,
+      "mode": 420,
+      "path": "/root/autodl-tmp/graph/upstream/AgenticIR/eval/compare_methods.py",
+      "sha256": "a246b8656744649ed5adfd5f482491f89006ef7bec1ce9923b5971a1da3d856a",
+      "size": 12974
+    },
+    "official_compute_scores": {
+      "device": 2304,
+      "inode": 2448622769,
+      "mode": 420,
+      "path": "/root/autodl-tmp/graph/upstream/AgenticIR/eval/compute_scores.py",
+      "sha256": "ce1a35f9f110a67c4581885f631dae6c283e438bcaf2749199fb9d19fa440548",
+      "size": 2728
+    },
+    "official_requirements": {
+      "device": 2304,
+      "inode": 8938403345,
+      "mode": 420,
+      "path": "/root/autodl-tmp/graph/upstream/AgenticIR/installation/requirements.txt",
+      "sha256": "3e76d9e7c658ce7df907dc39ea7af8aa36aa2d5fcf5bd6ec91d34c109a9b45e2",
+      "size": 168
+    },
+    "official_scorer": {
+      "device": 2304,
+      "inode": 4858344442,
+      "mode": 420,
+      "path": "/root/autodl-tmp/graph/upstream/AgenticIR/utils/scorer.py",
+      "sha256": "b6eee989575ee17d2cbf9e38fbab0a996b54a5260ae205246c718c08facab830",
+      "size": 3162
+    }
+  },
+  "aggregation": "per-image -> combination arithmetic mean -> group equal-combination mean",
+  "allocator": "backend:native,expandable_segments:True",
+  "created_utc": "2026-08-20T09:45:23Z",
+  "device": "cuda:0",
+  "expected_counts": {
+    "dark+defocus blur+jpeg compression artifact": 100,
+    "dark+noise": 80,
+    "defocus blur+haze": 80,
+    "defocus blur+jpeg compression artifact": 80,
+    "defocus blur+low resolution": 100,
+    "haze+motion blur+low resolution": 100,
+    "haze+noise": 100,
+    "motion blur+dark": 80,
+    "motion blur+defocus blur+noise": 100,
+    "motion blur+jpeg compression artifact": 100,
+    "motion blur+low resolution": 80,
+    "noise+jpeg compression artifact": 80,
+    "rain+dark": 100,
+    "rain+haze": 80,
+    "rain+low resolution": 80,
+    "rain+noise+low resolution": 100
+  },
+  "formal_evidence": {
+    "authorization": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/approvals/FORMAL_MIO100_APPROVED.json",
+      "sha256": "38647a598503ff0c1776e618a559c6d25d1a8b552fbf1bace765b08ddad9b474"
+    },
+    "checkpoint": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/best_ema.pth",
+      "sha256": "6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd"
+    },
+    "evaluator_complete": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/complete.json",
+      "sha256": "19efefd629a03bbbf85005dc728b93d8f6d8edd04bbfcb8bd8b8c19ae958e000"
+    },
+    "formal_data_inventory": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/formal_data_inventory.json",
+      "sha256": "489d9c216589bb73f4b99ec8301abd57d77b7d418489cef02c162bc135aa91ae"
+    },
+    "manifest": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/manifests/mio100_test_1440_agenticir_online_canonical.jsonl",
+      "sha256": "83fb90dfa121681123f55e73df32eb6c1bc37e685c0e27ae07ad7e59a687a7f5"
+    },
+    "metric_parity_summary": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/metric_parity_summary.json",
+      "sha256": "554f34cb53639d2faa484bc2f2d2273c657f863edbe8258bcbfc1985abd6c35c"
+    },
+    "per_image": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/per_image.csv",
+      "sha256": "83b1f1caeb3c72e4d0bac5125935721e78cb69ff7c7f158f6d185e9a3262d745"
+    },
+    "predictions_digest": "e922e274f42d40a93673252336950595f1bb552e83d0abf75992e40424ffce6e",
+    "run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/run_contract.json",
+      "sha256": "cae873ae874102d31e1433df253be4c4caac753481ad25d04f1c7981eea78296"
+    },
+    "summary": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/summary.json",
+      "sha256": "e3b4b3d8bde7c0dfc3860f3d240883e0bde2847f853cf8b79d6468ff5b101b18"
+    },
+    "table1_input": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/table1_input.jsonl",
+      "sha256": "a7bf90ee91251be68a6420799b8b343b61d4c0fad4ac4372cd928511ca6ffe07"
+    }
+  },
+  "formal_mio100_only": true,
+  "image_count": 1440,
+  "implementation": {
+    "table1_scorer_cli": {
+      "device": 2304,
+      "inode": 4483460193,
+      "mode": 420,
+      "path": "/root/autodl-tmp/aaa/graphrestore/scripts/score_agenticir_table1.py",
+      "sha256": "a0578350a55b1740e6ad9a1096062096ca634f9e459bb44852eaaf75a60b5d34",
+      "size": 987
+    },
+    "table1_scorer_module": {
+      "device": 2304,
+      "inode": 12911665109,
+      "mode": 420,
+      "path": "/root/autodl-tmp/aaa/graphrestore/src/evaluation/agenticir_table1.py",
+      "sha256": "22c8f48607b631ab9ddf2e0565012be2be5f52674eae18e2b2f09ad02faa8d73",
+      "size": 132686
+    }
+  },
+  "input_lock": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/table1_scores/input_lock.json",
+    "sha256": "a4f84f17ece8e556f8ac4d085847db241314e282e3458465184eb2e803444f75"
+  },
+  "metric_directions": {
+    "clipiqa": "higher",
+    "lpips": "lower",
+    "maniqa": "higher",
+    "musiq": "higher",
+    "psnr": "higher",
+    "ssim": "higher"
+  },
+  "metrics": [
+    "psnr",
+    "ssim",
+    "lpips",
+    "maniqa",
+    "clipiqa",
+    "musiq"
+  ],
+  "resume_policy": {
+    "contiguous_prefix_only": true,
+    "overwrite_existing_shard": false,
+    "rng_chain_persisted": true,
+    "selective_rerun": false
+  },
+  "schema_version": "graphrestore.agenticir_table1_run_contract.v1",
+  "shard_size": 10,
+  "weights_lock": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/cache/weights_lock.json",
+    "sha256": "796e39eddc51c28e57b9c40b393f99fd73bd14fde2bab138987c2ddcde746e7d"
+  }
+}

@@ -1,0 +1,385 @@
+{
+  "compiler_modes": {
+    "forced_total_order": {
+      "diagnostics": {
+        "clean_misuse": {
+          "psnr": 72.71375131607056,
+          "residual_norm": 0.005106305903325392,
+          "ssim": 0.9987804524885551
+        },
+        "dropped_edge_rate": 0.0,
+        "guard_high_frac_haze": 0.0,
+        "guard_high_frac_rain": 0.0,
+        "guard_mae_haze": 0.11423014322916666,
+        "guard_mae_rain": 0.07283528645833333,
+        "guard_spearman_haze": 0.6197974340395531,
+        "guard_spearman_rain": 0.6364054862008692,
+        "guard_std_haze": 0.019610392252604168,
+        "guard_std_rain": 0.026988525390625,
+        "mean_program_levels": 1.733125,
+        "parallel_precision": 0.726775956284153,
+        "parallel_recall": 0.8382352941176471,
+        "per_skill_f1": {
+          "defocus_blur": 0.9655172413793104,
+          "haze": 0.8731563421828908,
+          "jpeg_artifact": 1.0,
+          "low_light": 0.7956698240866035,
+          "low_resolution": 0.99009900990099,
+          "motion_blur": 0.7909604519774012,
+          "noise": 0.9373040752351098,
+          "rain": 0.9447077409162717
+        },
+        "planner_macro_f1": 0.9121768357098222,
+        "post_cycle_rate": 0.0,
+        "pre_cycle_rate": 0.0,
+        "reentry_request_rate": 0.01859375,
+        "relation_accuracy": 0.6625850340136055,
+        "relation_n_nonambiguous": 735,
+        "skipped_guard_images_haze": 0,
+        "skipped_guard_images_rain": 0,
+        "unexpected_skill_activation_rate": 0.0022135416666666666,
+        "valid_guard_images_haze": 300,
+        "valid_guard_images_rain": 300,
+        "wrong_skill_identity": {
+          "psnr": 61.90638446807861,
+          "residual_norm": 0.0021046229404362293,
+          "ssim": 0.9994035983440996
+        }
+      },
+      "group_a_equal_combination_mean": {
+        "combination_count": 8,
+        "count": 800,
+        "psnr": 24.46258474946022,
+        "ssim": 0.7745022545134723
+      },
+      "image_count": 1600,
+      "peak_reserved_bytes": 12924747776,
+      "peak_reserved_fraction": 0.5116260970402289,
+      "single_equal_task_mean": {
+        "count": 800,
+        "psnr": 27.07674780845642,
+        "ssim": 0.8680073078485624,
+        "task_count": 8
+      }
+    },
+    "full_partial_order": {
+      "diagnostics": {
+        "clean_misuse": {
+          "psnr": 72.71375131607056,
+          "residual_norm": 0.005106305903325392,
+          "ssim": 0.9987804524885551
+        },
+        "dropped_edge_rate": 0.0,
+        "guard_high_frac_haze": 0.0,
+        "guard_high_frac_rain": 0.0,
+        "guard_mae_haze": 0.11423014322916666,
+        "guard_mae_rain": 0.07283528645833333,
+        "guard_spearman_haze": 0.6197974340395531,
+        "guard_spearman_rain": 0.6364054862008692,
+        "guard_std_haze": 0.019610392252604168,
+        "guard_std_rain": 0.026988525390625,
+        "mean_program_levels": 1.235625,
+        "parallel_precision": 0.726775956284153,
+        "parallel_recall": 0.8382352941176471,
+        "per_skill_f1": {
+          "defocus_blur": 0.9655172413793104,
+          "haze": 0.8731563421828908,
+          "jpeg_artifact": 1.0,
+          "low_light": 0.7956698240866035,
+          "low_resolution": 0.99009900990099,
+          "motion_blur": 0.7909604519774012,
+          "noise": 0.9373040752351098,
+          "rain": 0.9447077409162717
+        },
+        "planner_macro_f1": 0.9121768357098222,
+        "post_cycle_rate": 0.0,
+        "pre_cycle_rate": 0.0,
+        "reentry_request_rate": 0.006380208333333333,
+        "relation_accuracy": 0.6625850340136055,
+        "relation_n_nonambiguous": 735,
+        "skipped_guard_images_haze": 0,
+        "skipped_guard_images_rain": 0,
+        "unexpected_skill_activation_rate": 5.208333333333334e-05,
+        "valid_guard_images_haze": 300,
+        "valid_guard_images_rain": 300,
+        "wrong_skill_identity": {
+          "psnr": 61.90638446807861,
+          "residual_norm": 0.0021046229404362293,
+          "ssim": 0.9994035983440996
+        }
+      },
+      "group_a_equal_combination_mean": {
+        "combination_count": 8,
+        "count": 800,
+        "psnr": 24.546857466697695,
+        "ssim": 0.7808854509814307
+      },
+      "image_count": 1600,
+      "peak_reserved_bytes": 12924747776,
+      "peak_reserved_fraction": 0.5116260970402289,
+      "single_equal_task_mean": {
+        "count": 800,
+        "psnr": 27.020805177688597,
+        "ssim": 0.8685765341305163,
+        "task_count": 8
+      }
+    },
+    "parallel_only": {
+      "diagnostics": {
+        "clean_misuse": {
+          "psnr": 72.71375131607056,
+          "residual_norm": 0.005106305903325392,
+          "ssim": 0.9987804524885551
+        },
+        "dropped_edge_rate": 0.0,
+        "guard_high_frac_haze": 0.0,
+        "guard_high_frac_rain": 0.0,
+        "guard_mae_haze": 0.11423014322916666,
+        "guard_mae_rain": 0.07283528645833333,
+        "guard_spearman_haze": 0.6197974340395531,
+        "guard_spearman_rain": 0.6364054862008692,
+        "guard_std_haze": 0.019610392252604168,
+        "guard_std_rain": 0.026988525390625,
+        "mean_program_levels": 0.994375,
+        "parallel_precision": 0.726775956284153,
+        "parallel_recall": 0.8382352941176471,
+        "per_skill_f1": {
+          "defocus_blur": 0.9655172413793104,
+          "haze": 0.8731563421828908,
+          "jpeg_artifact": 1.0,
+          "low_light": 0.7956698240866035,
+          "low_resolution": 0.99009900990099,
+          "motion_blur": 0.7909604519774012,
+          "noise": 0.9373040752351098,
+          "rain": 0.9447077409162717
+        },
+        "planner_macro_f1": 0.9121768357098222,
+        "post_cycle_rate": 0.0,
+        "pre_cycle_rate": 0.0,
+        "reentry_request_rate": 0.0,
+        "relation_accuracy": 0.6625850340136055,
+        "relation_n_nonambiguous": 735,
+        "skipped_guard_images_haze": 0,
+        "skipped_guard_images_rain": 0,
+        "unexpected_skill_activation_rate": 0.0,
+        "valid_guard_images_haze": 300,
+        "valid_guard_images_rain": 300,
+        "wrong_skill_identity": {
+          "psnr": 61.90638446807861,
+          "residual_norm": 0.0021046229404362293,
+          "ssim": 0.9994035983440996
+        }
+      },
+      "group_a_equal_combination_mean": {
+        "combination_count": 8,
+        "count": 800,
+        "psnr": 24.28461597561836,
+        "ssim": 0.7772739778867678
+      },
+      "image_count": 1600,
+      "peak_reserved_bytes": 12337545216,
+      "peak_reserved_fraction": 0.48838168568678675,
+      "single_equal_task_mean": {
+        "count": 800,
+        "psnr": 26.842398879528044,
+        "ssim": 0.8672445006497799,
+        "task_count": 8
+      }
+    }
+  },
+  "created_utc": "2026-08-20T08:00:38Z",
+  "guard_modes": {
+    "all_one": {
+      "diagnostics": {
+        "clean_misuse": {
+          "psnr": 33.93915784358978,
+          "residual_norm": 0.06793659931281582,
+          "ssim": 0.88660590717088
+        },
+        "dropped_edge_rate": 0.0,
+        "guard_high_frac_haze": 0.0,
+        "guard_high_frac_rain": 0.0,
+        "guard_mae_haze": 0.11423014322916666,
+        "guard_mae_rain": 0.07283528645833333,
+        "guard_spearman_haze": 0.6197974340395531,
+        "guard_spearman_rain": 0.6364054862008692,
+        "guard_std_haze": 0.019610392252604168,
+        "guard_std_rain": 0.026988525390625,
+        "mean_program_levels": 1.233125,
+        "parallel_precision": 0.726775956284153,
+        "parallel_recall": 0.8382352941176471,
+        "per_skill_f1": {
+          "defocus_blur": 0.9655172413793104,
+          "haze": 0.8731563421828908,
+          "jpeg_artifact": 1.0,
+          "low_light": 0.7956698240866035,
+          "low_resolution": 0.99009900990099,
+          "motion_blur": 0.7909604519774012,
+          "noise": 0.9373040752351098,
+          "rain": 0.9447077409162717
+        },
+        "planner_macro_f1": 0.9121768357098222,
+        "post_cycle_rate": 0.0,
+        "pre_cycle_rate": 0.0,
+        "reentry_request_rate": 0.0059635416666666665,
+        "relation_accuracy": 0.6625850340136055,
+        "relation_n_nonambiguous": 735,
+        "skipped_guard_images_haze": 0,
+        "skipped_guard_images_rain": 0,
+        "unexpected_skill_activation_rate": 0.00013020833333333333,
+        "valid_guard_images_haze": 300,
+        "valid_guard_images_rain": 300,
+        "wrong_skill_identity": {
+          "psnr": 28.90688133239746,
+          "residual_norm": 0.11327049281680956,
+          "ssim": 0.8309944430297589
+        }
+      },
+      "group_a_equal_combination_mean": {
+        "combination_count": 8,
+        "count": 800,
+        "psnr": 21.513925739526748,
+        "ssim": 0.6941360040297555
+      },
+      "image_count": 1600,
+      "peak_reserved_bytes": 12777947136,
+      "peak_reserved_fraction": 0.5058149942018684,
+      "single_equal_task_mean": {
+        "count": 800,
+        "psnr": 23.001583641767503,
+        "ssim": 0.7641702055990932,
+        "task_count": 8
+      }
+    },
+    "global_mean": {
+      "diagnostics": {
+        "clean_misuse": {
+          "psnr": 73.75438928604126,
+          "residual_norm": 0.0028358153906538064,
+          "ssim": 0.999502560802514
+        },
+        "dropped_edge_rate": 0.0,
+        "guard_high_frac_haze": 0.0,
+        "guard_high_frac_rain": 0.0,
+        "guard_mae_haze": 0.11423014322916666,
+        "guard_mae_rain": 0.07283528645833333,
+        "guard_spearman_haze": 0.6197974340395531,
+        "guard_spearman_rain": 0.6364054862008692,
+        "guard_std_haze": 0.019610392252604168,
+        "guard_std_rain": 0.026988525390625,
+        "mean_program_levels": 1.235625,
+        "parallel_precision": 0.726775956284153,
+        "parallel_recall": 0.8382352941176471,
+        "per_skill_f1": {
+          "defocus_blur": 0.9655172413793104,
+          "haze": 0.8731563421828908,
+          "jpeg_artifact": 1.0,
+          "low_light": 0.7956698240866035,
+          "low_resolution": 0.99009900990099,
+          "motion_blur": 0.7909604519774012,
+          "noise": 0.9373040752351098,
+          "rain": 0.9447077409162717
+        },
+        "planner_macro_f1": 0.9121768357098222,
+        "post_cycle_rate": 0.0,
+        "pre_cycle_rate": 0.0,
+        "reentry_request_rate": 0.007109375,
+        "relation_accuracy": 0.6625850340136055,
+        "relation_n_nonambiguous": 735,
+        "skipped_guard_images_haze": 0,
+        "skipped_guard_images_rain": 0,
+        "unexpected_skill_activation_rate": 5.208333333333334e-05,
+        "valid_guard_images_haze": 300,
+        "valid_guard_images_rain": 300,
+        "wrong_skill_identity": {
+          "psnr": 64.73432970046997,
+          "residual_norm": 0.001546670271579842,
+          "ssim": 0.9994815046182939
+        }
+      },
+      "group_a_equal_combination_mean": {
+        "combination_count": 8,
+        "count": 800,
+        "psnr": 24.52251023054123,
+        "ssim": 0.7790453163871277
+      },
+      "image_count": 1600,
+      "peak_reserved_bytes": 12924747776,
+      "peak_reserved_fraction": 0.5116260970402289,
+      "single_equal_task_mean": {
+        "count": 800,
+        "psnr": 26.925415338277816,
+        "ssim": 0.8673747027691607,
+        "task_count": 8
+      }
+    },
+    "predicted_spatial": {
+      "diagnostics": {
+        "clean_misuse": {
+          "psnr": 72.71375131607056,
+          "residual_norm": 0.005106305903325392,
+          "ssim": 0.9987804524885551
+        },
+        "dropped_edge_rate": 0.0,
+        "guard_high_frac_haze": 0.0,
+        "guard_high_frac_rain": 0.0,
+        "guard_mae_haze": 0.11423014322916666,
+        "guard_mae_rain": 0.07283528645833333,
+        "guard_spearman_haze": 0.6197974340395531,
+        "guard_spearman_rain": 0.6364054862008692,
+        "guard_std_haze": 0.019610392252604168,
+        "guard_std_rain": 0.026988525390625,
+        "mean_program_levels": 1.235625,
+        "parallel_precision": 0.726775956284153,
+        "parallel_recall": 0.8382352941176471,
+        "per_skill_f1": {
+          "defocus_blur": 0.9655172413793104,
+          "haze": 0.8731563421828908,
+          "jpeg_artifact": 1.0,
+          "low_light": 0.7956698240866035,
+          "low_resolution": 0.99009900990099,
+          "motion_blur": 0.7909604519774012,
+          "noise": 0.9373040752351098,
+          "rain": 0.9447077409162717
+        },
+        "planner_macro_f1": 0.9121768357098222,
+        "post_cycle_rate": 0.0,
+        "pre_cycle_rate": 0.0,
+        "reentry_request_rate": 0.006380208333333333,
+        "relation_accuracy": 0.6625850340136055,
+        "relation_n_nonambiguous": 735,
+        "skipped_guard_images_haze": 0,
+        "skipped_guard_images_rain": 0,
+        "unexpected_skill_activation_rate": 5.208333333333334e-05,
+        "valid_guard_images_haze": 300,
+        "valid_guard_images_rain": 300,
+        "wrong_skill_identity": {
+          "psnr": 61.90638446807861,
+          "residual_norm": 0.0021046229404362293,
+          "ssim": 0.9994035983440996
+        }
+      },
+      "group_a_equal_combination_mean": {
+        "combination_count": 8,
+        "count": 800,
+        "psnr": 24.546857466697695,
+        "ssim": 0.7808854509814307
+      },
+      "image_count": 1600,
+      "peak_reserved_bytes": 12924747776,
+      "peak_reserved_fraction": 0.5116260970402289,
+      "single_equal_task_mean": {
+        "count": 800,
+        "psnr": 27.020805177688597,
+        "ssim": 0.8685765341305163,
+        "task_count": 8
+      }
+    }
+  },
+  "model_ema_rng_unchanged": true,
+  "optimizer_updates": 0,
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "schema_version": "graphrestore-stage4-zero-training-diagnostics-v1",
+  "selected_best_ema_path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/best_ema.pth",
+  "selected_best_ema_sha256": "6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd"
+}

@@ -1,0 +1,37 @@
+{
+  "authorization_sha256": "38647a598503ff0c1776e618a559c6d25d1a8b552fbf1bace765b08ddad9b474",
+  "bindings": {
+    "per_image_csv": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/per_image.csv",
+      "sha256": "83b1f1caeb3c72e4d0bac5125935721e78cb69ff7c7f158f6d185e9a3262d745"
+    },
+    "run_contract": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/run_contract.json",
+      "sha256": "cae873ae874102d31e1433df253be4c4caac753481ad25d04f1c7981eea78296"
+    },
+    "summary": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/summary.json",
+      "sha256": "e3b4b3d8bde7c0dfc3860f3d240883e0bde2847f853cf8b79d6468ff5b101b18"
+    },
+    "table1_input_jsonl": {
+      "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/graphrestore_v7_1_stage4_step040000/table1_input.jsonl",
+      "sha256": "a7bf90ee91251be68a6420799b8b343b61d4c0fad4ac4372cd928511ca6ffe07"
+    }
+  },
+  "checkpoint_sha256": "6aa2de6e65ce633430d188857845acef1b67cfb3b218a04977293dbc149a84fd",
+  "created_utc": "2026-08-20T08:42:42Z",
+  "formal_data_inventory": {
+    "files_digest": "e38d71c6d760b39371b7a3a1712a1c118dcce33e619373e1f6c0238ee6dc8f57",
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/formal_mio100/formal_data_inventory.json",
+    "rows_digest": "033733a935f6c413e0cd6d39f89aef3ae2d816cc78c1734be02a4fde9dd23254",
+    "sha256": "489d9c216589bb73f4b99ec8301abd57d77b7d418489cef02c162bc135aa91ae"
+  },
+  "image_count": 1440,
+  "manifest_sha256": "83fb90dfa121681123f55e73df32eb6c1bc37e685c0e27ae07ad7e59a687a7f5",
+  "method_name": "graphrestore_v7_1_stage4_step040000",
+  "predictions_digest": "e922e274f42d40a93673252336950595f1bb552e83d0abf75992e40424ffce6e",
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "run_contract_sha256": "cae873ae874102d31e1433df253be4c4caac753481ad25d04f1c7981eea78296",
+  "schema_version": "graphrestore-formal-mio100-complete-v1",
+  "status": "COMPLETE"
+}

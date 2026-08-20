@@ -1,0 +1,35 @@
+{
+  "converged": true,
+  "created_utc": "2026-08-17T05:30:30Z",
+  "iterations": 8,
+  "l2": 0.0001,
+  "manual_skill_order_used": false,
+  "model": "bradley_terry_logistic",
+  "n_ambiguous_excluded": 493,
+  "n_directional_observations": 1593,
+  "n_parallel_excluded": 2010,
+  "priority": {
+    "defocus_blur": 1.3461739444845326,
+    "haze": 1.1833313910949863,
+    "jpeg_artifact": -0.3766167322241316,
+    "low_light": 1.3164588577881522,
+    "low_resolution": -2.858995969235577,
+    "motion_blur": -0.6275084255467859,
+    "noise": 0.5456250053754493,
+    "rain": -0.5284680717366265
+  },
+  "rank": {
+    "defocus_blur": 1,
+    "haze": 3,
+    "jpeg_artifact": 5,
+    "low_light": 2,
+    "low_resolution": 8,
+    "motion_blur": 7,
+    "noise": 4,
+    "rain": 6
+  },
+  "relation_train_sha256": "b65de122964c963636c94b14fac7494c9c995c3f9c4022e405d4d6d026642c18",
+  "schema_version": "graphrestore-stage2-v1",
+  "source": "interaction_train_nonparallel_nonambiguous_only",
+  "stage1_checkpoint_sha256": "433bcab29f21c98f42107ad6d1c3f8214848254a7ef4d6ca7d6a2141da5bfcaa"
+}

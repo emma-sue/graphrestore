@@ -1,7 +1,7 @@
 # AgenticIR Degradation Reference Parity
 
 - protocol: `graphrestore-v7.1-agenticir-degradation-reference-parity`
-- created_utc: `2026-08-14T21:25:43Z`
+- created_utc: `2026-08-14T23:06:11Z`
 - result: **PASS**
 - failures: `0`
 - warnings: `0`

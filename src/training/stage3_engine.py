@@ -10,10 +10,13 @@ from __future__ import annotations
 
 import csv
 import hashlib
+import io
 import importlib.metadata
 import math
+import os
 import platform
 import random
+import stat
 import time
 from collections import defaultdict
 from collections.abc import Callable, Mapping, Sequence
@@ -34,11 +37,11 @@ from src.losses.guard_losses import guard_supervision_loss
 from src.losses.planner_losses import PlannerLossBreakdown, planner_loss
 from src.metrics.agenticir_official import official_psnr_ssim
 from src.net import GraphRestore, PAIR_INDICES, PlannerOutput
+from src.net.restormer_blocks import pad_to_multiple
 from src.training.checkpointing import (
     atomic_torch_save,
     capture_rng_state,
     checkpoint_payload,
-    load_checkpoint,
     restore_rng_state,
     unwrap_model,
 )
@@ -46,12 +49,13 @@ from src.training.ema import ExponentialMovingAverage
 from src.training.optimization import WarmupCosineScheduler
 from src.training.provenance import semantic_source_hashes
 from src.training.relation_supervision import non_ambiguous_relation_metrics
-from src.training.selection import ValidationScore
+from src.training.selection import ValidationScore, is_better_checkpoint
 from src.training.stage1_engine import STAGE1_EMA_SCOPE, stage1_ema_policy_metadata
 from src.utils.git import git_commit
 from src.utils.hashing import is_sha256, sha256_file, sha256_json
 from src.utils.io import (
     atomic_write_json,
+    atomic_write_text,
     iter_jsonl,
     load_json,
     load_yaml,
@@ -64,6 +68,18 @@ APPROVAL_SCHEMA = "graphrestore-stage3-approval-v1"
 ORCHESTRATION_SCHEMA = "graphrestore-orchestration-v1"
 STAGE3_SCHEMA = "graphrestore-stage3-runtime-v1"
 THRESHOLD_SCHEMA = "graphrestore-presence-thresholds-v1"
+THRESHOLD_TIE_BREAK = "nearest_0.50_then_higher_threshold"
+THRESHOLD_F1_TOLERANCE = 1.0e-15
+STAGE3_EXTENSION_SCHEMA = "graphrestore-stage3-extension-approval-v1"
+STAGE3_EXTENSION_FILENAME = "STAGE3_EXTENSION_APPROVED.json"
+STAGE3_EXTENSION_MIGRATION_NAME = "stage3_extension_12000_to_18000_v1"
+STAGE3_BASE_TARGET_STEP = 12_000
+STAGE3_EXTENSION_TARGET_STEP = 18_000
+STAGE3_EXTENSION_VALIDATION_STEPS = (14_000, 16_000, 18_000)
+STAGE3_EXTENSION_LR_POLICY = "hold_original_cosine_floor_after_schedule_horizon"
+STAGE3_ALLOCATOR_CONF = "backend:native,expandable_segments:True"
+STAGE3_EMA_SCOPE = "planner_parameters_only_executor_bitwise_frozen"
+STAGE3_EMA_SCHEMA = "graphrestore-stage3-planner-ema-policy-v1"
 RELATION_CLASSES = ("i_before_j", "j_before_i", "parallel")
 PAIR_TO_ROW = {pair: index for index, pair in enumerate(PAIR_INDICES)}
 _FORBIDDEN_STAGE3_TOKENS = ("mio100", "group_b", "group_c", "exploration")
@@ -71,6 +87,45 @@ _FORBIDDEN_STAGE3_TOKENS = ("mio100", "group_b", "group_c", "exploration")
 
 class Stage3ContractError(RuntimeError):
     """Stage3 would violate approval, data, supervision, or runtime locks."""
+
+
+def stage3_ema_policy_metadata(decay: float) -> dict[str, object]:
+    if not 0.0 < decay < 1.0:
+        raise ValueError("Stage3 EMA decay must be in (0,1)")
+    return {
+        "schema_version": STAGE3_EMA_SCHEMA,
+        "scope": STAGE3_EMA_SCOPE,
+        "parameter_selector": "state_name_prefix_planner_dot",
+        "planner_parameter_update": "standard_fp32_exponential_moving_average",
+        "frozen_parameter_update": "copy_current_value_bitwise",
+        "buffer_update": "copy_current_value_bitwise",
+        "phase_transition": "single_phase_without_shadow_reset",
+        "decay": float(decay),
+    }
+
+
+@dataclass
+class Stage3OptimizerTransaction:
+    """Track whether an optimizer update reached a serializable boundary.
+
+    The caller intentionally keeps the transaction active until the optimizer,
+    scheduler, EMA, logical step, sampler cursor, VRAM guard, durable train-step
+    log, and any due validation marker have all advanced.  A signal in any
+    smaller window must leave the prior atomic checkpoint in place instead of
+    serializing a mixed or not-yet-audited step.
+    """
+
+    active: bool = False
+
+    def begin(self) -> None:
+        if self.active:
+            raise Stage3ContractError("Stage3 optimizer transaction is already active")
+        self.active = True
+
+    def commit(self) -> None:
+        if not self.active:
+            raise Stage3ContractError("Stage3 optimizer transaction is not active")
+        self.active = False
 
 
 class Stage3PlannerEMA(ExponentialMovingAverage):
@@ -109,7 +164,8 @@ class Stage3PlannerEMA(ExponentialMovingAverage):
 
     def state_dict(self) -> dict[str, object]:
         state = super().state_dict()
-        state["scope"] = "planner_parameters_only_executor_bitwise_frozen"
+        state["scope"] = STAGE3_EMA_SCOPE
+        state["policy"] = stage3_ema_policy_metadata(self.decay)
         return state
 
 
@@ -121,6 +177,34 @@ class Stage3ApprovalEvidence:
     approval_required_sha256: str
     stage2_decision_sha256: str
     bindings: Mapping[str, Mapping[str, str]]
+
+
+@dataclass(frozen=True)
+class Stage3ExtensionEvidence:
+    authorization_path: Path
+    authorization_sha256: str
+    base_step: int
+    target_step: int
+    cycles: int
+    validation_every_steps: int
+    validation_steps: tuple[int, ...]
+    schedule_horizon_steps: int
+    min_lr: float
+    lr_policy: str
+
+    def provenance_binding(self) -> dict[str, Any]:
+        return {
+            "path": str(self.authorization_path),
+            "sha256": self.authorization_sha256,
+            "cycles": self.cycles,
+            "base_step": self.base_step,
+            "target_step": self.target_step,
+            "validation_every_steps": self.validation_every_steps,
+            "validation_steps": list(self.validation_steps),
+            "schedule_horizon_steps": self.schedule_horizon_steps,
+            "min_lr": self.min_lr,
+            "lr_policy": self.lr_policy,
+        }
 
 
 @dataclass(frozen=True)
@@ -197,7 +281,7 @@ class Stage3StepResult:
 class Stage3MicroBatchTrial:
     micro_batch: int
     passed: bool
-    completed_passes: int
+    completed_optimizer_steps: int
     images_per_second: float
     peak_reserved_bytes: int
     peak_reserved_fraction: float
@@ -205,11 +289,45 @@ class Stage3MicroBatchTrial:
 
 
 @dataclass(frozen=True)
+class Stage3ValidationVRAMTopology:
+    compiler_mode: str
+    active_skill_count: int
+    completed_rounds: int
+    active_skill_counts_by_round: tuple[int, ...]
+    metric_psnr: float
+    metric_ssim: float
+    peak_reserved_bytes: int
+    peak_reserved_fraction: float
+    finite: bool
+    passed: bool
+
+
+@dataclass(frozen=True)
+class Stage3ValidationVRAMGate:
+    schema_version: str
+    image_size: int
+    max_rounds: int
+    completed_rounds: int
+    topologies: tuple[Stage3ValidationVRAMTopology, ...]
+    peak_reserved_bytes: int
+    peak_reserved_fraction: float
+    maximum_peak_reserved_fraction: float
+    resident_optimizer_state_entries: int
+    resident_optimizer_state_bytes: int
+    resident_ema_bytes: int
+    optimizer_state_empty_after: bool
+    finite: bool
+    passed: bool
+
+
+@dataclass(frozen=True)
 class ThresholdCalibration:
     thresholds: tuple[float, ...]
     per_skill_f1: tuple[float, ...]
     grid: tuple[float, ...]
-    tie_break: str = "lowest_threshold"
+    baseline_diagnostics: Mapping[str, Any]
+    calibrated_diagnostics: Mapping[str, Any]
+    tie_break: str = THRESHOLD_TIE_BREAK
 
 
 def _mapping(value: object, *, field: str) -> Mapping[str, Any]:
@@ -304,6 +422,94 @@ def validate_stage3_config(config: Mapping[str, Any]) -> None:
         _expect(config, path, expected)
 
 
+def validate_stage3_allocator_conf(
+    environ: Mapping[str, str] | None = None,
+) -> str:
+    """Require the allocator proven equivalent during the Stage0 A/B audit.
+
+    This check is deliberately environment-only so the formal CLI can execute
+    it before its first CUDA availability/current-device query.
+    """
+
+    environment = os.environ if environ is None else environ
+    actual = environment.get("PYTORCH_CUDA_ALLOC_CONF")
+    if actual != STAGE3_ALLOCATOR_CONF:
+        raise Stage3ContractError(
+            "formal Stage3 requires exact PYTORCH_CUDA_ALLOC_CONF="
+            f"{STAGE3_ALLOCATOR_CONF!s}; got {actual!r}"
+        )
+    return actual
+
+
+def validate_stage3_pending_validation_step(
+    *,
+    step: object,
+    pending_validation_step: object,
+    max_steps: int,
+    validation_every_steps: int = 2_000,
+) -> int | None:
+    """Validate the raw-checkpoint validation transaction marker."""
+
+    if max_steps <= 0 or validation_every_steps <= 0:
+        raise Stage3ContractError("invalid Stage3 checkpoint schedule")
+    if (
+        isinstance(step, bool)
+        or not isinstance(step, int)
+        or not 0 <= step <= max_steps
+    ):
+        raise Stage3ContractError("invalid Stage3 checkpoint step")
+    if pending_validation_step is None:
+        return None
+    if isinstance(pending_validation_step, bool) or not isinstance(
+        pending_validation_step, int
+    ):
+        raise Stage3ContractError("invalid Stage3 pending_validation_step")
+    if pending_validation_step != step:
+        raise Stage3ContractError(
+            "Stage3 pending_validation_step must equal checkpoint step"
+        )
+    if step <= 0 or not (step % validation_every_steps == 0 or step == max_steps):
+        raise Stage3ContractError(
+            "Stage3 pending validation is not on a validation boundary"
+        )
+    return pending_validation_step
+
+
+def reset_stage3_peak_memory(device: torch.device) -> None:
+    """Start an independent Stage3 train/validation peak measurement."""
+
+    if device.type != "cuda":
+        raise Stage3ContractError("Stage3 VRAM accounting requires CUDA")
+    torch.cuda.reset_peak_memory_stats(device)
+
+
+def enforce_stage3_peak_memory(
+    device: torch.device,
+    *,
+    phase: str,
+    maximum_reserved_fraction: float = 0.90,
+) -> tuple[int, float]:
+    """Fail closed when one independently reset phase exceeds the VRAM cap."""
+
+    if device.type != "cuda":
+        raise Stage3ContractError("Stage3 VRAM accounting requires CUDA")
+    if maximum_reserved_fraction != 0.90:
+        raise Stage3ContractError("Stage3 VRAM ceiling must remain exactly 0.90")
+    if not phase:
+        raise ValueError("Stage3 VRAM phase must be non-empty")
+    torch.cuda.synchronize(device)
+    total = int(torch.cuda.get_device_properties(device).total_memory)
+    peak = int(torch.cuda.max_memory_reserved(device))
+    if total <= 0 or peak < 0:
+        raise Stage3ContractError("invalid Stage3 CUDA memory accounting")
+    fraction = peak / total
+    if not math.isfinite(fraction) or fraction > maximum_reserved_fraction:
+        raise Stage3ContractError(
+            f"Stage3 {phase} peak reserved fraction {fraction:.6f} exceeds 0.90"
+        )
+    return peak, fraction
+
+
 def _verified_binding(
     bindings: Mapping[str, Any], logical: str, *, expected_path: Path | None = None
 ) -> Mapping[str, str]:
@@ -348,10 +554,14 @@ def validate_stage3_approval(
     config = _mapping(load_yaml(config_file), field="Stage3 config")
     validate_stage3_config(config)
     path_config = _mapping(config.get("paths"), field="Stage3 paths")
-    resolved_path = _project_path(root, path_config.get("resolved_paths"), field="resolved_paths")
+    resolved_path = _project_path(
+        root, path_config.get("resolved_paths"), field="resolved_paths"
+    )
     resolved = _mapping(load_yaml(resolved_path), field="resolved paths")
 
-    approval_path = _project_path(root, path_config.get("required_approval"), field="required_approval")
+    approval_path = _project_path(
+        root, path_config.get("required_approval"), field="required_approval"
+    )
     if not approval_path.is_file():
         raise Stage3ContractError(
             "Stage3 approval is missing; only the orchestrator command with both "
@@ -382,13 +592,25 @@ def validate_stage3_approval(
     _verified_binding(bindings, "config_stage3", expected_path=config_file)
     _verified_binding(bindings, "config_resolved_paths", expected_path=resolved_path)
 
-    train_manifest = _project_path(root, resolved.get(path_config.get("train_manifest_key")), field="primary_train")
-    val_manifest = _project_path(root, resolved.get(path_config.get("val_manifest_key")), field="primary_val")
-    executor = _project_path(root, path_config.get("executor_checkpoint"), field="executor_checkpoint")
-    relation_train = _project_path(root, path_config.get("relation_train"), field="relation_train")
-    relation_val = _project_path(root, path_config.get("relation_val"), field="relation_val")
+    train_manifest = _project_path(
+        root, resolved.get(path_config.get("train_manifest_key")), field="primary_train"
+    )
+    val_manifest = _project_path(
+        root, resolved.get(path_config.get("val_manifest_key")), field="primary_val"
+    )
+    executor = _project_path(
+        root, path_config.get("executor_checkpoint"), field="executor_checkpoint"
+    )
+    relation_train = _project_path(
+        root, path_config.get("relation_train"), field="relation_train"
+    )
+    relation_val = _project_path(
+        root, path_config.get("relation_val"), field="relation_val"
+    )
     pair_prior = _project_path(root, path_config.get("pair_prior"), field="pair_prior")
-    global_priority = _project_path(root, path_config.get("global_priority"), field="global_priority")
+    global_priority = _project_path(
+        root, path_config.get("global_priority"), field="global_priority"
+    )
     for logical, path in (
         ("primary_train_manifest", train_manifest),
         ("primary_val_manifest", val_manifest),
@@ -412,9 +634,14 @@ def validate_stage3_approval(
     if not isinstance(required_raw, str) or not is_sha256(required_sha):
         raise Stage3ContractError("approval-required binding is invalid")
     approval_required = Path(required_raw).resolve(strict=False)
-    if not approval_required.is_file() or sha256_file(approval_required) != required_sha:
+    if (
+        not approval_required.is_file()
+        or sha256_file(approval_required) != required_sha
+    ):
         raise Stage3ContractError("approval-required marker changed after approval")
-    required = _mapping(load_json(approval_required), field="STAGE3_APPROVAL_REQUIRED.json")
+    required = _mapping(
+        load_json(approval_required), field="STAGE3_APPROVAL_REQUIRED.json"
+    )
     if (
         required.get("schema_version") != APPROVAL_SCHEMA
         or required.get("kind") != "stage3_approval_required"
@@ -423,15 +650,23 @@ def validate_stage3_approval(
     ):
         raise Stage3ContractError("approval-required marker no longer matches approval")
     if approval.get("stage2_decision_sha256") != stage2_binding["sha256"]:
-        raise Stage3ContractError("approved Stage2 decision SHA does not match its binding")
+        raise Stage3ContractError(
+            "approved Stage2 decision SHA does not match its binding"
+        )
 
     decision = _mapping(load_json(stage2_decision), field="stage2_decision.json")
-    if decision.get("approved") is not False or not isinstance(decision.get("overall"), Mapping):
+    if decision.get("approved") is not False or not isinstance(
+        decision.get("overall"), Mapping
+    ):
         raise Stage3ContractError("invalid frozen Stage2 decision")
     expected_decision = {
         "stage1_checkpoint_sha256": sha256_file(executor),
-        "interaction_train_manifest_sha256": verified_bindings["interaction_train_manifest"]["sha256"],
-        "interaction_val_manifest_sha256": verified_bindings["interaction_val_manifest"]["sha256"],
+        "interaction_train_manifest_sha256": verified_bindings[
+            "interaction_train_manifest"
+        ]["sha256"],
+        "interaction_val_manifest_sha256": verified_bindings[
+            "interaction_val_manifest"
+        ]["sha256"],
         "relation_train_sha256": verified_bindings["relation_train"]["sha256"],
         "relation_val_sha256": verified_bindings["relation_val"]["sha256"],
         "pair_prior_sha256": verified_bindings["pair_prior"]["sha256"],
@@ -450,7 +685,9 @@ def validate_stage3_approval(
     if require_orchestrator_running:
         state_path = root / "artifacts/orchestration/state.json"
         if not state_path.is_file():
-            raise Stage3ContractError("Stage3 must be launched by the approved orchestrator")
+            raise Stage3ContractError(
+                "Stage3 must be launched by the approved orchestrator"
+            )
         state = _mapping(load_json(state_path), field="orchestration state")
         status = state.get("status")
         failed_stage3_resume = (
@@ -472,7 +709,9 @@ def validate_stage3_approval(
                 "orchestrator state does not prove an approved Stage3 launch/resume"
             )
 
-    formal_output = _project_path(root, path_config.get("output_dir"), field="output_dir")
+    formal_output = _project_path(
+        root, path_config.get("output_dir"), field="output_dir"
+    )
     selected_output = (
         _project_path(root, output_dir, field="output_dir override")
         if output_dir is not None
@@ -491,7 +730,9 @@ def validate_stage3_approval(
     history = (
         selected_output / "calibration_history.csv"
         if output_dir is not None
-        else _project_path(root, path_config.get("calibration_history"), field="calibration_history")
+        else _project_path(
+            root, path_config.get("calibration_history"), field="calibration_history"
+        )
     )
     return Stage3Paths(
         project_root=root,
@@ -499,7 +740,9 @@ def validate_stage3_approval(
         config=config,
         resolved_path=resolved_path,
         resolved=resolved,
-        training_data_root=_project_path(root, resolved.get("training_data_root"), field="training_data_root"),
+        training_data_root=_project_path(
+            root, resolved.get("training_data_root"), field="training_data_root"
+        ),
         train_manifest=train_manifest,
         val_manifest=val_manifest,
         executor_checkpoint=executor,
@@ -524,6 +767,234 @@ def validate_stage3_approval(
     )
 
 
+def validate_stage3_extension_authorization(
+    authorization_path: str | Path,
+    paths: Stage3Paths,
+) -> Stage3ExtensionEvidence:
+    """Validate the one-off user-authorized 12k -> 18k Stage3 extension.
+
+    The original Stage3 approval and its 22 bindings remain immutable.  The
+    extension artifact is a separate, canonical authorization created by the
+    controlled provenance migration.  It binds read-only copies of the exact
+    pre-extension run contract and checkpoints, avoiding a hash cycle with the
+    live files whose provenance points back to this authorization.
+    """
+
+    raw_path = Path(authorization_path)
+    canonical = (
+        paths.project_root / "artifacts/approvals" / STAGE3_EXTENSION_FILENAME
+    ).resolve(strict=False)
+    if not raw_path.is_absolute():
+        raise Stage3ContractError(
+            "Stage3 extension authorization must use an absolute canonical path"
+        )
+    _reject_stage3_extension_symlink_chain(raw_path, field="authorization artifact")
+    if str(raw_path.resolve(strict=False)) != str(raw_path) or raw_path != canonical:
+        raise Stage3ContractError(
+            "Stage3 extension authorization must use the canonical non-symlink path"
+        )
+    if not canonical.is_file():
+        raise Stage3ContractError("Stage3 extension authorization is missing")
+    authorization_sha256 = sha256_file(canonical)
+    payload = _mapping(load_json(canonical), field="STAGE3_EXTENSION_APPROVED.json")
+    if sha256_file(canonical) != authorization_sha256:
+        raise Stage3ContractError(
+            "Stage3 extension authorization changed while loading"
+        )
+    expected_keys = {
+        "schema_version",
+        "kind",
+        "protocol_id",
+        "approved",
+        "cycles",
+        "base_step",
+        "target_step",
+        "validation_every_steps",
+        "validation_steps",
+        "schedule_horizon_steps",
+        "min_lr",
+        "lr_policy",
+        "authorized_pipeline",
+        "formal_mio100_authorized",
+        "base_stage3_approval",
+        "base_approval_required",
+        "base_stage3_config",
+        "pre_extension_run_contract",
+        "pre_extension_last_checkpoint",
+        "pre_extension_best_checkpoint",
+    }
+    if set(payload) != expected_keys:
+        raise Stage3ContractError("Stage3 extension authorization fields drifted")
+    expected_values: dict[str, object] = {
+        "schema_version": STAGE3_EXTENSION_SCHEMA,
+        "kind": "stage3_extension_approval",
+        "protocol_id": PROTOCOL_ID,
+        "approved": True,
+        "cycles": 3,
+        "base_step": STAGE3_BASE_TARGET_STEP,
+        "target_step": STAGE3_EXTENSION_TARGET_STEP,
+        "validation_every_steps": 2_000,
+        "validation_steps": list(STAGE3_EXTENSION_VALIDATION_STEPS),
+        "schedule_horizon_steps": STAGE3_BASE_TARGET_STEP,
+        "min_lr": 2.0e-6,
+        "lr_policy": STAGE3_EXTENSION_LR_POLICY,
+        "authorized_pipeline": ["stage3_extension", "stage4"],
+        "formal_mio100_authorized": False,
+    }
+    mismatches: dict[str, object] = {}
+    for key, expected in expected_values.items():
+        actual = payload.get(key)
+        if isinstance(expected, bool):
+            matches = isinstance(actual, bool) and actual is expected
+        elif isinstance(expected, int):
+            matches = (
+                isinstance(actual, int)
+                and not isinstance(actual, bool)
+                and actual == expected
+            )
+        elif isinstance(expected, float):
+            matches = (
+                isinstance(actual, (int, float))
+                and not isinstance(actual, bool)
+                and float(actual) == expected
+            )
+        else:
+            matches = actual == expected
+        if not matches:
+            mismatches[key] = {"expected": expected, "actual": actual}
+    expected_bindings = {
+        "base_stage3_approval": {
+            "path": str(paths.approval.approval_path),
+            "sha256": paths.approval.approval_sha256,
+        },
+        "base_approval_required": {
+            "path": str(paths.approval.approval_required_path),
+            "sha256": paths.approval.approval_required_sha256,
+        },
+        "base_stage3_config": {
+            "path": str(paths.config_path),
+            "sha256": sha256_file(paths.config_path),
+        },
+    }
+    for field, expected in expected_bindings.items():
+        try:
+            _, recorded_sha = _stage3_extension_file_binding(
+                payload.get(field),
+                field=field,
+                expected_path=Path(expected["path"]),
+            )
+            matches = recorded_sha == expected["sha256"]
+        except Stage3ContractError:
+            matches = False
+        if not matches:
+            mismatches[field] = {
+                "expected": expected,
+                "actual": payload.get(field),
+            }
+
+    expected_backup_names = {
+        "pre_extension_run_contract": "run_contract.json",
+        "pre_extension_last_checkpoint": "last.pth",
+        "pre_extension_best_checkpoint": "best_ema.pth",
+    }
+    backup_root = (
+        paths.project_root / "artifacts/migrations" / STAGE3_EXTENSION_MIGRATION_NAME
+    ).resolve(strict=False)
+    backup_identities: set[tuple[int, int]] = set()
+    for field, filename in expected_backup_names.items():
+        expected_path = (backup_root / filename).resolve(strict=False)
+        try:
+            checked_path, _ = _stage3_extension_file_binding(
+                payload.get(field),
+                field=field,
+                expected_path=expected_path,
+                require_read_only=True,
+            )
+        except Stage3ContractError:
+            mismatches[field] = {
+                "expected": {
+                    "path": str(expected_path),
+                    "sha256": "physical immutable backup SHA256",
+                    "mode": "0444",
+                },
+                "actual": payload.get(field),
+            }
+            continue
+        identity = (checked_path.stat().st_dev, checked_path.stat().st_ino)
+        if identity in backup_identities:
+            mismatches[field] = {
+                "expected": "non-aliasing immutable backup",
+                "actual": payload.get(field),
+            }
+        backup_identities.add(identity)
+    if mismatches:
+        raise Stage3ContractError(
+            f"Stage3 extension authorization mismatch: {mismatches}"
+        )
+    return Stage3ExtensionEvidence(
+        authorization_path=canonical,
+        authorization_sha256=authorization_sha256,
+        base_step=STAGE3_BASE_TARGET_STEP,
+        target_step=STAGE3_EXTENSION_TARGET_STEP,
+        cycles=3,
+        validation_every_steps=2_000,
+        validation_steps=STAGE3_EXTENSION_VALIDATION_STEPS,
+        schedule_horizon_steps=STAGE3_BASE_TARGET_STEP,
+        min_lr=2.0e-6,
+        lr_policy=STAGE3_EXTENSION_LR_POLICY,
+    )
+
+
+def _reject_stage3_extension_symlink_chain(path: Path, *, field: str) -> None:
+    """Reject symlinks before resolving an extension-bound path."""
+
+    absolute = Path(os.path.abspath(os.fspath(path)))
+    current = Path(absolute.anchor)
+    for part in absolute.parts[1:]:
+        current /= part
+        if current.is_symlink():
+            raise Stage3ContractError(
+                f"Stage3 extension {field} path contains a symlink: {current}"
+            )
+
+
+def _stage3_extension_file_binding(
+    value: object,
+    *,
+    field: str,
+    expected_path: Path,
+    require_read_only: bool = False,
+) -> tuple[Path, str]:
+    if not isinstance(value, Mapping) or set(value) != {"path", "sha256"}:
+        raise Stage3ContractError(
+            f"Stage3 extension {field} must contain only path/sha256"
+        )
+    raw = value.get("path")
+    digest = value.get("sha256")
+    if not isinstance(raw, str) or not raw or not Path(raw).is_absolute():
+        raise Stage3ContractError(
+            f"Stage3 extension {field}.path must be absolute and canonical"
+        )
+    if not is_sha256(digest):
+        raise Stage3ContractError(
+            f"Stage3 extension {field}.sha256 is not a lowercase SHA256"
+        )
+    raw_path = Path(raw)
+    _reject_stage3_extension_symlink_chain(raw_path, field=field)
+    canonical = raw_path.resolve(strict=False)
+    if str(canonical) != raw or canonical != expected_path.resolve(strict=False):
+        raise Stage3ContractError(f"Stage3 extension {field}.path drifted")
+    if not canonical.is_file():
+        raise Stage3ContractError(f"Stage3 extension {field} file is missing")
+    if require_read_only and stat.S_IMODE(canonical.stat().st_mode) != 0o444:
+        raise Stage3ContractError(
+            f"Stage3 extension {field} immutable backup mode must be 0444"
+        )
+    if sha256_file(canonical) != digest:
+        raise Stage3ContractError(f"Stage3 extension {field} hash drifted")
+    return canonical, digest
+
+
 def configure_stage3_reproducibility(seed: int = 2027) -> None:
     random.seed(seed)
     np.random.seed(seed % 2**32)
@@ -540,14 +1011,21 @@ def configure_stage3_reproducibility(seed: int = 2027) -> None:
 def _strict_tensor_mapping(value: object, *, field: str) -> Mapping[str, Tensor]:
     if not isinstance(value, Mapping) or not value:
         raise Stage3ContractError(f"{field} must be a non-empty tensor mapping")
-    if any(not isinstance(key, str) or not torch.is_tensor(tensor) for key, tensor in value.items()):
+    if any(
+        not isinstance(key, str) or not torch.is_tensor(tensor)
+        for key, tensor in value.items()
+    ):
         raise Stage3ContractError(f"{field} contains non-tensor values")
     return value  # type: ignore[return-value]
 
 
-def _load_compiler_evidence(paths: Stage3Paths) -> tuple[dict[str, Any], dict[str, float], Tensor]:
+def _load_compiler_evidence(
+    paths: Stage3Paths,
+) -> tuple[dict[str, Any], dict[str, float], Tensor]:
     prior_document = _mapping(load_json(paths.pair_prior), field="pair_prior.json")
-    compiler_prior = _mapping(prior_document.get("pair_prior"), field="pair_prior.pair_prior")
+    compiler_prior = _mapping(
+        prior_document.get("pair_prior"), field="pair_prior.pair_prior"
+    )
     if int(prior_document.get("ambiguous_excluded", -1)) < 0:
         raise Stage3ContractError("pair prior lacks ambiguous exclusion count")
     pairs_audit = _mapping(prior_document.get("pairs"), field="pair_prior.pairs")
@@ -566,28 +1044,41 @@ def _load_compiler_evidence(paths: Stage3Paths) -> tuple[dict[str, Any], dict[st
         if any(not math.isfinite(value) or value < 0 for value in values.values()):
             raise Stage3ContractError(f"invalid pair prior probabilities for {pair_id}")
         if not math.isclose(sum(values.values()), 1.0, abs_tol=1e-6):
-            raise Stage3ContractError(f"pair prior probabilities do not sum to one: {pair_id}")
+            raise Stage3ContractError(
+                f"pair prior probabilities do not sum to one: {pair_id}"
+            )
         normalized_prior[pair_id] = values
 
-    priority_document = _mapping(load_json(paths.global_priority), field="global_priority.json")
+    priority_document = _mapping(
+        load_json(paths.global_priority), field="global_priority.json"
+    )
     if int(priority_document.get("n_ambiguous_excluded", -1)) < 0:
         raise Stage3ContractError("global priority lacks ambiguous exclusion count")
-    priority = _mapping(priority_document.get("priority"), field="global_priority.priority")
+    priority = _mapping(
+        priority_document.get("priority"), field="global_priority.priority"
+    )
     if set(priority) != set(SKILLS):
         raise Stage3ContractError("global priority must contain exactly eight skills")
     normalized_priority = {skill: float(priority[skill]) for skill in SKILLS}
     if any(not math.isfinite(value) for value in normalized_priority.values()):
         raise Stage3ContractError("global priority contains non-finite scores")
 
-    profiles_document = _mapping(load_json(paths.effect_profiles), field="skill_effect_profiles.json")
+    profiles_document = _mapping(
+        load_json(paths.effect_profiles), field="skill_effect_profiles.json"
+    )
     vectors = _mapping(profiles_document.get("effect_vectors"), field="effect_vectors")
-    if set(vectors) != set(SKILLS) or int(profiles_document.get("effect_vector_dim", -1)) != 40:
+    if (
+        set(vectors) != set(SKILLS)
+        or int(profiles_document.get("effect_vector_dim", -1)) != 40
+    ):
         raise Stage3ContractError("Stage2 effect profiles must be exactly 8x40")
     profile_tensor = torch.tensor(
         [[float(value) for value in vectors[skill]] for skill in SKILLS],
         dtype=torch.float32,
     )
-    if tuple(profile_tensor.shape) != (8, 40) or not bool(torch.isfinite(profile_tensor).all()):
+    if tuple(profile_tensor.shape) != (8, 40) or not bool(
+        torch.isfinite(profile_tensor).all()
+    ):
         raise Stage3ContractError("invalid Stage2 effect profile tensor")
     return normalized_prior, normalized_priority, profile_tensor
 
@@ -608,7 +1099,9 @@ def set_stage3_trainability(model: nn.Module) -> dict[str, int]:
             counts["planner"] += parameter.numel()
         else:
             if parameter.requires_grad:
-                raise Stage3ContractError(f"executor parameter remained trainable: {name}")
+                raise Stage3ContractError(
+                    f"executor parameter remained trainable: {name}"
+                )
             counts["frozen_executor"] += parameter.numel()
     if not counts["planner"] or not counts["frozen_executor"]:
         raise Stage3ContractError("invalid Stage3 trainable/frozen partition")
@@ -625,11 +1118,17 @@ def load_stage1_ema_into_graphrestore(
     if path.name != "best_ema.pth" or not path.is_file():
         raise Stage3ContractError(f"missing Stage1 best EMA checkpoint: {path}")
     payload = torch.load(path, map_location="cpu", weights_only=False)
-    if not isinstance(payload, Mapping) or payload.get("schema_version") != "graphrestore-checkpoint-v1":
+    if (
+        not isinstance(payload, Mapping)
+        or payload.get("schema_version") != "graphrestore-checkpoint-v1"
+    ):
         raise Stage3ContractError("Stage1 checkpoint schema mismatch")
     if str(payload.get("stage", "")).lower().replace("-", "_") != "stage1":
         raise Stage3ContractError("Stage3 parent checkpoint is not Stage1")
-    if payload.get("model_role") != "ema_selection" or payload.get("resumable") is not False:
+    if (
+        payload.get("model_role") != "ema_selection"
+        or payload.get("resumable") is not False
+    ):
         raise Stage3ContractError(
             "Stage3 parent must be a non-resumable Stage1 EMA selection checkpoint"
         )
@@ -659,7 +1158,12 @@ def load_stage1_ema_into_graphrestore(
     step = payload.get("step")
     if isinstance(step, bool) or not isinstance(step, int) or step < 0:
         raise Stage3ContractError("Stage1 parent checkpoint step is invalid")
-    if ema.get("num_updates") != step:
+    num_updates = ema.get("num_updates")
+    if (
+        isinstance(num_updates, bool)
+        or not isinstance(num_updates, int)
+        or num_updates != step
+    ):
         raise Stage3ContractError(
             "Stage1 best EMA update count does not match checkpoint step"
         )
@@ -667,12 +1171,17 @@ def load_stage1_ema_into_graphrestore(
     if source.keys() != shadow.keys():
         raise Stage3ContractError("Stage1 best model/EMA keys differ")
     for name in source:
-        if source[name].shape != shadow[name].shape or source[name].dtype != shadow[name].dtype:
+        if (
+            source[name].shape != shadow[name].shape
+            or source[name].dtype != shadow[name].dtype
+        ):
             raise Stage3ContractError(
                 f"Stage1 best model/EMA metadata differs at {name}"
             )
         if not torch.equal(source[name], shadow[name]):
-            raise Stage3ContractError(f"Stage1 best checkpoint does not expose EMA at {name}")
+            raise Stage3ContractError(
+                f"Stage1 best checkpoint does not expose EMA at {name}"
+            )
     target = model.state_dict()
     unexpected = sorted(set(source) - set(target))
     shape_mismatch = sorted(
@@ -735,10 +1244,18 @@ def build_stage3_optimizer(
     if lr != 2.0e-4 or weight_decay != 1.0e-4:
         raise Stage3ContractError("Stage3 optimizer hyperparameters drifted")
     set_stage3_trainability(model)
-    parameters = [parameter for parameter in unwrap_model(model).planner.parameters() if parameter.requires_grad]
+    parameters = [
+        parameter
+        for parameter in unwrap_model(model).planner.parameters()
+        if parameter.requires_grad
+    ]
     if not parameters:
         raise Stage3ContractError("Stage3 planner optimizer is empty")
-    kwargs: dict[str, Any] = {"lr": lr, "weight_decay": weight_decay, "betas": (0.9, 0.999)}
+    kwargs: dict[str, Any] = {
+        "lr": lr,
+        "weight_decay": weight_decay,
+        "betas": (0.9, 0.999),
+    }
     if fused_if_supported and torch.cuda.is_available():
         kwargs["fused"] = True
     try:
@@ -769,14 +1286,22 @@ def load_relation_records(
         if row.get("stage1_checkpoint_sha256") != parent_checkpoint_sha256:
             raise Stage3ContractError(f"{sample_id}: Stage1 relation binding mismatch")
         if row.get("interaction_manifest_sha256") != interaction_manifest_sha256:
-            raise Stage3ContractError(f"{sample_id}: interaction manifest binding mismatch")
-        if row.get("pair_orientation") != "ProgramPlanner.PAIR_INDICES_ascending_normative_skill_id":
+            raise Stage3ContractError(
+                f"{sample_id}: interaction manifest binding mismatch"
+            )
+        if (
+            row.get("pair_orientation")
+            != "ProgramPlanner.PAIR_INDICES_ascending_normative_skill_id"
+        ):
             raise Stage3ContractError(f"{sample_id}: non-normative pair orientation")
         skill_ids = row.get("skill_ids")
         if (
             not isinstance(skill_ids, list)
             or len(skill_ids) != 2
-            or any(isinstance(value, bool) or not isinstance(value, int) for value in skill_ids)
+            or any(
+                isinstance(value, bool) or not isinstance(value, int)
+                for value in skill_ids
+            )
             or skill_ids != sorted(skill_ids)
             or tuple(skill_ids) not in PAIR_TO_ROW
         ):
@@ -789,7 +1314,9 @@ def load_relation_records(
                 raise Stage3ContractError(f"{sample_id}: invalid ambiguous supervision")
         elif label in RELATION_CLASSES:
             if class_index != RELATION_CLASSES.index(str(label)) or weight != 1.0:
-                raise Stage3ContractError(f"{sample_id}: invalid one-hot relation supervision")
+                raise Stage3ContractError(
+                    f"{sample_id}: invalid one-hot relation supervision"
+                )
         else:
             raise Stage3ContractError(f"{sample_id}: unknown relation label")
         clean_id = row.get("clean_id")
@@ -897,16 +1424,27 @@ def prepare_stage3_supervision_batch(
     )
     present = _batch_tensor(raw, "presence_target", device=device, dtype=torch.float32)
     present_ids = _batch_tensor(raw, "present_skill_ids", device=device).long()
-    cursors = _batch_tensor(raw, "sample_cursor", device=torch.device("cpu")).long().reshape(-1)
+    cursors = (
+        _batch_tensor(raw, "sample_cursor", device=torch.device("cpu"))
+        .long()
+        .reshape(-1)
+    )
     if image.ndim != 4 or image.shape[1] != 3:
         raise Stage3ContractError("Stage3 images must be RGB BCHW")
     batch = image.shape[0]
     sample_ids = _batch_strings(raw.get("sample_id"), batch, field="sample_id")
-    if tuple(clean.shape) != tuple(image.shape) or tuple(only_i.shape) != tuple(image.shape) or tuple(only_j.shape) != tuple(image.shape):
+    if (
+        tuple(clean.shape) != tuple(image.shape)
+        or tuple(only_i.shape) != tuple(image.shape)
+        or tuple(only_j.shape) != tuple(image.shape)
+    ):
         raise Stage3ContractError("Stage3 subset images must match input shape")
     if tuple(guards.shape[:2]) != (batch, len(SKILLS)):
         raise Stage3ContractError("Stage3 guard targets must be Bx8xH/4xW/4")
-    if tuple(present.shape) != (batch, len(SKILLS)) or tuple(present_ids.shape) != (batch, 2):
+    if tuple(present.shape) != (batch, len(SKILLS)) or tuple(present_ids.shape) != (
+        batch,
+        2,
+    ):
         raise Stage3ContractError("Stage3 presence/present_skill_ids shape mismatch")
 
     x0 = image.clone()
@@ -1098,10 +1636,14 @@ def assert_only_planner_gradients(model: GraphRestore) -> None:
                 if not bool(torch.isfinite(parameter.grad).all().item()):
                     raise FloatingPointError(f"non-finite Stage3 gradient: {name}")
                 planner_has_gradient |= bool(torch.count_nonzero(parameter.grad).item())
-        elif parameter.grad is not None and bool(torch.count_nonzero(parameter.grad).item()):
+        elif parameter.grad is not None and bool(
+            torch.count_nonzero(parameter.grad).item()
+        ):
             raise Stage3ContractError(f"frozen executor received gradient: {name}")
     if not planner_has_gradient:
-        raise Stage3ContractError("Stage3 backward produced no nonzero planner gradient")
+        raise Stage3ContractError(
+            "Stage3 backward produced no nonzero planner gradient"
+        )
 
 
 def train_stage3_optimizer_step(
@@ -1115,11 +1657,15 @@ def train_stage3_optimizer_step(
     gradient_clip_norm: float = 1.0,
     use_bf16: bool = True,
     audit_gradients: bool = False,
+    optimizer_transaction: Stage3OptimizerTransaction | None = None,
 ) -> Stage3StepResult:
     if not micro_batches:
         raise ValueError("Stage3 requires at least one micro batch")
     if gradient_clip_norm != 1.0:
         raise Stage3ContractError("Stage3 gradient clipping must be 1.0")
+    transaction = optimizer_transaction or Stage3OptimizerTransaction()
+    transaction.begin()
+    caller_owns_transaction = optimizer_transaction is not None
     set_stage3_trainability(model)
     _stage3_train_mode(model)
     optimizer.zero_grad(set_to_none=True)
@@ -1153,7 +1699,11 @@ def train_stage3_optimizer_step(
             totals[name] += float(value.detach()) * batch_size
     if audit_gradients:
         assert_only_planner_gradients(model)
-    parameters = [parameter for parameter in model.planner.parameters() if parameter.grad is not None]
+    parameters = [
+        parameter
+        for parameter in model.planner.parameters()
+        if parameter.grad is not None
+    ]
     if not parameters:
         raise Stage3ContractError("Stage3 planner has no gradients")
     grad_norm_tensor = torch.nn.utils.clip_grad_norm_(
@@ -1169,8 +1719,10 @@ def train_stage3_optimizer_step(
         torch.cuda.synchronize(device)
     elapsed = time.perf_counter() - started
     if model_intermediate_count / samples > 0.10 + 1.0 / samples:
-        raise Stage3ContractError("model-generated intermediate fraction exceeded schedule")
-    return Stage3StepResult(
+        raise Stage3ContractError(
+            "model-generated intermediate fraction exceeded schedule"
+        )
+    result = Stage3StepResult(
         total=totals["total"] / samples,
         presence=totals["presence"] / samples,
         guard=totals["guard"] / samples,
@@ -1186,6 +1738,12 @@ def train_stage3_optimizer_step(
         state_counts=dict(sorted(state_counts.items())),
         seconds=elapsed,
     )
+    # A formal caller keeps this active until its logical step and sampler
+    # cursor are committed.  Standalone probes/tests own no external state and
+    # can close the transaction here.
+    if not caller_owns_transaction:
+        transaction.commit()
+    return result
 
 
 def _safe_ratio(numerator: int, denominator: int) -> float:
@@ -1203,7 +1761,11 @@ def presence_diagnostics(
 ) -> dict[str, Any]:
     probabilities = probabilities.detach().float().cpu()
     targets = targets.detach().bool().cpu()
-    if tuple(probabilities.shape) != tuple(targets.shape) or probabilities.ndim != 2 or probabilities.shape[1] != len(SKILLS):
+    if (
+        tuple(probabilities.shape) != tuple(targets.shape)
+        or probabilities.ndim != 2
+        or probabilities.shape[1] != len(SKILLS)
+    ):
         raise ValueError("presence probabilities/targets must be matching Nx8 tensors")
     threshold = torch.as_tensor(thresholds, dtype=torch.float32)
     if threshold.ndim == 0:
@@ -1231,10 +1793,13 @@ def presence_diagnostics(
             "precision": precision,
             "recall": recall,
             "f1": f1,
+            "activation_rate": float(prediction.float().mean().item()),
         }
     return {
         "sample_count": int(probabilities.shape[0]),
         "macro_f1": math.fsum(f1_values) / len(f1_values),
+        "activation_rate": float(predicted.float().mean().item()),
+        "activation_rate_definition": "fraction_of_sample_skill_slots_predicted_active",
         "per_skill": per_skill,
     }
 
@@ -1247,20 +1812,32 @@ def calibrate_presence_thresholds(
     maximum: float = 0.80,
     step: float = 0.02,
 ) -> ThresholdCalibration:
-    """Maximize per-skill F1; exact ties choose the lowest threshold."""
+    """Maximize per-skill F1 with the adjudicated deterministic tie-break.
+
+    Exact F1 ties choose the candidate nearest 0.50.  If two candidates are
+    equally distant, the higher threshold wins.  The locked grid contains
+    0.50, but the second rule remains explicit so future audits do not infer a
+    different ordering from loop iteration.
+    """
 
     if (minimum, maximum, step) != (0.20, 0.80, 0.02):
         raise Stage3ContractError("Stage3 threshold grid drifted")
     probabilities = probabilities.detach().float().cpu()
     targets = targets.detach().bool().cpu()
-    if tuple(probabilities.shape) != tuple(targets.shape) or probabilities.ndim != 2 or probabilities.shape[1] != 8:
+    if (
+        tuple(probabilities.shape) != tuple(targets.shape)
+        or probabilities.ndim != 2
+        or probabilities.shape[1] != 8
+    ):
         raise ValueError("calibration requires matching Nx8 probabilities/targets")
     grid = tuple(value / 100.0 for value in range(20, 81, 2))
+    if 0.50 not in grid:
+        raise Stage3ContractError("Stage3 threshold grid must contain 0.50")
     selected: list[float] = []
     scores: list[float] = []
     for skill in range(8):
         truth = targets[:, skill]
-        best_threshold = grid[0]
+        best_threshold = 0.50
         best_f1 = -1.0
         for threshold in grid:
             prediction = probabilities[:, skill] >= threshold
@@ -1268,15 +1845,154 @@ def calibrate_presence_thresholds(
             fp = int((prediction & ~truth).sum())
             fn = int((~prediction & truth).sum())
             f1 = _safe_ratio(2 * tp, 2 * tp + fp + fn)
-            if f1 > best_f1:
+            if f1 > best_f1 or (
+                f1 == best_f1
+                and (
+                    abs(threshold - 0.50),
+                    -threshold,
+                )
+                < (
+                    abs(best_threshold - 0.50),
+                    -best_threshold,
+                )
+            ):
                 best_threshold, best_f1 = threshold, f1
         selected.append(best_threshold)
         scores.append(best_f1)
+    baseline = presence_diagnostics(probabilities, targets, 0.50)
+    calibrated = presence_diagnostics(probabilities, targets, selected)
+    baseline_per_skill = _mapping(
+        baseline.get("per_skill"), field="baseline presence diagnostics"
+    )
+    calibrated_per_skill = _mapping(
+        calibrated.get("per_skill"), field="calibrated presence diagnostics"
+    )
+    for skill in SKILLS:
+        before = float(_mapping(baseline_per_skill[skill], field=skill)["f1"])
+        after = float(_mapping(calibrated_per_skill[skill], field=skill)["f1"])
+        if after + THRESHOLD_F1_TOLERANCE < before:
+            raise Stage3ContractError(
+                f"calibrated Stage3 F1 regressed for {skill}: {after} < {before}"
+            )
+    if float(calibrated["macro_f1"]) + THRESHOLD_F1_TOLERANCE < float(
+        baseline["macro_f1"]
+    ):
+        raise Stage3ContractError("calibrated Stage3 macro F1 regressed")
     return ThresholdCalibration(
         thresholds=tuple(selected),
         per_skill_f1=tuple(scores),
         grid=grid,
+        baseline_diagnostics=baseline,
+        calibrated_diagnostics=calibrated,
     )
+
+
+def _relation_prediction_metrics(
+    predictions: Sequence[int], targets: Sequence[int]
+) -> dict[str, float | int]:
+    if len(predictions) != len(targets) or not targets:
+        raise Stage3ContractError("relation baseline predictions/targets are invalid")
+    if any(value not in {0, 1, 2} for value in (*predictions, *targets)):
+        raise Stage3ContractError("relation baseline class index is invalid")
+    correct = sum(
+        int(prediction == target)
+        for prediction, target in zip(predictions, targets, strict=True)
+    )
+    f1_values: list[float] = []
+    recalls: list[float] = []
+    for class_index in range(3):
+        tp = sum(
+            int(prediction == class_index and target == class_index)
+            for prediction, target in zip(predictions, targets, strict=True)
+        )
+        fp = sum(
+            int(prediction == class_index and target != class_index)
+            for prediction, target in zip(predictions, targets, strict=True)
+        )
+        fn = sum(
+            int(prediction != class_index and target == class_index)
+            for prediction, target in zip(predictions, targets, strict=True)
+        )
+        f1_values.append(_safe_ratio(2 * tp, 2 * tp + fp + fn))
+        recalls.append(_safe_ratio(tp, tp + fn))
+    return {
+        "correct": correct,
+        "accuracy": correct / len(targets),
+        "macro_f1": math.fsum(f1_values) / len(f1_values),
+        "balanced_accuracy": math.fsum(recalls) / len(recalls),
+    }
+
+
+def relation_baseline_audit(
+    relation_records: Mapping[str, Mapping[str, Any]],
+    pair_prior_payload: Mapping[str, Any],
+    *,
+    learned_raw_accuracy: float,
+) -> dict[str, Any]:
+    """Audit learned relation accuracy against two CPU-only baselines.
+
+    Ambiguous rows are excluded exactly as in formal Stage3 relation metrics.
+    The pair-majority baseline is learned only from the frozen Stage2 train
+    prior and evaluated on interaction_val labels; it never reads model output
+    or any MiO100/Group-B/Group-C artifact.
+    """
+
+    if not math.isfinite(float(learned_raw_accuracy)):
+        raise Stage3ContractError("learned raw relation accuracy is non-finite")
+    prior_raw = pair_prior_payload.get("pair_prior")
+    prior = _mapping(prior_raw, field="pair-prior probabilities")
+    if set(prior) != {
+        str(row.get("pair_id"))
+        for row in relation_records.values()
+        if str(row.get("label")) != "ambiguous"
+    }:
+        raise Stage3ContractError("pair-prior/interaction_val pair set drifted")
+    targets: list[int] = []
+    pair_predictions: list[int] = []
+    ambiguous = 0
+    for sample_id, row in sorted(relation_records.items()):
+        if str(row.get("label")) == "ambiguous":
+            ambiguous += 1
+            continue
+        target = row.get("relation_class_index")
+        pair_id = row.get("pair_id")
+        if (
+            isinstance(target, bool)
+            or not isinstance(target, int)
+            or target not in {0, 1, 2}
+            or not isinstance(pair_id, str)
+            or not pair_id
+        ):
+            raise Stage3ContractError(
+                f"{sample_id}: invalid non-ambiguous relation baseline row"
+            )
+        probabilities = _mapping(prior.get(pair_id), field=f"pair prior {pair_id}")
+        if set(probabilities) != set(RELATION_CLASSES):
+            raise Stage3ContractError(f"{pair_id}: pair-prior classes drifted")
+        values = [float(probabilities[name]) for name in RELATION_CLASSES]
+        if not all(math.isfinite(value) and value >= 0.0 for value in values):
+            raise Stage3ContractError(f"{pair_id}: pair-prior value is invalid")
+        # Stable class-order tie-break is deliberate and recorded by name.
+        majority = max(range(3), key=lambda index: (values[index], -index))
+        targets.append(target)
+        pair_predictions.append(majority)
+    if not targets:
+        raise Stage3ContractError("relation baseline audit has no eligible rows")
+    always_parallel = _relation_prediction_metrics([2] * len(targets), targets)
+    pair_majority = _relation_prediction_metrics(pair_predictions, targets)
+    return {
+        "source": "interaction_val_non_ambiguous_cpu_only",
+        "n_total": len(relation_records),
+        "n_non_ambiguous": len(targets),
+        "n_ambiguous_excluded": ambiguous,
+        "learned_raw_accuracy": float(learned_raw_accuracy),
+        "always_parallel": always_parallel,
+        "per_pair_majority_prior": pair_majority,
+        "pair_majority_tie_break": "relation_class_order",
+        "mio100_rows_read": 0,
+        "group_b_rows_read": 0,
+        "group_c_rows_read": 0,
+    }
 
 
 def freeze_presence_thresholds(
@@ -1286,11 +2002,60 @@ def freeze_presence_thresholds(
     primary_val_manifest: str | Path,
     selected_checkpoint: str | Path,
     approval_sha256: str,
+    extension_authorization_sha256: str | None = None,
+    finalization_authorization_sha256: str | None = None,
+    calibration_code_path: str | Path | None = None,
 ) -> dict[str, Any]:
     manifest = Path(primary_val_manifest).resolve()
     checkpoint = Path(selected_checkpoint).resolve()
-    if "mio100" in str(manifest).lower() or "group_b" in str(manifest).lower() or "group_c" in str(manifest).lower():
+    if (
+        "mio100" in str(manifest).lower()
+        or "group_b" in str(manifest).lower()
+        or "group_c" in str(manifest).lower()
+    ):
         raise Stage3ContractError("MiO100/Group B/C threshold calibration is forbidden")
+    baseline = _mapping(
+        calibration.baseline_diagnostics, field="baseline threshold diagnostics"
+    )
+    calibrated = _mapping(
+        calibration.calibrated_diagnostics,
+        field="calibrated threshold diagnostics",
+    )
+    baseline_per_skill = _mapping(
+        baseline.get("per_skill"), field="baseline per-skill metrics"
+    )
+    calibrated_per_skill = _mapping(
+        calibrated.get("per_skill"), field="calibrated per-skill metrics"
+    )
+    code_path = Path(calibration_code_path or __file__).resolve()
+    if not code_path.is_file():
+        raise Stage3ContractError("Stage3 calibration code disappeared")
+    per_skill_metrics: dict[str, dict[str, dict[str, float]]] = {}
+    for index, skill in enumerate(SKILLS):
+        before = _mapping(baseline_per_skill.get(skill), field=f"baseline {skill}")
+        after = _mapping(calibrated_per_skill.get(skill), field=f"calibrated {skill}")
+        before_values = {
+            "threshold": 0.50,
+            "precision": float(before["precision"]),
+            "recall": float(before["recall"]),
+            "f1": float(before["f1"]),
+        }
+        after_values = {
+            "threshold": float(calibration.thresholds[index]),
+            "precision": float(after["precision"]),
+            "recall": float(after["recall"]),
+            "f1": float(after["f1"]),
+        }
+        if after_values["f1"] + THRESHOLD_F1_TOLERANCE < before_values["f1"]:
+            raise Stage3ContractError(f"frozen calibrated F1 regressed for {skill}")
+        per_skill_metrics[skill] = {
+            "baseline": before_values,
+            "calibrated": after_values,
+        }
+    macro_before = float(baseline["macro_f1"])
+    macro_after = float(calibrated["macro_f1"])
+    if macro_after + THRESHOLD_F1_TOLERANCE < macro_before:
+        raise Stage3ContractError("frozen calibrated Stage3 macro F1 regressed")
     payload = {
         "schema_version": THRESHOLD_SCHEMA,
         "protocol_id": PROTOCOL_ID,
@@ -1308,20 +2073,45 @@ def freeze_presence_thresholds(
         "primary_val_manifest_sha256": sha256_file(manifest),
         "stage3_approval_sha256": approval_sha256,
         "skills": list(SKILLS),
+        "baseline_threshold": 0.50,
         "thresholds": {
-            skill: calibration.thresholds[index]
-            for index, skill in enumerate(SKILLS)
+            skill: calibration.thresholds[index] for index, skill in enumerate(SKILLS)
         },
         "per_skill_f1": {
-            skill: calibration.per_skill_f1[index]
-            for index, skill in enumerate(SKILLS)
+            skill: calibration.per_skill_f1[index] for index, skill in enumerate(SKILLS)
         },
         "search_grid": list(calibration.grid),
         "tie_break": calibration.tie_break,
+        "numerical_tolerance": THRESHOLD_F1_TOLERANCE,
+        "per_skill_metrics": per_skill_metrics,
+        "macro_f1_before": macro_before,
+        "macro_f1_after": macro_after,
+        "calibration_code": {
+            "path": str(code_path),
+            "sha256": sha256_file(code_path),
+        },
         "calibration_runs": 1,
         "mio100_rows_read": 0,
+        "group_b_rows_read": 0,
+        "group_c_rows_read": 0,
         "frozen": True,
     }
+    if extension_authorization_sha256 is not None:
+        if not is_sha256(extension_authorization_sha256):
+            raise Stage3ContractError(
+                "Stage3 extension authorization SHA256 is invalid"
+            )
+        payload["stage3_extension_authorization_sha256"] = (
+            extension_authorization_sha256
+        )
+    if finalization_authorization_sha256 is not None:
+        if not is_sha256(finalization_authorization_sha256):
+            raise Stage3ContractError(
+                "Stage3 finalization authorization SHA256 is invalid"
+            )
+        payload["stage3_finalization_authorization_sha256"] = (
+            finalization_authorization_sha256
+        )
     path = Path(destination)
     if path.exists():
         existing = _mapping(load_json(path), field="existing planner thresholds")
@@ -1352,7 +2142,9 @@ def _rankdata_average(values: np.ndarray) -> np.ndarray:
     return ranks
 
 
-def _spearman(predicted: Tensor, target: Tensor, variance_threshold: float) -> float | None:
+def _spearman(
+    predicted: Tensor, target: Tensor, variance_threshold: float
+) -> float | None:
     x = predicted.detach().float().cpu().reshape(-1).numpy().astype(np.float64)
     y = target.detach().float().cpu().reshape(-1).numpy().astype(np.float64)
     if float(np.var(x)) < variance_threshold or float(np.var(y)) < variance_threshold:
@@ -1360,6 +2152,35 @@ def _spearman(predicted: Tensor, target: Tensor, variance_threshold: float) -> f
     x_rank, y_rank = _rankdata_average(x), _rankdata_average(y)
     correlation = float(np.corrcoef(x_rank, y_rank)[0, 1])
     return correlation if math.isfinite(correlation) else None
+
+
+def align_guard_prediction_to_target(
+    predicted: Tensor,
+    target: Tensor,
+) -> Tensor:
+    """Remove only the right/bottom H/4 cells induced by input padding.
+
+    Full-resolution validation inputs are guaranteed to be divisible by four,
+    while :class:`GraphRestore` pads them on the right and bottom to a multiple
+    of eight.  Consequently a traced planner guard may exceed the unpadded
+    target by exactly one H/4 cell on either spatial axis.  Guard diagnostics
+    cover the original image support, so that padding-only fringe is cropped;
+    every other shape mismatch remains fail-closed.
+    """
+
+    if predicted.ndim < 2 or predicted.ndim != target.ndim:
+        raise ValueError("predicted/target guard map shape mismatch")
+    if tuple(predicted.shape[:-2]) != tuple(target.shape[:-2]):
+        raise ValueError("predicted/target guard map shape mismatch")
+    spatial_delta = tuple(
+        int(predicted_size) - int(target_size)
+        for predicted_size, target_size in zip(
+            predicted.shape[-2:], target.shape[-2:], strict=True
+        )
+    )
+    if any(delta not in {0, 1} for delta in spatial_delta):
+        raise ValueError("predicted/target guard map shape mismatch")
+    return predicted[..., : target.shape[-2], : target.shape[-1]]
 
 
 def guard_structure_diagnostics(
@@ -1377,7 +2198,9 @@ def guard_structure_diagnostics(
     result: dict[str, float | int | None] = {}
     for skill in ("rain", "haze"):
         skill_id = SKILL_TO_ID[skill]
-        indices = torch.nonzero(presence[:, skill_id], as_tuple=False).flatten().tolist()
+        indices = (
+            torch.nonzero(presence[:, skill_id], as_tuple=False).flatten().tolist()
+        )
         spearman: list[float] = []
         mae: list[float] = []
         standard_deviation: list[float] = []
@@ -1472,7 +2295,9 @@ def _equal_task_metric(rows: Sequence[Mapping[str, Any]], group: str) -> dict[st
     for row in selected:
         buckets[str(row["combination"])].append(row)
     if len(buckets) != 8:
-        raise Stage3ContractError(f"primary_val {group} must contain exactly eight tasks")
+        raise Stage3ContractError(
+            f"primary_val {group} must contain exactly eight tasks"
+        )
     per_task: dict[str, Any] = {}
     for task, values in sorted(buckets.items()):
         per_task[task] = {
@@ -1503,7 +2328,7 @@ def validate_stage3(
     *,
     device: torch.device,
     use_bf16: bool = True,
-    presence_threshold: float = 0.5,
+    presence_threshold: Tensor | Sequence[float] | float = 0.5,
 ) -> dict[str, Any]:
     """Validate restoration on primary_val and relations on interaction_val.
 
@@ -1513,13 +2338,31 @@ def validate_stage3(
     """
 
     if dataset.training or dataset.crop_size is not None:
-        raise Stage3ContractError("Stage3 validation must be full-resolution/no augmentation")
+        raise Stage3ContractError(
+            "Stage3 validation must be full-resolution/no augmentation"
+        )
     if any(record.group not in {"single", "A"} for record in dataset.records):
         raise Stage3ContractError("Stage3 validation contains forbidden data groups")
     if any(str(row.get("split")) != "val" for row in relation_val.values()):
-        raise Stage3ContractError("Stage3 relation validation must use interaction_val only")
+        raise Stage3ContractError(
+            "Stage3 relation validation must use interaction_val only"
+        )
     model.eval()
-    fixed_thresholds = torch.full((len(SKILLS),), float(presence_threshold), device=device)
+    requested_thresholds = (
+        torch.as_tensor(presence_threshold, dtype=torch.float64).detach().cpu()
+    )
+    scalar_threshold_input = requested_thresholds.ndim == 0
+    if scalar_threshold_input:
+        requested_thresholds = requested_thresholds.repeat(len(SKILLS))
+    if tuple(requested_thresholds.shape) != (len(SKILLS),):
+        raise Stage3ContractError(
+            "Stage3 validation presence thresholds must be scalar or length eight"
+        )
+    if not bool(torch.isfinite(requested_thresholds).all().item()) or bool(
+        torch.any((requested_thresholds < 0.0) | (requested_thresholds > 1.0)).item()
+    ):
+        raise Stage3ContractError("Stage3 validation presence thresholds are invalid")
+    fixed_thresholds = requested_thresholds.to(device=device, dtype=torch.float32)
     metric_rows: list[dict[str, Any]] = []
     all_presence_probabilities: list[Tensor] = []
     all_presence_targets: list[Tensor] = []
@@ -1531,6 +2374,7 @@ def validate_stage3(
     relation_pair_ids: list[str] = []
     pre_cycle_samples = dropped_edges = proposed_edges = 0
     reentry_requests = unexpected_activations = trace_slots = 0
+    stopped_samples = 0
     program_levels: list[int] = []
 
     for index, record in enumerate(dataset.records):
@@ -1547,7 +2391,9 @@ def validate_stage3(
         if torch.is_tensor(traced) or not hasattr(traced, "planner_outputs"):
             raise RuntimeError("Stage3 validation requires a GraphRestore trace")
         prediction = traced.final.detach().float().cpu()
-        metric = official_psnr_ssim(prediction, target.detach().float().cpu(), quantize=True)
+        metric = official_psnr_ssim(
+            prediction, target.detach().float().cpu(), quantize=True
+        )
         combination = "+".join(record.skill_names)
         metric_rows.append(
             {
@@ -1561,10 +2407,16 @@ def validate_stage3(
         if not traced.planner_outputs:
             raise Stage3ContractError(f"{record.sample_id}: missing t=0 planner output")
         plan = traced.planner_outputs[0]
-        all_presence_probabilities.append(plan.presence_probabilities[0].detach().float().cpu())
+        all_presence_probabilities.append(
+            plan.presence_probabilities[0].detach().float().cpu()
+        )
         all_presence_targets.append(sample["presence_target"].detach().float().cpu())
-        all_guard_predictions.append(plan.spatial_guard_probabilities[0].detach().float().cpu())
-        all_guard_targets.append(sample["guard_targets"].detach().float().cpu())
+        guard_prediction = plan.spatial_guard_probabilities[0].detach().float().cpu()
+        guard_target = sample["guard_targets"].detach().float().cpu()
+        all_guard_predictions.append(
+            align_guard_prediction_to_target(guard_prediction, guard_target)
+        )
+        all_guard_targets.append(guard_target)
 
         graph = traced.compiled_graphs[0]
         if not graph.cycle_free:
@@ -1573,35 +2425,51 @@ def validate_stage3(
         dropped_edges += len(graph.dropped_edges)
         proposed_edges += len(graph.edges) + len(graph.dropped_edges)
         program_levels.append(len(graph.levels))
+        sample_stopped = False
         for trace in traced.trace:
             reentry_requests += int(trace.reentry_request_mask.sum().item())
             unexpected_activations += int(trace.unexpected_activation_mask.sum().item())
             trace_slots += trace.reentry_request_mask.numel()
+            sample_stopped = sample_stopped or bool(trace.stopped_mask.any().item())
+        stopped_samples += int(sample_stopped)
 
         relation = relation_val.get(record.sample_id)
         if relation is not None:
             pair = tuple(int(value) for value in relation["skill_ids"])
-            relation_logits.append(plan.relation_logits[0, PAIR_TO_ROW[pair]].detach().float().cpu())
+            relation_logits.append(
+                plan.relation_logits[0, PAIR_TO_ROW[pair]].detach().float().cpu()
+            )
             ambiguous = relation["label"] == "ambiguous"
             relation_ambiguous.append(ambiguous)
-            relation_targets.append(0 if ambiguous else int(relation["relation_class_index"]))
+            relation_targets.append(
+                0 if ambiguous else int(relation["relation_class_index"])
+            )
             relation_pair_ids.append(str(relation["pair_id"]))
 
     if set(relation_val) != set(
         row["sample_id"] for row in metric_rows if row["sample_id"] in relation_val
     ):
         missing = sorted(set(relation_val) - {row["sample_id"] for row in metric_rows})
-        raise Stage3ContractError(f"interaction_val rows absent from primary_val: {missing[:8]}")
+        raise Stage3ContractError(
+            f"interaction_val rows absent from primary_val: {missing[:8]}"
+        )
     probability_tensor = torch.stack(all_presence_probabilities)
     presence_target_tensor = torch.stack(all_presence_targets)
+    relation_logit_tensor = torch.stack(relation_logits)
+    relation_target_tensor = torch.tensor(relation_targets, dtype=torch.long)
+    relation_ambiguous_tensor = torch.tensor(relation_ambiguous, dtype=torch.bool)
     relation_metric = non_ambiguous_relation_metrics(
-        torch.stack(relation_logits),
-        torch.tensor(relation_targets, dtype=torch.long),
-        torch.tensor(relation_ambiguous, dtype=torch.bool),
+        relation_logit_tensor,
+        relation_target_tensor,
+        relation_ambiguous_tensor,
         pair_ids=relation_pair_ids,
     )
     relation_metric.pop("pair_prior_non_ambiguous", None)
     relation_metric.pop("majority_label_share_non_ambiguous", None)
+    relation_metric["learned_raw"] = _relation_prediction_metrics(
+        relation_logit_tensor.argmax(dim=-1)[~relation_ambiguous_tensor].tolist(),
+        relation_target_tensor[~relation_ambiguous_tensor].tolist(),
+    )
     guard_metric = _guard_structure_diagnostics_variable_size(
         all_guard_predictions,
         all_guard_targets,
@@ -1609,8 +2477,12 @@ def validate_stage3(
         variance_threshold=1.0e-8,
     )
     planner_metric = presence_diagnostics(
-        probability_tensor, presence_target_tensor, presence_threshold
+        probability_tensor, presence_target_tensor, fixed_thresholds.cpu()
     )
+    for index, skill in enumerate(SKILLS):
+        planner_metric["per_skill"][skill]["threshold"] = float(
+            requested_thresholds[index]
+        )
     single = _equal_task_metric(metric_rows, "single")
     group_a = _equal_task_metric(metric_rows, "A")
     graph_metric = {
@@ -1621,9 +2493,20 @@ def validate_stage3(
         "dropped_edges": dropped_edges,
         "proposed_edges": proposed_edges,
         "reentry_request_rate": reentry_requests / trace_slots if trace_slots else 0.0,
-        "unexpected_skill_activation_rate": unexpected_activations / trace_slots if trace_slots else 0.0,
+        "unexpected_skill_activation_rate": unexpected_activations / trace_slots
+        if trace_slots
+        else 0.0,
         "mean_program_levels": math.fsum(program_levels) / len(program_levels),
+        "sample_stop_rate": stopped_samples / len(dataset),
+        "stopped_samples": stopped_samples,
+        "sample_stop_rate_definition": (
+            "fraction_of_samples_with_stopped_mask_in_any_formal_inference_round"
+        ),
     }
+    threshold_values = [float(value) for value in requested_thresholds.tolist()]
+    threshold_metadata: float | list[float] = (
+        threshold_values[0] if scalar_threshold_input else threshold_values
+    )
     return _json_finite(
         {
             "schema_version": STAGE3_SCHEMA,
@@ -1634,7 +2517,10 @@ def validate_stage3(
                 "relation": "interaction_val",
                 "mio100_rows_read": 0,
             },
-            "checkpoint_presence_threshold": presence_threshold,
+            "checkpoint_presence_threshold": threshold_metadata,
+            "presence_thresholds": {
+                skill: threshold_values[index] for index, skill in enumerate(SKILLS)
+            },
             "restoration": {"single": single, "group_a": group_a},
             "planner": planner_metric,
             "relation": relation_metric,
@@ -1662,10 +2548,15 @@ def collect_primary_val_presence(
     for index in range(len(dataset)):
         sample = dataset[index]
         image = sample["input"].unsqueeze(0).to(device=device, dtype=torch.float32)
+        padded, _ = pad_to_multiple(image, 8)
         with _validation_autocast(device, use_bf16):
-            features = model.encode(image)
+            features = model.encode(padded)
             output = model.plan_state(
-                image, image, features, round_value=0.0, compute_relations=False
+                padded,
+                padded,
+                features,
+                round_value=0.0,
+                compute_relations=False,
             )
         probabilities.append(output.presence_probabilities[0].float().cpu())
         targets.append(sample["presence_target"].float().cpu())
@@ -1698,21 +2589,41 @@ def build_stage3_provenance(
     *,
     micro_batch: int,
     accumulation_steps: int,
+    validation_vram_gate: Mapping[str, Any],
     max_steps: int = 12_000,
+    extension: Stage3ExtensionEvidence | None = None,
 ) -> dict[str, Any]:
     if micro_batch not in {1, 2, 4, 8} or 8 % micro_batch:
         raise Stage3ContractError("Stage3 micro batch must divide effective batch 8")
     if accumulation_steps != 8 // micro_batch or max_steps != 12_000:
         raise Stage3ContractError("Stage3 runtime schedule drifted")
-    expected = _mapping(paths.resolved.get("expected_identity"), field="expected_identity")
+    validation_vram_evidence = validate_stage3_validation_vram_evidence(
+        validation_vram_gate
+    )
+    expected = _mapping(
+        paths.resolved.get("expected_identity"), field="expected_identity"
+    )
     agenticir_commit = git_commit(paths.resolved["agenticir_repo"])
     mioir_commit = git_commit(paths.resolved["mioir_repo"])
-    if agenticir_commit != expected.get("agenticir_commit") or mioir_commit != expected.get("mioir_commit"):
+    if agenticir_commit != expected.get(
+        "agenticir_commit"
+    ) or mioir_commit != expected.get("mioir_commit"):
         raise Stage3ContractError("upstream repository commit drifted")
     bindings = {
         logical: dict(value) for logical, value in paths.approval.bindings.items()
     }
-    return {
+    target_step = max_steps if extension is None else extension.target_step
+    if extension is not None and (
+        extension.base_step != max_steps
+        or extension.cycles != 3
+        or extension.validation_every_steps != 2_000
+        or extension.schedule_horizon_steps != max_steps
+        or extension.validation_steps != STAGE3_EXTENSION_VALIDATION_STEPS
+        or extension.min_lr != float(paths.config["optimization"]["min_lr"])
+        or extension.lr_policy != STAGE3_EXTENSION_LR_POLICY
+    ):
+        raise Stage3ContractError("Stage3 extension schedule drifted")
+    provenance = {
         "schema_version": STAGE3_SCHEMA,
         "protocol_id": PROTOCOL_ID,
         "config_sha256": sha256_file(paths.config_path),
@@ -1739,6 +2650,7 @@ def build_stage3_provenance(
             "step": parent.checkpoint_step,
             "source": "stage1_best_ema_model_equals_shadow",
         },
+        "ema_policy": stage3_ema_policy_metadata(float(paths.config["ema"]["decay"])),
         "relation_supervision": {
             "train_sha256": sha256_file(paths.relation_train),
             "validation_sha256": sha256_file(paths.relation_val),
@@ -1760,9 +2672,13 @@ def build_stage3_provenance(
             "effective_batch_size": 8,
             "accumulation_steps": accumulation_steps,
             "max_steps": max_steps,
+            "training_target_step": target_step,
             "amp_dtype": "bf16",
             "tf32": True,
+            "allocator_conf": validate_stage3_allocator_conf(),
             "model_generated_intermediate_maximum_fraction": 0.10,
+            "validation_vram_gate": validation_vram_evidence,
+            "validation_vram_gate_sha256": sha256_json(validation_vram_evidence),
         },
         "dependency_versions": stage3_dependency_versions(),
         "data_exposure": {
@@ -1772,6 +2688,571 @@ def build_stage3_provenance(
             "group_b_or_c": False,
         },
     }
+    if extension is not None:
+        provenance["stage3_extension"] = extension.provenance_binding()
+    return provenance
+
+
+def stage3_training_target_step(
+    provenance: Mapping[str, Any],
+    *,
+    schedule_horizon_steps: int,
+    validation_every_steps: int = 2_000,
+) -> int:
+    """Return the authorized training target without altering the LR horizon."""
+
+    runtime = _mapping(provenance.get("runtime"), field="Stage3 provenance runtime")
+    if runtime.get("max_steps") != schedule_horizon_steps:
+        raise Stage3ContractError("Stage3 scheduler horizon/provenance drifted")
+    target = runtime.get("training_target_step", schedule_horizon_steps)
+    extension = provenance.get("stage3_extension")
+    if extension is None:
+        if target != schedule_horizon_steps:
+            raise Stage3ContractError(
+                "Stage3 target exceeds its schedule without extension authorization"
+            )
+        return schedule_horizon_steps
+    extension = _mapping(extension, field="Stage3 extension provenance")
+    expected = {
+        "cycles": 3,
+        "base_step": STAGE3_BASE_TARGET_STEP,
+        "target_step": STAGE3_EXTENSION_TARGET_STEP,
+        "validation_every_steps": 2_000,
+        "validation_steps": list(STAGE3_EXTENSION_VALIDATION_STEPS),
+        "schedule_horizon_steps": STAGE3_BASE_TARGET_STEP,
+        "min_lr": 2.0e-6,
+        "lr_policy": STAGE3_EXTENSION_LR_POLICY,
+    }
+    if schedule_horizon_steps != STAGE3_BASE_TARGET_STEP:
+        raise Stage3ContractError("Stage3 extension scheduler horizon drifted")
+    if target != STAGE3_EXTENSION_TARGET_STEP:
+        raise Stage3ContractError("Stage3 extension training target drifted")
+    if not isinstance(extension.get("path"), str) or not is_sha256(
+        extension.get("sha256")
+    ):
+        raise Stage3ContractError("Stage3 extension provenance binding is invalid")
+    mismatches = {
+        key: {"expected": value, "actual": extension.get(key)}
+        for key, value in expected.items()
+        if extension.get(key) != value
+    }
+    if set(extension) != {"path", "sha256", *expected}:
+        mismatches["fields"] = {
+            "expected": sorted({"path", "sha256", *expected}),
+            "actual": sorted(extension),
+        }
+    if tuple(expected["validation_steps"]) != tuple(
+        range(
+            STAGE3_BASE_TARGET_STEP + validation_every_steps,
+            STAGE3_EXTENSION_TARGET_STEP + 1,
+            validation_every_steps,
+        )
+    ):
+        raise Stage3ContractError("Stage3 extension validation schedule is invalid")
+    if mismatches:
+        raise Stage3ContractError(
+            f"Stage3 extension provenance schedule mismatch: {mismatches}"
+        )
+    return STAGE3_EXTENSION_TARGET_STEP
+
+
+def _stage3_optimizer_serialized_parameter_names(
+    model: nn.Module,
+    optimizer: torch.optim.Optimizer,
+) -> tuple[dict[int, str], dict[int, nn.Parameter]]:
+    canonical_names = {
+        id(parameter): name
+        for name, parameter in unwrap_model(model).named_parameters()
+    }
+    serialized = optimizer.state_dict()
+    serialized_groups = serialized.get("param_groups")
+    if not isinstance(serialized_groups, list) or len(serialized_groups) != len(
+        optimizer.param_groups
+    ):
+        raise Stage3ContractError("Stage3 optimizer parameter-name mapping drifted")
+    names: dict[int, str] = {}
+    parameters: dict[int, nn.Parameter] = {}
+    for serialized_group, live_group in zip(
+        serialized_groups, optimizer.param_groups, strict=True
+    ):
+        if not isinstance(serialized_group, Mapping):
+            raise Stage3ContractError("Stage3 optimizer serialized group is invalid")
+        serialized_ids = serialized_group.get("params")
+        live_parameters = live_group.get("params")
+        if not isinstance(serialized_ids, list) or not isinstance(
+            live_parameters, list
+        ):
+            raise Stage3ContractError("Stage3 optimizer parameter list is invalid")
+        if len(serialized_ids) != len(live_parameters):
+            raise Stage3ContractError("Stage3 optimizer parameter list size drifted")
+        for serialized_id, parameter in zip(
+            serialized_ids, live_parameters, strict=True
+        ):
+            if (
+                isinstance(serialized_id, bool)
+                or not isinstance(serialized_id, int)
+                or not isinstance(parameter, nn.Parameter)
+                or serialized_id in names
+            ):
+                raise Stage3ContractError("Stage3 optimizer serialized ID is invalid")
+            name = canonical_names.get(id(parameter))
+            if name is None or not name.startswith("planner."):
+                raise Stage3ContractError(
+                    "Stage3 optimizer contains a non-planner parameter"
+                )
+            names[serialized_id] = name
+            parameters[serialized_id] = parameter
+    return names, parameters
+
+
+def _validate_stage3_optimizer_state(
+    model: nn.Module,
+    optimizer: torch.optim.Optimizer,
+    state: object,
+    ledger: object,
+    *,
+    step: int,
+) -> dict[int, str]:
+    """Validate complete planner Adam state and its stable ID-to-name ledger."""
+
+    optimizer_state = _mapping(state, field="checkpoint.optimizer")
+    loaded_state = optimizer_state.get("state")
+    loaded_groups = optimizer_state.get("param_groups")
+    current_state = optimizer.state_dict()
+    current_groups = current_state.get("param_groups")
+    if not isinstance(loaded_state, Mapping):
+        raise Stage3ContractError("Stage3 optimizer state is invalid")
+    if not isinstance(loaded_groups, list) or not isinstance(current_groups, list):
+        raise Stage3ContractError("Stage3 optimizer groups are invalid")
+    if len(loaded_groups) != len(current_groups):
+        raise Stage3ContractError("Stage3 optimizer group count drifted")
+
+    serialized_names, live_parameters = _stage3_optimizer_serialized_parameter_names(
+        model, optimizer
+    )
+    all_parameter_ids = set(serialized_names)
+    for loaded_group, current_group in zip(loaded_groups, current_groups, strict=True):
+        if not isinstance(loaded_group, Mapping) or not isinstance(
+            current_group, Mapping
+        ):
+            raise Stage3ContractError("Stage3 optimizer group is invalid")
+        if set(loaded_group) != set(current_group):
+            raise Stage3ContractError("Stage3 optimizer group fields drifted")
+        loaded_parameters = loaded_group.get("params")
+        current_parameters = current_group.get("params")
+        if loaded_parameters != current_parameters:
+            raise Stage3ContractError("Stage3 optimizer parameter ID order drifted")
+        for key in set(current_group) - {"params", "lr"}:
+            if loaded_group.get(key) != current_group.get(key):
+                raise Stage3ContractError(
+                    f"Stage3 optimizer static field drifted: {key}"
+                )
+        dynamic_lr = loaded_group.get("lr")
+        if (
+            isinstance(dynamic_lr, bool)
+            or not isinstance(dynamic_lr, (int, float))
+            or not math.isfinite(float(dynamic_lr))
+        ):
+            raise Stage3ContractError("Stage3 optimizer LR is non-finite")
+
+    state_ids = set(loaded_state)
+    expected_state_ids = set() if step == 0 else all_parameter_ids
+    if state_ids != expected_state_ids:
+        raise Stage3ContractError(
+            "Stage3 optimizer state does not cover every planner parameter"
+        )
+    if not isinstance(ledger, Mapping):
+        raise Stage3ContractError("Stage3 optimizer state-name ledger is invalid")
+    if set(ledger) != state_ids:
+        raise Stage3ContractError(
+            "Stage3 optimizer state-name ledger keys differ from optimizer state"
+        )
+
+    normalized: dict[int, str] = {}
+    for serialized_id in sorted(state_ids):
+        if (
+            isinstance(serialized_id, bool)
+            or not isinstance(serialized_id, int)
+            or serialized_id not in all_parameter_ids
+        ):
+            raise Stage3ContractError("Stage3 optimizer state ID is invalid")
+        name = ledger[serialized_id]
+        if not isinstance(name, str) or name != serialized_names[serialized_id]:
+            raise Stage3ContractError(
+                f"Stage3 optimizer ledger name drifted at ID {serialized_id}"
+            )
+        parameter_state = loaded_state[serialized_id]
+        if not isinstance(parameter_state, Mapping):
+            raise Stage3ContractError("Stage3 Adam parameter state is invalid")
+        expected_keys = {"step", "exp_avg", "exp_avg_sq"}
+        group = next(
+            group for group in loaded_groups if serialized_id in group["params"]
+        )
+        if group.get("amsgrad") is True:
+            expected_keys.add("max_exp_avg_sq")
+        if set(parameter_state) != expected_keys:
+            raise Stage3ContractError("Stage3 Adam state fields drifted")
+        state_step = parameter_state["step"]
+        if torch.is_tensor(state_step):
+            if state_step.numel() != 1 or not bool(torch.isfinite(state_step).all()):
+                raise Stage3ContractError("Stage3 Adam step is invalid")
+            state_step_value = float(state_step.item())
+        elif isinstance(state_step, (int, float)) and not isinstance(state_step, bool):
+            state_step_value = float(state_step)
+        else:
+            raise Stage3ContractError("Stage3 Adam step is invalid")
+        if (
+            not math.isfinite(state_step_value)
+            or not state_step_value.is_integer()
+            or int(state_step_value) != step
+        ):
+            raise Stage3ContractError("Stage3 Adam step differs from checkpoint step")
+        parameter = live_parameters[serialized_id]
+        for key in expected_keys - {"step"}:
+            tensor = parameter_state[key]
+            if (
+                not torch.is_tensor(tensor)
+                or tuple(tensor.shape) != tuple(parameter.shape)
+                or tensor.dtype != parameter.dtype
+                or not bool(torch.isfinite(tensor).all())
+            ):
+                raise Stage3ContractError(f"Stage3 Adam tensor state is invalid: {key}")
+        normalized[serialized_id] = name
+    return normalized
+
+
+def _validate_stage3_scheduler_state(
+    scheduler: WarmupCosineScheduler,
+    state: object,
+    optimizer_state: object,
+    *,
+    step: int,
+    context: str,
+) -> Mapping[str, Any]:
+    """Validate the complete scheduler trajectory before mutating live state."""
+
+    scheduler_state = _mapping(state, field=f"{context}.scheduler")
+    optimizer_mapping = _mapping(optimizer_state, field=f"{context}.optimizer")
+    current = scheduler.state_dict()
+    if set(scheduler_state) != set(current):
+        raise Stage3ContractError(f"{context} scheduler state fields drifted")
+    dynamic_fields = {"last_epoch", "_step_count", "_last_lr"}
+    for key in set(current) - dynamic_fields:
+        if scheduler_state.get(key) != current.get(key):
+            raise Stage3ContractError(f"{context} scheduler {key} drifted")
+
+    last_epoch = scheduler_state.get("last_epoch")
+    step_count = scheduler_state.get("_step_count")
+    if (
+        isinstance(last_epoch, bool)
+        or not isinstance(last_epoch, int)
+        or last_epoch != step
+    ):
+        raise Stage3ContractError(
+            f"{context} scheduler.last_epoch must equal checkpoint step"
+        )
+    if (
+        isinstance(step_count, bool)
+        or not isinstance(step_count, int)
+        or step_count != step + 1
+    ):
+        raise Stage3ContractError(
+            f"{context} scheduler._step_count must equal checkpoint step + 1"
+        )
+
+    base_lrs = scheduler_state.get("base_lrs")
+    last_lrs = scheduler_state.get("_last_lr")
+    optimizer_groups = optimizer_mapping.get("param_groups")
+    if not isinstance(base_lrs, list) or not isinstance(last_lrs, list):
+        raise Stage3ContractError(f"{context} scheduler LR state is invalid")
+    if not isinstance(optimizer_groups, list):
+        raise Stage3ContractError(f"{context} optimizer groups are invalid")
+    if not len(base_lrs) == len(last_lrs) == len(optimizer_groups):
+        raise Stage3ContractError(f"{context} scheduler LR group count drifted")
+    if any(
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+        for value in (*base_lrs, *last_lrs)
+    ):
+        raise Stage3ContractError(f"{context} scheduler LR state is non-finite")
+
+    warmup_steps = scheduler_state.get("warmup_steps")
+    max_steps = scheduler_state.get("max_steps")
+    min_lr = scheduler_state.get("min_lr")
+    if (
+        isinstance(warmup_steps, bool)
+        or not isinstance(warmup_steps, int)
+        or warmup_steps < 0
+        or isinstance(max_steps, bool)
+        or not isinstance(max_steps, int)
+        or max_steps <= warmup_steps
+        or isinstance(min_lr, bool)
+        or not isinstance(min_lr, (int, float))
+        or not math.isfinite(float(min_lr))
+        or float(min_lr) < 0.0
+    ):
+        raise Stage3ContractError(f"{context} scheduler static contract is invalid")
+
+    for index, (base_lr, last_lr, group) in enumerate(
+        zip(base_lrs, last_lrs, optimizer_groups, strict=True)
+    ):
+        if not isinstance(group, Mapping):
+            raise Stage3ContractError(f"{context} optimizer group is invalid")
+        if group.get("initial_lr") != base_lr:
+            raise Stage3ContractError(
+                f"{context} optimizer initial_lr/scheduler base_lrs drifted "
+                f"at group {index}"
+            )
+        floor = min(float(min_lr), float(base_lr))
+        if warmup_steps and step < warmup_steps:
+            scale = float(step + 1) / float(warmup_steps)
+            expected_lr = float(base_lr) * scale
+        else:
+            progress = min(
+                1.0,
+                max(
+                    0.0,
+                    (step - warmup_steps) / (max_steps - warmup_steps),
+                ),
+            )
+            cosine = 0.5 * (1.0 + math.cos(math.pi * progress))
+            expected_lr = floor + (float(base_lr) - floor) * cosine
+        dynamic_lr = group.get("lr")
+        if (
+            isinstance(dynamic_lr, bool)
+            or not isinstance(dynamic_lr, (int, float))
+            or not math.isfinite(float(dynamic_lr))
+            or dynamic_lr != last_lr
+            or dynamic_lr != expected_lr
+        ):
+            raise Stage3ContractError(
+                f"{context} optimizer/scheduler LR trajectory drifted at group {index}"
+            )
+    return scheduler_state
+
+
+def _validate_stage3_rng_state(state: object) -> Mapping[str, Any]:
+    rng = _mapping(state, field="checkpoint.rng_states")
+    try:
+        random.Random().setstate(rng["python"])
+        np.random.RandomState().set_state(rng["numpy"])
+        cpu_state = rng["torch_cpu"]
+        if not torch.is_tensor(cpu_state) or cpu_state.dtype != torch.uint8:
+            raise TypeError("invalid torch CPU RNG tensor")
+        torch.Generator(device="cpu").set_state(cpu_state)
+        cuda_states = rng.get("torch_cuda_all")
+        if torch.cuda.is_available() and cuda_states is None:
+            raise ValueError("CUDA RNG state is missing")
+        if cuda_states is not None:
+            if not isinstance(cuda_states, (list, tuple)):
+                raise TypeError("invalid CUDA RNG state list")
+            if (
+                torch.cuda.is_available()
+                and len(cuda_states) != torch.cuda.device_count()
+            ):
+                raise ValueError("CUDA RNG state count drifted")
+            if any(
+                not torch.is_tensor(value) or value.dtype != torch.uint8
+                for value in cuda_states
+            ):
+                raise TypeError("invalid CUDA RNG tensor")
+            if torch.cuda.is_available():
+                current_cuda_states = torch.cuda.get_rng_state_all()
+                if any(
+                    tuple(value.shape) != tuple(reference.shape)
+                    for value, reference in zip(
+                        cuda_states, current_cuda_states, strict=True
+                    )
+                ):
+                    raise ValueError("CUDA RNG state shape drifted")
+    except (KeyError, TypeError, ValueError, RuntimeError) as exc:
+        raise Stage3ContractError("Stage3 resume RNG state is invalid") from exc
+    return rng
+
+
+def _validate_stage3_tensor_state(
+    state: object,
+    reference: Mapping[str, Tensor],
+    *,
+    field: str,
+) -> Mapping[str, Tensor]:
+    tensors = _strict_tensor_mapping(state, field=field)
+    if tensors.keys() != reference.keys():
+        raise Stage3ContractError(f"{field} keys drifted")
+    for name, value in tensors.items():
+        expected = reference[name]
+        if value.shape != expected.shape or value.dtype != expected.dtype:
+            raise Stage3ContractError(f"{field} tensor contract drifted at {name}")
+        if value.is_floating_point() and not bool(torch.isfinite(value).all()):
+            raise Stage3ContractError(f"{field} tensor is non-finite at {name}")
+    return tensors
+
+
+def _stage3_tensors_equal_exact(reference: Tensor, candidate: Tensor) -> bool:
+    """Compare exact tensor values without weakening cross-device validation."""
+
+    if (
+        reference.shape != candidate.shape
+        or reference.dtype != candidate.dtype
+        or reference.layout != candidate.layout
+    ):
+        return False
+    detached = candidate.detach()
+    if detached.device != reference.device:
+        # Resume checkpoints are deliberately CPU-mapped while the already
+        # loaded Stage1 parent is live on CUDA.  Move the live value to the
+        # checkpoint device one tensor at a time: no cast, tolerance, or live
+        # mutation is permitted by the frozen-parent exact contract.
+        detached = detached.to(device=reference.device)
+    return torch.equal(reference.detach(), detached)
+
+
+_STAGE3_CURRENT_METRIC_FIELDS = (
+    "group_a_psnr",
+    "group_a_ssim",
+    "single_psnr",
+    "single_ssim",
+    "validation_step",
+)
+_STAGE3_BEST_METRIC_FIELDS = (
+    "best_group_a_psnr",
+    "best_group_a_ssim",
+    "best_single_psnr",
+    "best_single_ssim",
+    "best_step",
+)
+
+
+def _validate_stage3_metrics(
+    value: object,
+    *,
+    step: int,
+    max_steps: int,
+    validation_every_steps: int,
+) -> Mapping[str, Any]:
+    metrics = _mapping(value, field="checkpoint.metrics")
+    allowed = set(_STAGE3_CURRENT_METRIC_FIELDS) | set(_STAGE3_BEST_METRIC_FIELDS)
+    if not set(metrics) <= allowed:
+        raise Stage3ContractError("Stage3 checkpoint metrics contain unknown fields")
+    for label, fields, step_field in (
+        ("current", _STAGE3_CURRENT_METRIC_FIELDS, "validation_step"),
+        ("best", _STAGE3_BEST_METRIC_FIELDS, "best_step"),
+    ):
+        present = [field in metrics for field in fields]
+        if any(present) and not all(present):
+            raise Stage3ContractError(
+                f"Stage3 checkpoint metrics have partial {label} fields"
+            )
+        if not all(present):
+            continue
+        metric_step = metrics[step_field]
+        if (
+            isinstance(metric_step, bool)
+            or not isinstance(metric_step, int)
+            or not 0 <= metric_step <= step
+        ):
+            raise Stage3ContractError(
+                f"Stage3 checkpoint metrics {step_field} is invalid"
+            )
+        if (
+            metric_step != 0
+            and metric_step % validation_every_steps != 0
+            and metric_step != max_steps
+        ):
+            raise Stage3ContractError(
+                f"Stage3 checkpoint metrics {step_field} is not a validation boundary"
+            )
+        for field in fields:
+            if field == step_field:
+                continue
+            metric = metrics[field]
+            if (
+                isinstance(metric, bool)
+                or not isinstance(metric, (int, float))
+                or not math.isfinite(float(metric))
+            ):
+                raise Stage3ContractError(
+                    f"Stage3 checkpoint metrics {field} is non-finite"
+                )
+    if (
+        "best_step" in metrics
+        and "validation_step" in metrics
+        and metrics["best_step"] > metrics["validation_step"]
+    ):
+        raise Stage3ContractError(
+            "Stage3 checkpoint metrics best_step exceeds validation_step"
+        )
+    if "best_step" in metrics and "validation_step" in metrics:
+        current = ValidationScore(
+            group_a_psnr=float(metrics["group_a_psnr"]),
+            group_a_ssim=float(metrics["group_a_ssim"]),
+            single_psnr=float(metrics["single_psnr"]),
+            single_ssim=float(metrics["single_ssim"]),
+            step=int(metrics["validation_step"]),
+        )
+        best = ValidationScore(
+            group_a_psnr=float(metrics["best_group_a_psnr"]),
+            group_a_ssim=float(metrics["best_group_a_ssim"]),
+            single_psnr=float(metrics["best_single_psnr"]),
+            single_ssim=float(metrics["best_single_ssim"]),
+            step=int(metrics["best_step"]),
+        )
+        if is_better_checkpoint(current, best):
+            raise Stage3ContractError(
+                "Stage3 checkpoint current metrics are better than its incumbent"
+            )
+    return metrics
+
+
+def _validate_stage3_ema_state(
+    model: GraphRestore,
+    ema: Stage3PlannerEMA,
+    state: object,
+    *,
+    step: int,
+    raw_state: Mapping[str, Tensor] | None = None,
+) -> Mapping[str, Any]:
+    ema_state = _mapping(state, field="checkpoint.ema")
+    num_updates = ema_state.get("num_updates")
+    if (
+        ema_state.get("scope") != STAGE3_EMA_SCOPE
+        or ema_state.get("policy") != stage3_ema_policy_metadata(ema.decay)
+        or ema_state.get("decay") != ema.decay
+        or isinstance(num_updates, bool)
+        or not isinstance(num_updates, int)
+        or num_updates != step
+    ):
+        raise Stage3ContractError("Stage3 EMA metadata drifted")
+    shadow = _strict_tensor_mapping(
+        ema_state.get("shadow"), field="checkpoint.ema.shadow"
+    )
+    live = unwrap_model(model).state_dict()
+    raw = live if raw_state is None else raw_state
+    if shadow.keys() != raw.keys() or shadow.keys() != ema.shadow.keys():
+        raise Stage3ContractError("Stage3 EMA keys drifted")
+    for name, value in shadow.items():
+        expected = ema.shadow[name]
+        raw_value = raw[name]
+        if (
+            value.shape != expected.shape
+            or value.dtype != expected.dtype
+            or (value.is_floating_point() and not bool(torch.isfinite(value).all()))
+        ):
+            raise Stage3ContractError(f"Stage3 EMA tensor contract drifted at {name}")
+        if not name.startswith("planner."):
+            if not torch.equal(value, raw_value):
+                raise Stage3ContractError(
+                    f"Stage3 frozen executor differs from EMA shadow at {name}"
+                )
+            if raw_state is not None and not _stage3_tensors_equal_exact(
+                raw_value, live[name]
+            ):
+                raise Stage3ContractError(
+                    "Stage3 frozen executor differs from the live Stage1 parent "
+                    f"at {name}"
+                )
+    return ema_state
 
 
 def save_stage3_checkpoint(
@@ -1779,27 +3260,94 @@ def save_stage3_checkpoint(
     *,
     step: int,
     model: GraphRestore,
-    ema: ExponentialMovingAverage,
+    ema: Stage3PlannerEMA,
     optimizer: torch.optim.Optimizer,
     scheduler: WarmupCosineScheduler,
     sampler: StatefulEpisodeSampler,
     provenance: Mapping[str, Any],
-    metrics: Mapping[str, float] | None = None,
+    metrics: Mapping[str, float | int] | None = None,
     model_as_ema: bool = False,
+    pending_validation_step: int | None = None,
+    optimizer_transaction: Stage3OptimizerTransaction | None = None,
+    validation_every_steps: int = 2_000,
 ) -> None:
+    if optimizer_transaction is not None and optimizer_transaction.active:
+        raise Stage3ContractError(
+            "refusing to serialize a mid-optimizer-update Stage3 state"
+        )
+    if not isinstance(ema, Stage3PlannerEMA):
+        raise Stage3ContractError("Stage3 checkpoints require Stage3PlannerEMA")
+    max_steps = stage3_training_target_step(
+        provenance,
+        schedule_horizon_steps=int(scheduler.max_steps),
+        validation_every_steps=validation_every_steps,
+    )
+    if (
+        isinstance(step, bool)
+        or not isinstance(step, int)
+        or not 0 <= step <= max_steps
+    ):
+        raise Stage3ContractError("Stage3 checkpoint step is invalid")
+    raw_model_state = _validate_stage3_tensor_state(
+        unwrap_model(model).state_dict(),
+        unwrap_model(model).state_dict(),
+        field="checkpoint.model",
+    )
+    ema_state = _validate_stage3_ema_state(
+        model,
+        ema,
+        ema.state_dict(),
+        step=step,
+    )
+    optimizer_state = optimizer.state_dict()
+    scheduler_state = scheduler.state_dict()
+    serialized_names, _ = _stage3_optimizer_serialized_parameter_names(model, optimizer)
+    state_ids = set(_mapping(optimizer_state.get("state"), field="optimizer.state"))
+    optimizer_ledger = {
+        serialized_id: serialized_names[serialized_id]
+        for serialized_id in sorted(state_ids)
+    }
+    optimizer_ledger = _validate_stage3_optimizer_state(
+        model,
+        optimizer,
+        optimizer_state,
+        optimizer_ledger,
+        step=step,
+    )
+    _validate_stage3_scheduler_state(
+        scheduler,
+        scheduler_state,
+        optimizer_state,
+        step=step,
+        context="Stage3 checkpoint save",
+    )
+    validated_metrics = _validate_stage3_metrics(
+        {} if metrics is None else metrics,
+        step=step,
+        max_steps=max_steps,
+        validation_every_steps=validation_every_steps,
+    )
+    pending = validate_stage3_pending_validation_step(
+        step=step,
+        pending_validation_step=pending_validation_step,
+        max_steps=max_steps,
+        validation_every_steps=validation_every_steps,
+    )
+    if model_as_ema and pending is not None:
+        raise Stage3ContractError("Stage3 EMA selection cannot be pending validation")
     context = ema.apply_to(model) if model_as_ema else nullcontext()
     with context:
         payload = checkpoint_payload(
             stage="stage3",
             step=step,
             model=model,
-            ema_state=ema.state_dict(),
+            ema_state=ema_state,
             optimizer=optimizer,
             scheduler=scheduler,
             scaler=None,
             sampler_state=sampler.state_dict(consumed_optimizer_step=step),
             provenance=provenance,
-            metrics=metrics,
+            metrics=validated_metrics,
         )
         payload["amp"] = {"dtype": "bfloat16", "scaler_required": False}
         payload["executor_frozen"] = True
@@ -1808,22 +3356,248 @@ def save_stage3_checkpoint(
             "ema_selection" if model_as_ema else "raw_training_state"
         )
         payload["resumable"] = not model_as_ema
+        payload["pending_validation_step"] = pending
+        payload["optimizer_transaction_active"] = False
+        payload["optimizer_state_name_ledger"] = optimizer_ledger
+        _validate_stage3_tensor_state(
+            payload.get("model"),
+            raw_model_state if not model_as_ema else ema.shadow,
+            field="checkpoint.model",
+        )
+        _validate_stage3_rng_state(payload.get("rng_states"))
         atomic_torch_save(payload, destination)
     set_stage3_trainability(model)
 
 
-def _restore_stage3_ema(
-    ema: ExponentialMovingAverage, value: object
-) -> None:
+def _restore_stage3_ema(ema: ExponentialMovingAverage, value: object) -> None:
     state = _mapping(value, field="checkpoint.ema")
-    if isinstance(ema, Stage3PlannerEMA) and state.get("scope") != (
-        "planner_parameters_only_executor_bitwise_frozen"
-    ):
+    if isinstance(ema, Stage3PlannerEMA) and state.get("scope") != STAGE3_EMA_SCOPE:
         raise Stage3ContractError("Stage3 resume EMA scope drifted")
     shadow = _strict_tensor_mapping(state.get("shadow"), field="checkpoint.ema.shadow")
     if shadow.keys() != ema.shadow.keys():
         raise Stage3ContractError("Stage3 resume EMA keys drifted")
     ema.load_state_dict(state)
+
+
+def _validate_stage3_resume_header(
+    header: object,
+    *,
+    model: GraphRestore,
+    ema: ExponentialMovingAverage,
+    optimizer: torch.optim.Optimizer,
+    scheduler: WarmupCosineScheduler,
+    sampler: StatefulEpisodeSampler,
+    expected_provenance: Mapping[str, Any],
+    validation_every_steps: int,
+) -> None:
+    """Validate the complete resume contract before mutating live objects."""
+
+    if not isinstance(ema, Stage3PlannerEMA):
+        raise Stage3ContractError("Stage3 resume requires Stage3PlannerEMA")
+    if (
+        not isinstance(header, Mapping)
+        or header.get("schema_version") != "graphrestore-checkpoint-v1"
+        or header.get("stage") != "stage3"
+        or header.get("model_role") != "raw_training_state"
+        or header.get("resumable") is not True
+        or header.get("scaler") is not None
+    ):
+        raise Stage3ContractError(
+            "Stage3 resume requires raw last.pth; EMA selection checkpoints are non-resumable"
+        )
+    if header.get("executor_frozen") is not True:
+        raise Stage3ContractError(
+            "resume checkpoint is not a frozen-executor Stage3 run"
+        )
+    if header.get("trainable_prefixes") != ["planner."]:
+        raise Stage3ContractError("Stage3 resume trainable scope drifted")
+    if header.get("amp") != {"dtype": "bfloat16", "scaler_required": False}:
+        raise Stage3ContractError("Stage3 resume AMP contract drifted")
+    if header.get("optimizer_transaction_active") is not False:
+        raise Stage3ContractError(
+            "Stage3 resume checkpoint records a mid-optimizer-update state"
+        )
+    if header.get("provenance") != dict(expected_provenance):
+        raise Stage3ContractError("Stage3 resume provenance drifted")
+
+    training_target_step = stage3_training_target_step(
+        expected_provenance,
+        schedule_horizon_steps=int(scheduler.max_steps),
+        validation_every_steps=validation_every_steps,
+    )
+
+    step = header.get("step")
+    pending_validation_step = validate_stage3_pending_validation_step(
+        step=step,
+        pending_validation_step=header.get("pending_validation_step", object()),
+        max_steps=training_target_step,
+        validation_every_steps=validation_every_steps,
+    )
+    _validate_stage3_metrics(
+        header.get("metrics"),
+        step=int(step),
+        max_steps=training_target_step,
+        validation_every_steps=validation_every_steps,
+    )
+
+    expected_model_state = unwrap_model(model).state_dict()
+    model_state = _validate_stage3_tensor_state(
+        header.get("model"),
+        expected_model_state,
+        field="Stage3 resume model",
+    )
+
+    _validate_stage3_ema_state(
+        model,
+        ema,
+        header.get("ema"),
+        step=int(step),
+        raw_state=model_state,
+    )
+
+    optimizer_state = _mapping(header.get("optimizer"), field="checkpoint.optimizer")
+    if "optimizer_state_name_ledger" not in header:
+        raise Stage3ContractError("Stage3 resume lacks optimizer state-name ledger")
+    _validate_stage3_optimizer_state(
+        model,
+        optimizer,
+        optimizer_state,
+        header.get("optimizer_state_name_ledger"),
+        step=int(step),
+    )
+    current_optimizer = optimizer.state_dict()
+    saved_groups = optimizer_state.get("param_groups")
+    current_groups = current_optimizer.get("param_groups")
+    if not isinstance(saved_groups, list) or not isinstance(current_groups, list):
+        raise Stage3ContractError("Stage3 resume optimizer groups are invalid")
+    if len(saved_groups) != len(current_groups):
+        raise Stage3ContractError("Stage3 resume optimizer parameter groups drifted")
+    for saved, current in zip(saved_groups, current_groups, strict=True):
+        if not isinstance(saved, Mapping):
+            raise Stage3ContractError(
+                "Stage3 resume optimizer parameter groups drifted"
+            )
+        saved_parameters = saved.get("params")
+        current_parameters = current.get("params")
+        if (
+            not isinstance(saved_parameters, list)
+            or not isinstance(current_parameters, list)
+            or saved_parameters != current_parameters
+        ):
+            raise Stage3ContractError(
+                "Stage3 resume optimizer parameter groups drifted"
+            )
+    _validate_stage3_scheduler_state(
+        scheduler,
+        header.get("scheduler"),
+        optimizer_state,
+        step=int(step),
+        context="Stage3 resume",
+    )
+    _validate_stage3_rng_state(header.get("rng_states"))
+
+    sampler_state = _mapping(
+        header.get("sampler_state"), field="checkpoint.sampler_state"
+    )
+    sampler_expected = sampler.state_dict()
+    for key in (
+        "schema_version",
+        "stage",
+        "base_seed",
+        "num_samples",
+        "effective_batch_size",
+    ):
+        if sampler_state.get(key) != sampler_expected.get(key):
+            raise Stage3ContractError(f"Stage3 resume sampler {key} drifted")
+    if sampler_state.get("consumed_optimizer_step") != step:
+        raise Stage3ContractError("Stage3 checkpoint/sampler step mismatch")
+    if sampler_state.get("sample_cursor") != int(step) * sampler.effective_batch_size:
+        raise Stage3ContractError("Stage3 checkpoint/sampler cursor mismatch")
+
+    # Keep the normalized pending value live in this validation scope so a
+    # missing key can never be confused with a clean, non-pending checkpoint.
+    if pending_validation_step != header.get("pending_validation_step"):
+        raise Stage3ContractError("Stage3 pending validation marker drifted")
+
+
+def _validate_stage3_incumbent_checkpoint(
+    checkpoint: Path,
+    header: Mapping[str, Any],
+    *,
+    max_steps: int,
+    validation_every_steps: int,
+) -> None:
+    """Bind resumable metrics to the atomically published EMA incumbent."""
+
+    raw_metrics = _validate_stage3_metrics(
+        header.get("metrics"),
+        step=int(header["step"]),
+        max_steps=max_steps,
+        validation_every_steps=validation_every_steps,
+    )
+    pending = header.get("pending_validation_step")
+    best_path = checkpoint.parent / "best_ema.pth"
+    raw_has_best = "best_step" in raw_metrics
+    if not best_path.is_file():
+        if raw_has_best:
+            raise Stage3ContractError(
+                "Stage3 resumable metrics reference a missing best_ema.pth"
+            )
+        return
+
+    best = torch.load(best_path, map_location="cpu", weights_only=False)
+    if (
+        not isinstance(best, Mapping)
+        or best.get("schema_version") != "graphrestore-checkpoint-v1"
+        or best.get("stage") != "stage3"
+        or best.get("model_role") != "ema_selection"
+        or best.get("resumable") is not False
+        or best.get("pending_validation_step") is not None
+        or best.get("optimizer_transaction_active") is not False
+    ):
+        raise Stage3ContractError("Stage3 incumbent best_ema.pth metadata drifted")
+    best_step = best.get("step")
+    if isinstance(best_step, bool) or not isinstance(best_step, int):
+        raise Stage3ContractError("Stage3 incumbent step is invalid")
+    best_metrics = _validate_stage3_metrics(
+        best.get("metrics"),
+        step=best_step,
+        max_steps=max_steps,
+        validation_every_steps=validation_every_steps,
+    )
+    if (
+        best_metrics.get("validation_step") != best_step
+        or best_metrics.get("best_step") != best_step
+    ):
+        raise Stage3ContractError(
+            "Stage3 incumbent metrics are not bound to its checkpoint step"
+        )
+    for current_field, best_field in zip(
+        _STAGE3_CURRENT_METRIC_FIELDS[:-1],
+        _STAGE3_BEST_METRIC_FIELDS[:-1],
+        strict=True,
+    ):
+        if best_metrics.get(current_field) != best_metrics.get(best_field):
+            raise Stage3ContractError(
+                "Stage3 incumbent current/best restoration metrics differ"
+            )
+
+    raw_best_step = raw_metrics.get("best_step")
+    if best_step == raw_best_step:
+        for field in _STAGE3_BEST_METRIC_FIELDS[:-1]:
+            if raw_metrics.get(field) != best_metrics.get(field):
+                raise Stage3ContractError(
+                    "Stage3 resumable metrics differ from best_ema.pth"
+                )
+        return
+    # A signal may arrive after the new best was atomically published but
+    # before the pending raw transaction was cleared.  That state is replayable
+    # only when the new incumbent is exactly the pending boundary.
+    if pending is not None and best_step == pending:
+        return
+    raise Stage3ContractError(
+        "Stage3 best_ema.pth is not the resumable checkpoint incumbent"
+    )
 
 
 def resume_stage3_checkpoint(
@@ -1835,39 +3609,52 @@ def resume_stage3_checkpoint(
     scheduler: WarmupCosineScheduler,
     sampler: StatefulEpisodeSampler,
     expected_provenance: Mapping[str, Any],
+    validation_every_steps: int = 2_000,
 ) -> dict[str, Any]:
     # Inspect role metadata before mutating model, optimizer, scheduler, RNG,
     # EMA, or sampler.  Selection EMA checkpoints are never resumable.
+    if not isinstance(ema, Stage3PlannerEMA):
+        raise Stage3ContractError("Stage3 resume requires Stage3PlannerEMA")
     header = torch.load(Path(checkpoint), map_location="cpu", weights_only=False)
-    if (
-        not isinstance(header, Mapping)
-        or header.get("stage") != "stage3"
-        or header.get("model_role") != "raw_training_state"
-        or header.get("resumable") is not True
-    ):
-        raise Stage3ContractError(
-            "Stage3 resume requires raw last.pth; EMA selection checkpoints are non-resumable"
-        )
-    payload = load_checkpoint(
-        checkpoint,
+    _validate_stage3_resume_header(
+        header,
         model=model,
+        ema=ema,
         optimizer=optimizer,
         scheduler=scheduler,
-        scaler=None,
+        sampler=sampler,
         expected_provenance=expected_provenance,
-        restore_rng=True,
-        map_location="cpu",
+        validation_every_steps=validation_every_steps,
     )
-    if payload.get("executor_frozen") is not True:
-        raise Stage3ContractError("resume checkpoint is not a frozen-executor Stage3 run")
+    _validate_stage3_incumbent_checkpoint(
+        Path(checkpoint),
+        header,
+        max_steps=stage3_training_target_step(
+            expected_provenance,
+            schedule_horizon_steps=int(scheduler.max_steps),
+            validation_every_steps=validation_every_steps,
+        ),
+        validation_every_steps=validation_every_steps,
+    )
+    # Install the exact in-memory payload that passed every pre-mutation check.
+    # Re-reading the path here would create a TOCTOU window in which an atomic
+    # replacement with the same provenance but corrupt tensors could bypass the
+    # validation above and still mutate the live training state.
+    payload = dict(header)
+    incompatible = unwrap_model(model).load_state_dict(payload["model"], strict=True)
+    if incompatible.missing_keys or incompatible.unexpected_keys:
+        raise Stage3ContractError("Stage3 resume model failed strict installation")
+    optimizer.load_state_dict(payload["optimizer"])
+    scheduler.load_state_dict(payload["scheduler"])
     step = payload.get("step")
-    if isinstance(step, bool) or not isinstance(step, int) or not 0 <= step <= 12_000:
-        raise Stage3ContractError("invalid Stage3 resume step")
     _restore_stage3_ema(ema, payload.get("ema"))
-    sampler_state = _mapping(payload.get("sampler_state"), field="checkpoint.sampler_state")
+    sampler_state = _mapping(
+        payload.get("sampler_state"), field="checkpoint.sampler_state"
+    )
     sampler.load_state_dict(dict(sampler_state))
     if sampler_state.get("consumed_optimizer_step") != step:
         raise Stage3ContractError("Stage3 checkpoint/sampler step mismatch")
+    restore_rng_state(payload["rng_states"])
     set_stage3_trainability(model)
     return payload
 
@@ -1879,10 +3666,13 @@ def load_stage3_best_ema(
     device: torch.device,
     model_factory: Callable[..., GraphRestore] = GraphRestore,
     load_frozen_thresholds: bool = True,
+    historical_extension_authorization: Mapping[str, str] | None = None,
 ) -> GraphRestore:
     """Reusable Stage4/evaluation loader for a strictly exposed Stage3 EMA."""
 
-    model, _ = build_stage3_model(paths, device=torch.device("cpu"), model_factory=model_factory)
+    model, _ = build_stage3_model(
+        paths, device=torch.device("cpu"), model_factory=model_factory
+    )
     frozen_reference = {
         name: value.detach().clone() for name, value in model.state_dict().items()
     }
@@ -1893,21 +3683,141 @@ def load_stage3_best_ema(
     if checkpoint_path.name != "best_ema.pth" or not checkpoint_path.is_file():
         raise Stage3ContractError("Stage3 selected checkpoint must be best_ema.pth")
     payload = torch.load(checkpoint_path, map_location="cpu", weights_only=False)
+    step = payload.get("step") if isinstance(payload, Mapping) else None
+    if not isinstance(payload, Mapping):
+        raise Stage3ContractError("Stage3 best checkpoint must be a mapping")
+    provenance = _mapping(payload.get("provenance"), field="Stage3 best provenance")
+    schedule_horizon_steps = int(paths.config["training"]["max_steps"])
+    validation_every_steps = int(paths.config["runtime"]["validation_every_steps"])
+    max_steps = stage3_training_target_step(
+        provenance,
+        schedule_horizon_steps=schedule_horizon_steps,
+        validation_every_steps=validation_every_steps,
+    )
+    extension_binding = provenance.get("stage3_extension")
+    if extension_binding is not None:
+        extension_mapping = _mapping(
+            extension_binding, field="Stage3 best extension provenance"
+        )
+        if historical_extension_authorization is None:
+            extension_path = extension_mapping.get("path")
+            if not isinstance(extension_path, str):
+                raise Stage3ContractError(
+                    "Stage3 best extension authorization path is invalid"
+                )
+            extension = validate_stage3_extension_authorization(extension_path, paths)
+            if extension_mapping != extension.provenance_binding():
+                raise Stage3ContractError(
+                    "Stage3 best extension authorization binding drifted"
+                )
+        else:
+            historical_path_raw = historical_extension_authorization.get("path")
+            historical_sha = historical_extension_authorization.get("sha256")
+            if not isinstance(historical_path_raw, str) or not is_sha256(
+                historical_sha
+            ):
+                raise Stage3ContractError(
+                    "historical Stage3 extension authorization binding is invalid"
+                )
+            historical_path = Path(historical_path_raw).resolve(strict=False)
+            if (
+                extension_mapping.get("path") != str(historical_path)
+                or not historical_path.is_file()
+                or sha256_file(historical_path) != historical_sha
+                or extension_mapping.get("sha256") != historical_sha
+            ):
+                raise Stage3ContractError(
+                    "historical Stage3 extension authorization hash drifted"
+                )
+            historical_payload = _mapping(
+                load_json(historical_path),
+                field="historical STAGE3_EXTENSION_APPROVED.json",
+            )
+            if (
+                historical_payload.get("schema_version") != STAGE3_EXTENSION_SCHEMA
+                or historical_payload.get("kind") != "stage3_extension_approval"
+                or historical_payload.get("protocol_id") != PROTOCOL_ID
+                or historical_payload.get("approved") is not True
+                or historical_payload.get("base_step")
+                != extension_mapping.get("base_step")
+                or historical_payload.get("target_step")
+                != extension_mapping.get("target_step")
+                or historical_payload.get("validation_every_steps")
+                != extension_mapping.get("validation_every_steps")
+                or historical_payload.get("validation_steps")
+                != extension_mapping.get("validation_steps")
+                or historical_payload.get("schedule_horizon_steps")
+                != extension_mapping.get("schedule_horizon_steps")
+                or float(historical_payload.get("min_lr", -1.0))
+                != float(extension_mapping.get("min_lr", -2.0))
+                or historical_payload.get("lr_policy")
+                != extension_mapping.get("lr_policy")
+            ):
+                raise Stage3ContractError(
+                    "historical Stage3 extension authorization semantics drifted"
+                )
     if (
-        not isinstance(payload, Mapping)
-        or payload.get("schema_version") != "graphrestore-checkpoint-v1"
+        payload.get("schema_version") != "graphrestore-checkpoint-v1"
         or payload.get("stage") != "stage3"
         or payload.get("model_role") != "ema_selection"
         or payload.get("resumable") is not False
+        or payload.get("pending_validation_step") is not None
+        or payload.get("optimizer_transaction_active") is not False
+        or payload.get("executor_frozen") is not True
+        or payload.get("trainable_prefixes") != ["planner."]
+        or payload.get("amp") != {"dtype": "bfloat16", "scaler_required": False}
+        or isinstance(step, bool)
+        or not isinstance(step, int)
+        or step <= 0
+        or step > max_steps
+        or (step % validation_every_steps != 0 and step != max_steps)
     ):
         raise Stage3ContractError("Stage3 best checkpoint schema/stage mismatch")
-    source = _strict_tensor_mapping(payload.get("model"), field="Stage3 best model")
+    source = _validate_stage3_tensor_state(
+        payload.get("model"),
+        frozen_reference,
+        field="Stage3 best model",
+    )
     ema = _mapping(payload.get("ema"), field="Stage3 best EMA")
-    if ema.get("scope") != "planner_parameters_only_executor_bitwise_frozen":
-        raise Stage3ContractError("Stage3 best EMA did not preserve the frozen executor")
-    shadow = _strict_tensor_mapping(ema.get("shadow"), field="Stage3 best EMA shadow")
-    if source.keys() != shadow.keys() or any(not torch.equal(source[name], shadow[name]) for name in source):
+    ema_updates = ema.get("num_updates")
+    if (
+        ema.get("scope") != STAGE3_EMA_SCOPE
+        or ema.get("policy")
+        != stage3_ema_policy_metadata(float(paths.config["ema"]["decay"]))
+        or ema.get("decay") != float(paths.config["ema"]["decay"])
+        or isinstance(ema_updates, bool)
+        or not isinstance(ema_updates, int)
+        or ema_updates != step
+    ):
+        raise Stage3ContractError(
+            "Stage3 best EMA did not preserve the frozen executor"
+        )
+    shadow = _validate_stage3_tensor_state(
+        ema.get("shadow"),
+        frozen_reference,
+        field="Stage3 best EMA shadow",
+    )
+    if source.keys() != shadow.keys() or any(
+        not torch.equal(source[name], shadow[name]) for name in source
+    ):
         raise Stage3ContractError("Stage3 best_ema.pth does not expose EMA as model")
+    metrics = _validate_stage3_metrics(
+        payload.get("metrics"),
+        step=step,
+        max_steps=max_steps,
+        validation_every_steps=validation_every_steps,
+    )
+    if metrics.get("validation_step") != step or metrics.get("best_step") != step:
+        raise Stage3ContractError("Stage3 best checkpoint metrics/step drifted")
+    for current_field, best_field in zip(
+        _STAGE3_CURRENT_METRIC_FIELDS[:-1],
+        _STAGE3_BEST_METRIC_FIELDS[:-1],
+        strict=True,
+    ):
+        if metrics.get(current_field) != metrics.get(best_field):
+            raise Stage3ContractError(
+                "Stage3 best checkpoint current/best metrics drifted"
+            )
     fixed_drift = [
         name
         for name in source
@@ -1919,12 +3829,19 @@ def load_stage3_best_ema(
             "Stage3 best checkpoint changed frozen executor/buffer state: "
             f"{fixed_drift[:8]}"
         )
-    provenance = _mapping(payload.get("provenance"), field="Stage3 best provenance")
-    approval = _mapping(provenance.get("stage3_approval"), field="Stage3 checkpoint approval")
+    if provenance.get("ema_policy") != stage3_ema_policy_metadata(
+        float(paths.config["ema"]["decay"])
+    ):
+        raise Stage3ContractError("Stage3 best checkpoint EMA policy drifted")
+    approval = _mapping(
+        provenance.get("stage3_approval"), field="Stage3 checkpoint approval"
+    )
     if approval.get("sha256") != paths.approval.approval_sha256:
         raise Stage3ContractError("Stage3 checkpoint approval hash is stale")
     if provenance.get("bindings") != paths.approval.bindings:
-        raise Stage3ContractError("Stage3 checkpoint frozen bindings differ from approval")
+        raise Stage3ContractError(
+            "Stage3 checkpoint frozen bindings differ from approval"
+        )
     parent_binding = _mapping(
         provenance.get("parent_checkpoint"), field="Stage3 checkpoint parent"
     )
@@ -1963,20 +3880,33 @@ def load_stage3_best_ema(
         if actual != expected
     }
     if hash_drift:
-        raise Stage3ContractError(f"Stage3 checkpoint provenance hash drift: {hash_drift}")
+        raise Stage3ContractError(
+            f"Stage3 checkpoint provenance hash drift: {hash_drift}"
+        )
     model.load_state_dict(source, strict=True)
     if load_frozen_thresholds:
         thresholds = _mapping(load_json(paths.thresholds), field="planner thresholds")
+        expected_extension_sha = (
+            None
+            if extension_binding is None
+            else _mapping(extension_binding, field="Stage3 best extension provenance")[
+                "sha256"
+            ]
+        )
         if (
             thresholds.get("schema_version") != THRESHOLD_SCHEMA
             or thresholds.get("protocol_id") != PROTOCOL_ID
             or thresholds.get("frozen") is not True
             or thresholds.get("skills") != list(SKILLS)
-            or thresholds.get("stage3_approval_sha256") != paths.approval.approval_sha256
+            or thresholds.get("stage3_approval_sha256")
+            != paths.approval.approval_sha256
             or thresholds.get("checkpoint_sha256") != sha256_file(checkpoint_path)
-            or thresholds.get("primary_val_manifest_sha256") != sha256_file(paths.val_manifest)
+            or thresholds.get("primary_val_manifest_sha256")
+            != sha256_file(paths.val_manifest)
             or thresholds.get("calibration_runs") != 1
             or thresholds.get("mio100_rows_read") != 0
+            or thresholds.get("stage3_extension_authorization_sha256")
+            != expected_extension_sha
         ):
             raise Stage3ContractError("invalid frozen Stage3 presence thresholds")
         values = _mapping(thresholds.get("thresholds"), field="threshold values")
@@ -1985,7 +3915,10 @@ def load_stage3_best_ema(
         ]:
             raise Stage3ContractError("frozen threshold skill/grid schema drifted")
         ordered_thresholds = [float(values[skill]) for skill in SKILLS]
-        if any(value not in {item / 100.0 for item in range(20, 81, 2)} for value in ordered_thresholds):
+        if any(
+            value not in {item / 100.0 for item in range(20, 81, 2)}
+            for value in ordered_thresholds
+        ):
             raise Stage3ContractError("frozen threshold lies outside the locked grid")
         model.set_presence_thresholds(ordered_thresholds)
     set_stage3_trainability(model)
@@ -1994,8 +3927,319 @@ def load_stage3_best_ema(
     return model
 
 
-def _synthetic_probe_batch(batch: int, device: torch.device) -> Stage3SupervisionBatch:
+@torch.inference_mode()
+def probe_stage3_validation_vram(
+    model: GraphRestore,
+    *,
+    optimizer: torch.optim.Optimizer,
+    ema: Stage3PlannerEMA,
+    device: torch.device,
+    image_size: int = 2040,
+    max_rounds: int = 3,
+    maximum_reserved_fraction: float = 0.90,
+) -> Stage3ValidationVRAMGate:
+    """Exercise both legal full-resolution Stage3 validation topologies."""
+
+    if device.type != "cuda" or not torch.cuda.is_available():
+        raise Stage3ContractError("Stage3 validation VRAM gate requires CUDA")
+    if image_size != 2040 or max_rounds != 3 or maximum_reserved_fraction != 0.90:
+        raise Stage3ContractError("Stage3 validation VRAM gate contract drifted")
+    if not isinstance(ema, Stage3PlannerEMA):
+        raise Stage3ContractError("Stage3 validation gate requires Stage3PlannerEMA")
+    if optimizer.state:
+        raise Stage3ContractError(
+            "Stage3 validation gate requires a pristine step0 optimizer"
+        )
+    rng = capture_rng_state()
+    module_modes = {name: module.training for name, module in model.named_modules()}
+    original_mode = model.compiler.mode
+    total_memory = int(torch.cuda.get_device_properties(device).total_memory)
+    if total_memory <= 0:
+        raise Stage3ContractError("Stage3 validation VRAM gate saw invalid GPU memory")
+    image: Tensor | None = None
+    target: Tensor | None = None
+    output: Any = None
+    topology_results: list[Stage3ValidationVRAMTopology] = []
+    resident_optimizer_state_bytes = 0
+    resident_optimizer_state_entries = 0
+    resident_ema_bytes = sum(
+        value.numel() * value.element_size() for value in ema.shadow.values()
+    )
+    try:
+        model.eval()
+        # AdamW moments are lazy.  Materialize a conservative full planner-state
+        # residency without taking a scientific optimizer step, retain it across
+        # both inference topologies, and erase it before the step0 anchor.
+        for group in optimizer.param_groups:
+            parameters = group.get("params")
+            if not isinstance(parameters, list):
+                raise Stage3ContractError(
+                    "Stage3 validation gate optimizer parameters drifted"
+                )
+            for parameter in parameters:
+                if (
+                    not isinstance(parameter, nn.Parameter)
+                    or not parameter.is_floating_point()
+                ):
+                    raise Stage3ContractError(
+                        "Stage3 validation gate optimizer parameter is invalid"
+                    )
+                state = optimizer.state[parameter]
+                if state:
+                    raise Stage3ContractError(
+                        "Stage3 validation gate optimizer was not pristine"
+                    )
+                state["step"] = torch.zeros(
+                    (), dtype=torch.float32, device=parameter.device
+                )
+                state["exp_avg"] = torch.zeros_like(parameter)
+                state["exp_avg_sq"] = torch.zeros_like(parameter)
+                resident_optimizer_state_entries += 1
+                resident_optimizer_state_bytes += sum(
+                    value.numel() * value.element_size()
+                    for value in state.values()
+                    if torch.is_tensor(value)
+                )
+
+        image = torch.rand(1, 3, image_size, image_size, device=device)
+        target = torch.rand_like(image)
+        thresholds = image.new_ones(len(SKILLS))
+        thresholds[:3] = 0.0
+        from src.net.graphrestore import GraphRestoreOutput
+
+        for compiler_mode, expected_rounds in (
+            ("forced_total_order", max_rounds),
+            ("parallel_only", 1),
+        ):
+            model.compiler.mode = compiler_mode
+            output = None
+            torch.cuda.empty_cache()
+            torch.cuda.reset_peak_memory_stats(device)
+            with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
+                output = model(
+                    image,
+                    presence_thresholds=thresholds,
+                    max_rounds=max_rounds,
+                    return_trace=True,
+                )
+            if not isinstance(output, GraphRestoreOutput):
+                raise Stage3ContractError("Stage3 validation gate requires a trace")
+            if len(output.compiled_graphs) != 1:
+                raise Stage3ContractError(
+                    "Stage3 validation gate requires one compiled sample graph"
+                )
+            graph = output.compiled_graphs[0]
+            active_skill_count = len(graph.active_skills)
+            completed_rounds = len(output.trace)
+            active_by_round = tuple(
+                int(trace.active_mask[0].sum().item()) for trace in output.trace
+            )
+            if active_skill_count != 3 or completed_rounds != expected_rounds:
+                raise Stage3ContractError(
+                    f"Stage3 {compiler_mode} validation gate topology drifted"
+                )
+            if compiler_mode == "forced_total_order":
+                topology_valid = (
+                    len(graph.levels) == max_rounds
+                    and all(len(level) == 1 for level in graph.levels)
+                    and active_by_round == (1, 1, 1)
+                )
+            else:
+                topology_valid = (
+                    len(graph.levels) == 1
+                    and len(graph.levels[0]) == 3
+                    and active_by_round == (3,)
+                )
+            if not topology_valid:
+                raise Stage3ContractError(
+                    f"Stage3 {compiler_mode} validation gate execution drifted"
+                )
+            finite = bool(torch.isfinite(output.final).all())
+            if not finite:
+                raise FloatingPointError(
+                    f"non-finite Stage3 {compiler_mode} validation gate output"
+                )
+            metric = official_psnr_ssim(
+                output.final.detach().float().cpu(),
+                target.detach().float().cpu(),
+                quantize=True,
+            )
+            metric_psnr = float(metric.psnr.reshape(-1)[0])
+            metric_ssim = float(metric.ssim.reshape(-1)[0])
+            if not math.isfinite(metric_psnr) or not math.isfinite(metric_ssim):
+                raise FloatingPointError(
+                    f"non-finite Stage3 {compiler_mode} validation gate metric"
+                )
+            torch.cuda.synchronize(device)
+            peak = int(torch.cuda.max_memory_reserved(device))
+            if peak < 0:
+                raise Stage3ContractError(
+                    "Stage3 validation VRAM gate saw negative reserved memory"
+                )
+            fraction = peak / total_memory
+            topology_results.append(
+                Stage3ValidationVRAMTopology(
+                    compiler_mode=compiler_mode,
+                    active_skill_count=active_skill_count,
+                    completed_rounds=completed_rounds,
+                    active_skill_counts_by_round=active_by_round,
+                    metric_psnr=metric_psnr,
+                    metric_ssim=metric_ssim,
+                    peak_reserved_bytes=peak,
+                    peak_reserved_fraction=fraction,
+                    finite=finite,
+                    passed=fraction <= maximum_reserved_fraction,
+                )
+            )
+            output = None
+
+        peak = max(value.peak_reserved_bytes for value in topology_results)
+        fraction = max(value.peak_reserved_fraction for value in topology_results)
+        gate = Stage3ValidationVRAMGate(
+            schema_version="graphrestore-stage3-validation-vram-gate-v1",
+            image_size=image_size,
+            max_rounds=max_rounds,
+            completed_rounds=max_rounds,
+            topologies=tuple(topology_results),
+            peak_reserved_bytes=peak,
+            peak_reserved_fraction=fraction,
+            maximum_peak_reserved_fraction=maximum_reserved_fraction,
+            resident_optimizer_state_entries=resident_optimizer_state_entries,
+            resident_optimizer_state_bytes=resident_optimizer_state_bytes,
+            resident_ema_bytes=resident_ema_bytes,
+            optimizer_state_empty_after=True,
+            finite=all(value.finite for value in topology_results),
+            passed=all(value.passed for value in topology_results),
+        )
+        if not gate.passed:
+            raise Stage3ContractError(
+                "Stage3 2040-square validation topology peak "
+                f"{fraction:.4f} exceeds 0.90"
+            )
+        return gate
+    finally:
+        model.compiler.mode = original_mode
+        for name, module in model.named_modules():
+            module.training = module_modes[name]
+        image = target = output = None
+        optimizer.state.clear()
+        restore_rng_state(rng)
+        torch.cuda.empty_cache()
+        torch.cuda.reset_peak_memory_stats(device)
+
+
+def validate_stage3_validation_vram_evidence(value: object) -> dict[str, Any]:
+    """Normalize and fail closed on frozen run-contract VRAM evidence."""
+
+    evidence = _mapping(value, field="Stage3 validation_vram_gate")
+    required = {
+        "schema_version",
+        "image_size",
+        "max_rounds",
+        "completed_rounds",
+        "topologies",
+        "peak_reserved_bytes",
+        "peak_reserved_fraction",
+        "maximum_peak_reserved_fraction",
+        "resident_optimizer_state_entries",
+        "resident_optimizer_state_bytes",
+        "resident_ema_bytes",
+        "optimizer_state_empty_after",
+        "finite",
+        "passed",
+    }
+    if set(evidence) != required:
+        raise Stage3ContractError("Stage3 validation VRAM evidence fields drifted")
+    if (
+        evidence.get("schema_version") != "graphrestore-stage3-validation-vram-gate-v1"
+        or evidence.get("image_size") != 2040
+        or evidence.get("max_rounds") != 3
+        or evidence.get("completed_rounds") != 3
+        or evidence.get("maximum_peak_reserved_fraction") != 0.90
+        or evidence.get("optimizer_state_empty_after") is not True
+        or evidence.get("finite") is not True
+        or evidence.get("passed") is not True
+    ):
+        raise Stage3ContractError("Stage3 validation VRAM evidence contract drifted")
+    for field in (
+        "peak_reserved_bytes",
+        "resident_optimizer_state_entries",
+        "resident_optimizer_state_bytes",
+        "resident_ema_bytes",
+    ):
+        item = evidence.get(field)
+        if isinstance(item, bool) or not isinstance(item, int) or item <= 0:
+            raise Stage3ContractError(
+                f"Stage3 validation VRAM evidence {field} is invalid"
+            )
+    peak_fraction = evidence.get("peak_reserved_fraction")
+    if (
+        isinstance(peak_fraction, bool)
+        or not isinstance(peak_fraction, (int, float))
+        or not math.isfinite(float(peak_fraction))
+        or not 0.0 < float(peak_fraction) <= 0.90
+    ):
+        raise Stage3ContractError("Stage3 validation VRAM evidence peak is invalid")
+    topologies = evidence.get("topologies")
+    if not isinstance(topologies, (list, tuple)) or len(topologies) != 2:
+        raise Stage3ContractError("Stage3 validation VRAM topology evidence drifted")
+    normalized_topologies: list[dict[str, Any]] = []
+    expected = (
+        ("forced_total_order", 3, (1, 1, 1)),
+        ("parallel_only", 1, (3,)),
+    )
+    for row, (mode, rounds, active_by_round) in zip(topologies, expected, strict=True):
+        topology = _mapping(row, field="Stage3 validation VRAM topology")
+        if (
+            topology.get("compiler_mode") != mode
+            or topology.get("active_skill_count") != 3
+            or topology.get("completed_rounds") != rounds
+            or tuple(topology.get("active_skill_counts_by_round", ()))
+            != active_by_round
+            or topology.get("finite") is not True
+            or topology.get("passed") is not True
+        ):
+            raise Stage3ContractError(f"Stage3 validation VRAM {mode} topology drifted")
+        normalized = dict(topology)
+        normalized["active_skill_counts_by_round"] = list(active_by_round)
+        for field in ("metric_psnr", "metric_ssim", "peak_reserved_fraction"):
+            item = topology.get(field)
+            if (
+                isinstance(item, bool)
+                or not isinstance(item, (int, float))
+                or not math.isfinite(float(item))
+            ):
+                raise Stage3ContractError(
+                    f"Stage3 validation VRAM {mode} {field} is non-finite"
+                )
+        row_peak = topology.get("peak_reserved_bytes")
+        if isinstance(row_peak, bool) or not isinstance(row_peak, int) or row_peak <= 0:
+            raise Stage3ContractError(f"Stage3 validation VRAM {mode} peak is invalid")
+        if not 0.0 < float(topology["peak_reserved_fraction"]) <= 0.90:
+            raise Stage3ContractError(
+                f"Stage3 validation VRAM {mode} peak exceeds 0.90"
+            )
+        normalized_topologies.append(normalized)
+    normalized_evidence = dict(evidence)
+    normalized_evidence["topologies"] = normalized_topologies
+    if normalized_evidence["peak_reserved_bytes"] != max(
+        row["peak_reserved_bytes"] for row in normalized_topologies
+    ) or normalized_evidence["peak_reserved_fraction"] != max(
+        row["peak_reserved_fraction"] for row in normalized_topologies
+    ):
+        raise Stage3ContractError("Stage3 validation VRAM aggregate peak drifted")
+    return normalized_evidence
+
+
+def _synthetic_probe_batch(
+    batch: int,
+    device: torch.device,
+    *,
+    model: GraphRestore | None = None,
+    include_teacher_intermediate: bool = False,
+) -> Stage3SupervisionBatch:
     image = torch.rand(batch, 3, 192, 192, device=device)
+    current = image.clone()
     presence = torch.zeros(batch, 8, device=device)
     presence[:, :2] = 1.0
     guards = torch.rand(batch, 8, 48, 48, device=device) * presence[:, :, None, None]
@@ -2006,9 +4250,29 @@ def _synthetic_probe_batch(batch: int, device: torch.device) -> Stage3Supervisio
     dense_ids = torch.tensor(
         [skill in DENSE_GUARD_SKILLS for skill in SKILLS], device=device
     )
+    state_kinds = ["group_a_pair"] * batch
+    model_intermediate_count = 0
+    if include_teacher_intermediate:
+        if model is None:
+            raise Stage3ContractError(
+                "Stage3 teacher probe requires the frozen executor model"
+            )
+        teacher_skill_id = 0
+        current[0] = _teacher_model_intermediate(
+            model,
+            image[0],
+            guards[0],
+            teacher_skill_id,
+        )
+        presence[0, teacher_skill_id] = 0.0
+        guards[0, teacher_skill_id] = 0.0
+        relation_weights[0].zero_()
+        relation_targets[0].fill_(-2)
+        state_kinds[0] = "model_generated_intermediate"
+        model_intermediate_count = 1
     return Stage3SupervisionBatch(
         x0=image,
-        current=image.clone(),
+        current=current,
         presence_targets=presence,
         guard_targets=guards,
         global_severity_targets=guards.mean(dim=(-2, -1)),
@@ -2021,8 +4285,8 @@ def _synthetic_probe_batch(batch: int, device: torch.device) -> Stage3Supervisio
         relation_ambiguous_mask=torch.zeros(batch, 28, device=device, dtype=torch.bool),
         round_values=torch.zeros(batch, device=device),
         sample_ids=tuple(f"probe-{index}" for index in range(batch)),
-        state_kinds=tuple("group_a_pair" for _ in range(batch)),
-        model_intermediate_count=0,
+        state_kinds=tuple(state_kinds),
+        model_intermediate_count=model_intermediate_count,
     )
 
 
@@ -2039,52 +4303,104 @@ def select_stage3_micro_batch(
     if tuple(candidates) not in {(8, 4, 2, 1), (8,), (4,), (2,), (1,)}:
         raise Stage3ContractError("Stage3 micro-batch candidates drifted")
     if required_passes != 10 or maximum_reserved_fraction != 0.90:
-        raise Stage3ContractError("Stage3 probe must use ten passes and <=90% reserved")
+        raise Stage3ContractError(
+            "Stage3 probe must use ten optimizer steps and <=90% reserved"
+        )
+    if any(8 % candidate != 0 for candidate in candidates):
+        raise Stage3ContractError(
+            "Stage3 probe candidates must divide effective batch 8"
+        )
     rng = capture_rng_state()
+    pristine_model = {
+        name: value.detach().clone()
+        for name, value in unwrap_model(model).state_dict().items()
+    }
     trials: list[Stage3MicroBatchTrial] = []
     total_memory = int(torch.cuda.get_device_properties(device).total_memory)
     _stage3_train_mode(model)
     try:
         for candidate in candidates:
+            unwrap_model(model).load_state_dict(pristine_model, strict=True)
+            restore_rng_state(rng)
+            set_stage3_trainability(model)
             model.zero_grad(set_to_none=True)
             torch.cuda.empty_cache()
             torch.cuda.reset_peak_memory_stats(device)
             completed = 0
             error: str | None = None
             throughput = 0.0
+            peak = 0
+            fraction = 0.0
+            optimizer = scheduler = ema = None
+            micro_batches: list[Stage3SupervisionBatch] = []
             started = time.perf_counter()
             try:
-                probe = _synthetic_probe_batch(candidate, device)
-                for _ in range(required_passes):
-                    model.zero_grad(set_to_none=True)
-                    with torch.autocast(device_type="cuda", dtype=torch.bfloat16):
-                        output = stage3_planner_forward(model, probe)
-                        loss, _ = stage3_supervision_loss(output, probe)
-                    loss.total.backward()
-                    assert_only_planner_gradients(model)
+                optimizer = build_stage3_optimizer(model)
+                scheduler = WarmupCosineScheduler(
+                    optimizer,
+                    warmup_steps=500,
+                    max_steps=12_000,
+                    min_lr=2.0e-6,
+                )
+                ema = Stage3PlannerEMA(model, decay=0.9999)
+                accumulation_steps = 8 // candidate
+                for optimizer_step in range(required_passes):
+                    micro_batches = [
+                        _synthetic_probe_batch(
+                            candidate,
+                            device,
+                            model=model,
+                            include_teacher_intermediate=(
+                                optimizer_step == 0 and micro_batch_index == 0
+                            ),
+                        )
+                        for micro_batch_index in range(accumulation_steps)
+                    ]
+                    train_stage3_optimizer_step(
+                        model,
+                        micro_batches,
+                        optimizer,
+                        scheduler,
+                        ema,
+                        device=device,
+                        use_bf16=True,
+                        audit_gradients=True,
+                    )
                     completed += 1
                 torch.cuda.synchronize(device)
                 elapsed = time.perf_counter() - started
-                throughput = candidate * completed / max(elapsed, 1e-9)
+                throughput = 8 * completed / max(elapsed, 1e-9)
                 peak = int(torch.cuda.max_memory_reserved(device))
                 fraction = peak / total_memory
-                passed = completed == required_passes and fraction <= maximum_reserved_fraction
+                passed = (
+                    completed == required_passes
+                    and fraction <= maximum_reserved_fraction
+                )
                 if not passed:
                     error = f"peak reserved fraction {fraction:.4f} exceeds 0.90"
-            except torch.OutOfMemoryError as exc:
+                for name, value in unwrap_model(model).state_dict().items():
+                    if not name.startswith("planner.") and not torch.equal(
+                        value, pristine_model[name]
+                    ):
+                        raise Stage3ContractError(
+                            "Stage3 micro probe changed frozen executor state"
+                        )
+            except torch.cuda.OutOfMemoryError as exc:
                 peak = int(torch.cuda.max_memory_reserved(device))
                 fraction = peak / total_memory
                 passed = False
                 error = f"CUDA OOM: {exc}"
             finally:
                 model.zero_grad(set_to_none=True)
-                probe = output = loss = None
+                micro_batches.clear()
+                optimizer = scheduler = ema = None
+                unwrap_model(model).load_state_dict(pristine_model, strict=True)
                 torch.cuda.empty_cache()
             trials.append(
                 Stage3MicroBatchTrial(
                     micro_batch=candidate,
                     passed=passed,
-                    completed_passes=completed,
+                    completed_optimizer_steps=completed,
                     images_per_second=throughput,
                     peak_reserved_bytes=peak,
                     peak_reserved_fraction=fraction,
@@ -2092,13 +4408,18 @@ def select_stage3_micro_batch(
                 )
             )
     finally:
+        unwrap_model(model).load_state_dict(pristine_model, strict=True)
         restore_rng_state(rng)
         model.zero_grad(set_to_none=True)
         torch.cuda.empty_cache()
     accepted = [trial for trial in trials if trial.passed]
     if not accepted:
-        raise Stage3ContractError("no Stage3 micro batch passed the ten-pass <=90% gate")
-    winner = max(accepted, key=lambda trial: (trial.images_per_second, trial.micro_batch))
+        raise Stage3ContractError(
+            "no Stage3 micro batch passed the ten-optimizer-step <=90% gate"
+        )
+    winner = max(
+        accepted, key=lambda trial: (trial.images_per_second, trial.micro_batch)
+    )
     return winner.micro_batch, tuple(trials)
 
 
@@ -2113,6 +4434,390 @@ def validation_score(summary: Mapping[str, Any], step: int) -> ValidationScore:
         single_ssim=float(single["ssim"]),
         step=step,
     )
+
+
+_STAGE3_FINALIZATION_BINDINGS = frozenset(
+    {
+        "best_checkpoint",
+        "abandoned_last_checkpoint",
+        "selected_validation",
+        "thresholds",
+        "selected_validation_calibrated",
+        "report",
+        "finalization_authorization",
+        "historical_extension_authorization",
+        "stage3_approval",
+        "approval_required",
+        "stage1_checkpoint",
+        "run_contract",
+        "stage3_config",
+        "primary_val_manifest",
+        "relation_val",
+        "pair_prior",
+        "global_priority",
+        "calibration_history",
+    }
+)
+
+
+def _finalization_output_binding(
+    value: object,
+    *,
+    field: str,
+    expected_path: Path | None = None,
+) -> dict[str, str]:
+    binding = _mapping(value, field=field)
+    if set(binding) != {"path", "sha256"}:
+        raise Stage3ContractError(f"{field} binding fields drifted")
+    raw_path, digest = binding.get("path"), binding.get("sha256")
+    if not isinstance(raw_path, str) or not is_sha256(digest):
+        raise Stage3ContractError(f"{field} binding is invalid")
+    path = Path(raw_path).resolve(strict=False)
+    if expected_path is not None and path != expected_path.resolve(strict=False):
+        raise Stage3ContractError(f"{field} path drifted")
+    if not path.is_file() or sha256_file(path) != digest:
+        raise Stage3ContractError(f"{field} physical hash drifted")
+    return {"path": str(path), "sha256": str(digest)}
+
+
+def _required_finite_number(value: object, *, field: str) -> float:
+    if (
+        isinstance(value, bool)
+        or not isinstance(value, (int, float))
+        or not math.isfinite(float(value))
+    ):
+        raise Stage3ContractError(f"{field} is non-finite")
+    return float(value)
+
+
+def validate_stage3_finalization_outputs(
+    project_root: str | Path,
+    *,
+    finalization_authorization_sha256: str,
+    historical_extension_authorization_sha256: str,
+) -> dict[str, Any]:
+    """Validate the finalize-only Stage3 closure using CPU/file I/O only.
+
+    This is shared by the dedicated finalizer, orchestrator and Stage4 parent
+    preflight so the three entrypoints cannot silently diverge.
+    """
+
+    if not is_sha256(finalization_authorization_sha256) or not is_sha256(
+        historical_extension_authorization_sha256
+    ):
+        raise Stage3ContractError("Stage3 finalization authorization SHA is invalid")
+    root = Path(project_root).resolve()
+    checkpoint_dir = root / "artifacts/checkpoints/stage3"
+    complete_path = checkpoint_dir / "complete.json"
+    threshold_path = root / "artifacts/planner_thresholds.json"
+    calibrated_path = checkpoint_dir / "selected_validation_calibrated.json"
+    report_path = root / "reports/STAGE3_PLANNER_GUARD.md"
+    original_path = checkpoint_dir / "selected_validation.json"
+    complete = _mapping(load_json(complete_path), field="Stage3 complete.json")
+    if (
+        complete.get("schema_version") != STAGE3_SCHEMA
+        or complete.get("kind") != "stage3_finalize_only"
+        or complete.get("protocol_id") != PROTOCOL_ID
+        or complete.get("step") != STAGE3_BASE_TARGET_STEP
+        or complete.get("optimizer_created") is not False
+        or complete.get("scheduler_created") is not False
+        or complete.get("train_loader_created") is not False
+        or complete.get("checkpoint_written") is not False
+        or complete.get("optimizer_steps_executed") != 0
+        or complete.get("checkpoint_writes") != 0
+        or complete.get("sampler_steps_advanced") != 0
+        or complete.get("abandoned_last_checkpoint_role")
+        != "abandoned_unselected_extension_state"
+        or complete.get("stage4_parent_role") != "only_stage3_parent"
+        or complete.get("threshold_calibration_runs") != 1
+        or complete.get("post_calibration_diagnostic_runs") != 1
+        or complete.get("mio100_rows_read") != 0
+        or complete.get("group_b_rows_read") != 0
+        or complete.get("group_c_rows_read") != 0
+    ):
+        raise Stage3ContractError("Stage3 finalize-only completion fields drifted")
+    bindings = _mapping(complete.get("bindings"), field="Stage3 complete bindings")
+    if set(bindings) != _STAGE3_FINALIZATION_BINDINGS:
+        raise Stage3ContractError("Stage3 finalize-only binding set drifted")
+    expected_paths = {
+        "best_checkpoint": checkpoint_dir / "best_ema.pth",
+        "selected_validation": original_path,
+        "thresholds": threshold_path,
+        "selected_validation_calibrated": calibrated_path,
+        "report": report_path,
+        "stage3_config": root / "configs/stage3_planner.yaml",
+        "stage3_approval": root / "artifacts/approvals/STAGE3_APPROVED.json",
+        "approval_required": root / "artifacts/approvals/STAGE3_APPROVAL_REQUIRED.json",
+        "stage1_checkpoint": root / "artifacts/checkpoints/stage1/best_ema.pth",
+        "relation_val": root
+        / "artifacts/interaction_labels/group_a_relations_val.jsonl",
+        "pair_prior": root / "artifacts/interaction_labels/pair_prior.json",
+        "global_priority": root / "artifacts/interaction_labels/global_priority.json",
+        "calibration_history": root / "artifacts/metrics/calibration_history.csv",
+    }
+    verified: dict[str, dict[str, str]] = {}
+    for logical in sorted(bindings):
+        verified[logical] = _finalization_output_binding(
+            bindings[logical],
+            field=f"complete.bindings.{logical}",
+            expected_path=expected_paths.get(logical),
+        )
+    if (
+        verified["finalization_authorization"]["sha256"]
+        != finalization_authorization_sha256
+        or verified["historical_extension_authorization"]["sha256"]
+        != historical_extension_authorization_sha256
+        or complete.get("best_checkpoint_sha256")
+        != verified["best_checkpoint"]["sha256"]
+        or complete.get("thresholds_sha256") != verified["thresholds"]["sha256"]
+    ):
+        raise Stage3ContractError("Stage3 completion identity binding drifted")
+    live_last = checkpoint_dir / "last.pth"
+    live_run_contract = checkpoint_dir / "run_contract.json"
+    if (
+        not live_run_contract.is_file()
+        or sha256_file(live_run_contract) != verified["run_contract"]["sha256"]
+    ):
+        raise Stage3ContractError("live Stage3 run contract drifted")
+    if (
+        not live_last.is_file()
+        or sha256_file(live_last) != verified["abandoned_last_checkpoint"]["sha256"]
+    ):
+        raise Stage3ContractError("live abandoned Stage3 last checkpoint drifted")
+    abandoned = torch.load(live_last, map_location="cpu", weights_only=False)
+    if (
+        not isinstance(abandoned, Mapping)
+        or abandoned.get("stage") != "stage3"
+        or abandoned.get("model_role") != "raw_training_state"
+        or abandoned.get("resumable") is not True
+        or abandoned.get("step") != 14_000
+        or abandoned.get("pending_validation_step") != 14_000
+    ):
+        raise Stage3ContractError(
+            "abandoned Stage3 last checkpoint role/step/pending drifted"
+        )
+
+    thresholds = _mapping(load_json(threshold_path), field="planner thresholds")
+    if (
+        thresholds.get("schema_version") != THRESHOLD_SCHEMA
+        or thresholds.get("protocol_id") != PROTOCOL_ID
+        or thresholds.get("source") != "primary_val_presence_f1_only"
+        or thresholds.get("frozen") is not True
+        or thresholds.get("skills") != list(SKILLS)
+        or thresholds.get("baseline_threshold") != 0.50
+        or thresholds.get("search_grid")
+        != [value / 100.0 for value in range(20, 81, 2)]
+        or thresholds.get("tie_break") != THRESHOLD_TIE_BREAK
+        or thresholds.get("numerical_tolerance") != THRESHOLD_F1_TOLERANCE
+        or thresholds.get("calibration_runs") != 1
+        or thresholds.get("mio100_rows_read") != 0
+        or thresholds.get("group_b_rows_read") != 0
+        or thresholds.get("group_c_rows_read") != 0
+        or thresholds.get("checkpoint_sha256") != verified["best_checkpoint"]["sha256"]
+        or thresholds.get("primary_val_manifest_sha256")
+        != verified["primary_val_manifest"]["sha256"]
+        or thresholds.get("stage3_finalization_authorization_sha256")
+        != finalization_authorization_sha256
+        or thresholds.get("stage3_extension_authorization_sha256")
+        != historical_extension_authorization_sha256
+    ):
+        raise Stage3ContractError("frozen Stage3 threshold contract drifted")
+    values = _mapping(thresholds.get("thresholds"), field="threshold values")
+    per_skill_f1 = _mapping(
+        thresholds.get("per_skill_f1"), field="threshold per-skill F1"
+    )
+    per_skill_metrics = _mapping(
+        thresholds.get("per_skill_metrics"), field="threshold per-skill metrics"
+    )
+    if (
+        set(values) != set(SKILLS)
+        or set(per_skill_f1) != set(SKILLS)
+        or set(per_skill_metrics) != set(SKILLS)
+    ):
+        raise Stage3ContractError("frozen Stage3 threshold skill set drifted")
+    grid = {value / 100.0 for value in range(20, 81, 2)}
+    baseline_f1_values: list[float] = []
+    calibrated_f1_values: list[float] = []
+    for skill in SKILLS:
+        selected_threshold = _required_finite_number(
+            values[skill], field=f"thresholds.{skill}"
+        )
+        if selected_threshold not in grid:
+            raise Stage3ContractError(f"{skill}: calibrated threshold left grid")
+        metrics = _mapping(per_skill_metrics[skill], field=f"metrics.{skill}")
+        if set(metrics) != {"baseline", "calibrated"}:
+            raise Stage3ContractError(f"{skill}: threshold metric roles drifted")
+        baseline = _mapping(metrics["baseline"], field=f"baseline.{skill}")
+        calibrated = _mapping(metrics["calibrated"], field=f"calibrated.{skill}")
+        expected_metric_keys = {"threshold", "precision", "recall", "f1"}
+        if (
+            set(baseline) != expected_metric_keys
+            or set(calibrated) != expected_metric_keys
+        ):
+            raise Stage3ContractError(f"{skill}: threshold metric fields drifted")
+        before = _required_finite_number(baseline["f1"], field=f"baseline.{skill}.f1")
+        after = _required_finite_number(
+            calibrated["f1"], field=f"calibrated.{skill}.f1"
+        )
+        for role, row in (("baseline", baseline), ("calibrated", calibrated)):
+            for metric in ("precision", "recall"):
+                value = _required_finite_number(
+                    row[metric], field=f"{role}.{skill}.{metric}"
+                )
+                if not 0.0 <= value <= 1.0:
+                    raise Stage3ContractError(f"{role}.{skill}.{metric} escaped [0,1]")
+        if (
+            baseline["threshold"] != 0.50
+            or calibrated["threshold"] != selected_threshold
+            or after + THRESHOLD_F1_TOLERANCE < before
+            or float(per_skill_f1[skill]) != after
+        ):
+            raise Stage3ContractError(f"{skill}: calibrated F1 contract drifted")
+        baseline_f1_values.append(before)
+        calibrated_f1_values.append(after)
+    macro_before = _required_finite_number(
+        thresholds.get("macro_f1_before"), field="macro_f1_before"
+    )
+    macro_after = _required_finite_number(
+        thresholds.get("macro_f1_after"), field="macro_f1_after"
+    )
+    if macro_after + THRESHOLD_F1_TOLERANCE < macro_before:
+        raise Stage3ContractError("calibrated Stage3 macro F1 regressed")
+    if macro_before != math.fsum(baseline_f1_values) / len(
+        SKILLS
+    ) or macro_after != math.fsum(calibrated_f1_values) / len(SKILLS):
+        raise Stage3ContractError("frozen Stage3 macro F1 aggregation drifted")
+    calibration_code = _finalization_output_binding(
+        thresholds.get("calibration_code"), field="calibration_code"
+    )
+    if calibration_code["path"] != str(Path(__file__).resolve()):
+        raise Stage3ContractError("Stage3 calibration code path drifted")
+
+    diagnostic = _mapping(
+        load_json(calibrated_path), field="selected_validation_calibrated.json"
+    )
+    sources = _mapping(diagnostic.get("sources"), field="diagnostic sources")
+    restoration = _mapping(
+        diagnostic.get("restoration"), field="diagnostic restoration"
+    )
+    planner = _mapping(diagnostic.get("planner"), field="diagnostic planner")
+    relation = _mapping(diagnostic.get("relation"), field="diagnostic relation")
+    guard = _mapping(diagnostic.get("guard"), field="diagnostic guard")
+    graph = _mapping(diagnostic.get("graph"), field="diagnostic graph")
+    if (
+        diagnostic.get("schema_version") != STAGE3_SCHEMA
+        or diagnostic.get("protocol_id") != PROTOCOL_ID
+        or diagnostic.get("diagnostic_role")
+        != "post_calibration_non_selection_diagnostic"
+        or diagnostic.get("selected_step") != STAGE3_BASE_TARGET_STEP
+        or diagnostic.get("selected_checkpoint_sha256")
+        != verified["best_checkpoint"]["sha256"]
+        or diagnostic.get("thresholds_sha256") != verified["thresholds"]["sha256"]
+        or diagnostic.get("stage3_finalization_authorization_sha256")
+        != finalization_authorization_sha256
+        or diagnostic.get("post_calibration_diagnostic_runs") != 1
+        or sources.get("mio100_rows_read") != 0
+        or diagnostic.get("group_b_rows_read") != 0
+        or diagnostic.get("group_c_rows_read") != 0
+        or planner.get("sample_count") != 1600
+        or graph.get("sample_count") != 1600
+    ):
+        raise Stage3ContractError("post-calibration Stage3 diagnostic contract drifted")
+    expected_threshold_values = [float(values[skill]) for skill in SKILLS]
+    if diagnostic.get(
+        "checkpoint_presence_threshold"
+    ) != expected_threshold_values or diagnostic.get("presence_thresholds") != {
+        skill: float(values[skill]) for skill in SKILLS
+    }:
+        raise Stage3ContractError("post-calibration diagnostic thresholds drifted")
+    for group in ("single", "group_a"):
+        row = _mapping(restoration.get(group), field=f"diagnostic {group}")
+        if row.get("count") != 800 or row.get("task_count") != 8:
+            raise Stage3ContractError(f"diagnostic {group} coverage drifted")
+        _required_finite_number(row.get("psnr"), field=f"{group}.psnr")
+        _required_finite_number(row.get("ssim"), field=f"{group}.ssim")
+    _required_finite_number(planner.get("macro_f1"), field="planner.macro_f1")
+    _required_finite_number(
+        planner.get("activation_rate"), field="planner.activation_rate"
+    )
+    if (
+        planner.get("activation_rate_definition")
+        != "fraction_of_sample_skill_slots_predicted_active"
+    ):
+        raise Stage3ContractError("planner activation-rate definition drifted")
+    planner_per_skill = _mapping(
+        planner.get("per_skill"), field="diagnostic planner per_skill"
+    )
+    if set(planner_per_skill) != set(SKILLS):
+        raise Stage3ContractError("diagnostic planner skill set drifted")
+    for skill in SKILLS:
+        row = _mapping(planner_per_skill[skill], field=f"planner.{skill}")
+        if row.get("threshold") != float(values[skill]):
+            raise Stage3ContractError(f"planner.{skill} threshold drifted")
+        for metric in ("precision", "recall", "f1", "activation_rate"):
+            _required_finite_number(row.get(metric), field=f"planner.{skill}.{metric}")
+    for field in (
+        "relation_accuracy_non_ambiguous",
+        "parallel_precision_non_ambiguous",
+        "parallel_recall_non_ambiguous",
+    ):
+        _required_finite_number(relation.get(field), field=f"relation.{field}")
+    learned_raw = _mapping(
+        relation.get("learned_raw"), field="learned raw relation metrics"
+    )
+    for metric in ("accuracy", "macro_f1", "balanced_accuracy"):
+        _required_finite_number(
+            learned_raw.get(metric), field=f"relation.learned_raw.{metric}"
+        )
+    if learned_raw.get("accuracy") != relation.get("relation_accuracy_non_ambiguous"):
+        raise Stage3ContractError("learned raw relation accuracy drifted")
+    baseline = _mapping(
+        relation.get("cpu_baseline_audit"), field="relation CPU baseline audit"
+    )
+    if (
+        baseline.get("n_total") != 800
+        or baseline.get("n_non_ambiguous") != 735
+        or baseline.get("n_ambiguous_excluded") != 65
+        or baseline.get("mio100_rows_read") != 0
+        or baseline.get("group_b_rows_read") != 0
+        or baseline.get("group_c_rows_read") != 0
+    ):
+        raise Stage3ContractError("relation CPU baseline coverage drifted")
+    _required_finite_number(
+        baseline.get("learned_raw_accuracy"), field="learned relation accuracy"
+    )
+    for name in ("always_parallel", "per_pair_majority_prior"):
+        row = _mapping(baseline.get(name), field=f"relation baseline {name}")
+        for metric in ("accuracy", "macro_f1", "balanced_accuracy"):
+            _required_finite_number(row.get(metric), field=f"{name}.{metric}")
+    for field in (
+        "guard_spearman_rain",
+        "guard_mae_rain",
+        "guard_spearman_haze",
+        "guard_mae_haze",
+    ):
+        _required_finite_number(guard.get(field), field=f"guard.{field}")
+    for field in ("mean_program_levels", "sample_stop_rate"):
+        _required_finite_number(graph.get(field), field=f"graph.{field}")
+    if (
+        graph.get("sample_stop_rate_definition")
+        != "fraction_of_samples_with_stopped_mask_in_any_formal_inference_round"
+    ):
+        raise Stage3ContractError("graph STOP-rate definition drifted")
+    if graph.get("post_compiler_cycle_rate") != 0.0:
+        raise Stage3ContractError("post-calibration graph contains a cycle")
+
+    return {
+        "complete": {
+            "path": str(complete_path.resolve()),
+            "sha256": sha256_file(complete_path),
+        },
+        "thresholds": verified["thresholds"],
+        "selected_validation_calibrated": verified["selected_validation_calibrated"],
+        "report": verified["report"],
+        "best_checkpoint": verified["best_checkpoint"],
+        "payload": dict(complete),
+    }
 
 
 CALIBRATION_COLUMNS = (
@@ -2192,43 +4897,86 @@ def calibration_history_row(summary: Mapping[str, Any], step: int) -> dict[str, 
 
 def append_calibration_history(path: str | Path, row: Mapping[str, Any]) -> None:
     destination = Path(path)
-    destination.parent.mkdir(parents=True, exist_ok=True)
-    exists = destination.is_file()
-    if exists:
+    existing_rows: list[dict[str, str]] = []
+    if destination.is_file():
         with destination.open("r", encoding="utf-8", newline="") as existing:
-            reader = csv.reader(existing)
-            try:
-                header = tuple(next(reader))
-            except StopIteration as exc:
-                raise Stage3ContractError("existing calibration history is empty") from exc
-        if header != CALIBRATION_COLUMNS:
-            raise Stage3ContractError(
-                "calibration history header drifted: "
-                f"expected {CALIBRATION_COLUMNS}, got {header}"
+            reader = csv.DictReader(existing)
+            if tuple(reader.fieldnames or ()) != CALIBRATION_COLUMNS:
+                raise Stage3ContractError(
+                    "calibration history header drifted: "
+                    f"expected {CALIBRATION_COLUMNS}, got {tuple(reader.fieldnames or ())}"
+                )
+            existing_rows = [dict(item) for item in reader]
+
+    # Normalize through DictWriter once so replay comparison uses the exact CSV
+    # representation (including None -> empty string and float formatting).
+    normalized_buffer = io.StringIO(newline="")
+    normalized_writer = csv.DictWriter(
+        normalized_buffer, fieldnames=CALIBRATION_COLUMNS
+    )
+    normalized_writer.writerow({key: row.get(key) for key in CALIBRATION_COLUMNS})
+    normalized_buffer.seek(0)
+    normalized = next(
+        csv.DictReader(
+            io.StringIO(
+                ",".join(CALIBRATION_COLUMNS) + "\n" + normalized_buffer.getvalue()
             )
-    with destination.open("a", encoding="utf-8", newline="") as handle:
-        writer = csv.DictWriter(handle, fieldnames=CALIBRATION_COLUMNS)
-        if not exists:
-            writer.writeheader()
-        writer.writerow({key: row.get(key) for key in CALIBRATION_COLUMNS})
-        handle.flush()
+        )
+    )
+    if any(existing == normalized for existing in existing_rows):
+        return
+    if normalized.get("planner_macro_f1", ""):
+        conflicting_stage3_rows = [
+            existing
+            for existing in existing_rows
+            if existing.get("step") == normalized.get("step")
+            and existing.get("planner_macro_f1", "")
+        ]
+        if conflicting_stage3_rows:
+            raise Stage3ContractError(
+                "conflicting Stage3 calibration row for the same step"
+            )
+
+    output = io.StringIO(newline="")
+    writer = csv.DictWriter(output, fieldnames=CALIBRATION_COLUMNS)
+    writer.writeheader()
+    writer.writerows(existing_rows)
+    writer.writerow(normalized)
+    atomic_write_text(destination, output.getvalue())
 
 
 __all__ = [
     "APPROVAL_SCHEMA",
     "CALIBRATION_COLUMNS",
     "PROTOCOL_ID",
+    "STAGE3_ALLOCATOR_CONF",
+    "STAGE3_BASE_TARGET_STEP",
+    "STAGE3_EMA_SCHEMA",
+    "STAGE3_EMA_SCOPE",
+    "STAGE3_EXTENSION_FILENAME",
+    "STAGE3_EXTENSION_LR_POLICY",
+    "STAGE3_EXTENSION_MIGRATION_NAME",
+    "STAGE3_EXTENSION_SCHEMA",
+    "STAGE3_EXTENSION_TARGET_STEP",
+    "STAGE3_EXTENSION_VALIDATION_STEPS",
     "STAGE3_SCHEMA",
     "Stage3ApprovalEvidence",
     "Stage3ContractError",
+    "Stage3ExtensionEvidence",
     "Stage3MicroBatchTrial",
+    "Stage3OptimizerTransaction",
     "Stage3ParentLoadReport",
     "Stage3PlannerEMA",
     "Stage3Paths",
     "Stage3StepResult",
     "Stage3SupervisionBatch",
+    "Stage3ValidationVRAMGate",
+    "Stage3ValidationVRAMTopology",
     "THRESHOLD_SCHEMA",
+    "THRESHOLD_F1_TOLERANCE",
+    "THRESHOLD_TIE_BREAK",
     "ThresholdCalibration",
+    "align_guard_prediction_to_target",
     "append_calibration_history",
     "assert_relation_clean_disjoint",
     "assert_only_planner_gradients",
@@ -2239,22 +4987,33 @@ __all__ = [
     "calibration_history_row",
     "collect_primary_val_presence",
     "configure_stage3_reproducibility",
+    "enforce_stage3_peak_memory",
     "freeze_presence_thresholds",
     "guard_structure_diagnostics",
     "load_relation_records",
     "load_stage1_ema_into_graphrestore",
     "load_stage3_best_ema",
     "presence_diagnostics",
+    "relation_baseline_audit",
     "prepare_stage3_supervision_batch",
+    "probe_stage3_validation_vram",
     "resume_stage3_checkpoint",
+    "reset_stage3_peak_memory",
     "save_stage3_checkpoint",
     "select_stage3_micro_batch",
     "set_stage3_trainability",
     "stage3_planner_forward",
+    "stage3_ema_policy_metadata",
     "stage3_supervision_loss",
+    "stage3_training_target_step",
     "train_stage3_optimizer_step",
     "validate_stage3",
     "validate_stage3_approval",
+    "validate_stage3_allocator_conf",
     "validate_stage3_config",
+    "validate_stage3_extension_authorization",
+    "validate_stage3_finalization_outputs",
+    "validate_stage3_pending_validation_step",
+    "validate_stage3_validation_vram_evidence",
     "validation_score",
 ]

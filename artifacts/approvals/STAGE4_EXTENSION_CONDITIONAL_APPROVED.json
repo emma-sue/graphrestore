@@ -1,0 +1,58 @@
+{
+  "additional_optimizer_steps": 8000,
+  "approved": true,
+  "authorized_pipeline": [
+    "stage4_extension_gate",
+    "stage4_extension",
+    "stage4_zero_training_diagnostics"
+  ],
+  "base_stage4_config": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/configs/stage4_graphrestore_e2e.yaml",
+    "sha256": "ef1f53623d9171d1e5a6b052ee6ef9230137e1b8555dbc17924620870ea99d71"
+  },
+  "base_stage4_run_contract": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/checkpoints/stage4/run_contract.json",
+    "sha256": "e478af05af9163e7e09ed1a524b617b944151e81d84dcea1c8709d00454daf2e"
+  },
+  "base_step": 40000,
+  "conditional": true,
+  "created_utc": "2026-08-19T16:40:00Z",
+  "cycles": 2,
+  "exact_resume": true,
+  "formal_mio100_authorized": false,
+  "further_extension_authorized": false,
+  "group_b_or_c_authorized": false,
+  "hard_terminal_step": 48000,
+  "kind": "stage4_extension_conditional_approval",
+  "lr_policy": "hold_original_cosine_floor_after_schedule_horizon",
+  "min_lr": 5e-07,
+  "preauthorization_ledger_prefix": {
+    "byte_length": 4063,
+    "path": "/root/autodl-tmp/aaa/graphrestore/artifacts/metrics/stage4_calibration_history.csv",
+    "sha256": "b0e40d40a8b7e455052d971653814e96bbe799665c5cd7ce74d1e5ebf184bbf7"
+  },
+  "protocol_id": "graphrestore-v7.1-agenticir-locked",
+  "reset_ema": false,
+  "reset_optimizer": false,
+  "reset_rng": false,
+  "reset_sampler": false,
+  "reset_scheduler": false,
+  "schedule_horizon_steps": 40000,
+  "schema_version": "graphrestore-stage4-extension-conditional-approval-v1",
+  "target_step": 48000,
+  "trigger_arithmetic": "decimal_exact_from_canonical_csv_strings",
+  "trigger_lhs_step": 40000,
+  "trigger_metric": "group_a_psnr",
+  "trigger_operator": "lhs_minus_rhs_greater_than_or_equal",
+  "trigger_rhs_step": 36000,
+  "trigger_threshold_decimal": "0.20",
+  "user_instruction_protocol": {
+    "path": "/root/autodl-tmp/aaa/graphrestore/reports/STAGE4_CONDITIONAL_EXTENSION_PROTOCOL.md",
+    "sha256": "c92e9919a2569ad5fe31770643d27b547d9dd5b9d0043581a82fc6fdbfc5cace"
+  },
+  "validation_every_steps": 4000,
+  "validation_steps": [
+    44000,
+    48000
+  ]
+}

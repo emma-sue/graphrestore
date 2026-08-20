@@ -1,7 +1,7 @@
 # GraphRestore V7.1 Data and Identity Audit
 
 - protocol: `graphrestore-v7.1-agenticir-locked`
-- created_utc: `2026-08-14T21:06:40Z`
+- created_utc: `2026-08-14T23:03:48Z`
 - result: **PASS**
 - failures: `0`
 - warnings: `0`
